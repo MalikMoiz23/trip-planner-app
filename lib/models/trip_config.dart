@@ -24,10 +24,13 @@ class TripConfig {
     required this.publicRatePerKm,
     required this.localTransportPerPersonDay,
     required this.roomOccupancy,
-    required this.stayTier,
-    required this.stayRatePerRoomNight,
-    required this.mealTier,
-    required this.mealRatePerPersonDay,
+    required this.stayStyle,
+    required this.stayRatePerUnitNight,
+    required this.foodStyle,
+    required this.pricePerMeal,
+    required this.mealsPerDay,
+    required this.campKitchenCost,
+    required this.fuelPriceIsDefault,
     required this.selectedAttractions,
     required this.bufferPercent,
     required this.tollsAndParking,
@@ -56,11 +59,27 @@ class TripConfig {
   /// Per person per day for taxis and rickshaws once you are there.
   final double localTransportPerPersonDay;
 
+  /// People sharing one room, or one tent when camping.
   final int roomOccupancy;
-  final StayTier stayTier;
-  final double stayRatePerRoomNight;
-  final MealTier mealTier;
-  final double mealRatePerPersonDay;
+  final StayStyle stayStyle;
+
+  /// Per room, or per tent when camping. Zero for an own tent.
+  final double stayRatePerUnitNight;
+
+  final FoodStyle foodStyle;
+
+  /// Per person, per meal.
+  final double pricePerMeal;
+
+  /// Meals counted in a day. Drives the food bill for every style.
+  final int mealsPerDay;
+
+  /// Stove, gas and utensils, once for the trip. Only when self-cooking.
+  final double campKitchenCost;
+
+  /// False once the fuel price has been typed in rather than inherited from the
+  /// bundled default, which is what lets the planner stop nagging about it.
+  final bool fuelPriceIsDefault;
 
   final List<Attraction> selectedAttractions;
   final double bufferPercent;
@@ -70,11 +89,22 @@ class TripConfig {
 
   int get nights => days > 1 ? days - 1 : 0;
 
+  /// Rooms, or tents when camping.
   int get rooms => persons <= 0 ? 0 : (persons / roomOccupancy).ceil();
 
   DateTime get endDate => startDate.add(Duration(days: days - 1));
 
   bool get isSelfDriving => mode == TravelMode.ownVehicle;
+
+  bool get isCamping => stayStyle.isCamping;
+
+  bool get isSelfCooking => foodStyle.needsKitchen;
+
+  /// Total meals bought or cooked across the whole trip.
+  int get totalMeals => days * persons * mealsPerDay;
+
+  /// The kitchen kit is only a cost if you are actually cooking.
+  double get effectiveKitchenCost => isSelfCooking ? campKitchenCost : 0;
 
   TripConfig copyWith({
     String? originName,
@@ -92,10 +122,13 @@ class TripConfig {
     double? publicRatePerKm,
     double? localTransportPerPersonDay,
     int? roomOccupancy,
-    StayTier? stayTier,
-    double? stayRatePerRoomNight,
-    MealTier? mealTier,
-    double? mealRatePerPersonDay,
+    StayStyle? stayStyle,
+    double? stayRatePerUnitNight,
+    FoodStyle? foodStyle,
+    double? pricePerMeal,
+    int? mealsPerDay,
+    double? campKitchenCost,
+    bool? fuelPriceIsDefault,
     List<Attraction>? selectedAttractions,
     double? bufferPercent,
     double? tollsAndParking,
@@ -117,10 +150,13 @@ class TripConfig {
         localTransportPerPersonDay:
             localTransportPerPersonDay ?? this.localTransportPerPersonDay,
         roomOccupancy: roomOccupancy ?? this.roomOccupancy,
-        stayTier: stayTier ?? this.stayTier,
-        stayRatePerRoomNight: stayRatePerRoomNight ?? this.stayRatePerRoomNight,
-        mealTier: mealTier ?? this.mealTier,
-        mealRatePerPersonDay: mealRatePerPersonDay ?? this.mealRatePerPersonDay,
+        stayStyle: stayStyle ?? this.stayStyle,
+        stayRatePerUnitNight: stayRatePerUnitNight ?? this.stayRatePerUnitNight,
+        foodStyle: foodStyle ?? this.foodStyle,
+        pricePerMeal: pricePerMeal ?? this.pricePerMeal,
+        mealsPerDay: mealsPerDay ?? this.mealsPerDay,
+        campKitchenCost: campKitchenCost ?? this.campKitchenCost,
+        fuelPriceIsDefault: fuelPriceIsDefault ?? this.fuelPriceIsDefault,
         selectedAttractions: selectedAttractions ?? this.selectedAttractions,
         bufferPercent: bufferPercent ?? this.bufferPercent,
         tollsAndParking: tollsAndParking ?? this.tollsAndParking,
@@ -142,10 +178,13 @@ class TripConfig {
         'publicRatePerKm': publicRatePerKm,
         'localTransportPerPersonDay': localTransportPerPersonDay,
         'roomOccupancy': roomOccupancy,
-        'stayTier': stayTier.name,
-        'stayRatePerRoomNight': stayRatePerRoomNight,
-        'mealTier': mealTier.name,
-        'mealRatePerPersonDay': mealRatePerPersonDay,
+        'stayStyle': stayStyle.name,
+        'stayRatePerUnitNight': stayRatePerUnitNight,
+        'foodStyle': foodStyle.name,
+        'pricePerMeal': pricePerMeal,
+        'mealsPerDay': mealsPerDay,
+        'campKitchenCost': campKitchenCost,
+        'fuelPriceIsDefault': fuelPriceIsDefault,
         'selectedAttractions': selectedAttractions.map((a) => a.toJson()).toList(),
         'bufferPercent': bufferPercent,
         'tollsAndParking': tollsAndParking,
@@ -168,10 +207,28 @@ class TripConfig {
         localTransportPerPersonDay:
             (j['localTransportPerPersonDay'] as num?)?.toDouble() ?? 800,
         roomOccupancy: (j['roomOccupancy'] as num?)?.toInt() ?? 2,
-        stayTier: StayTier.byName(j['stayTier'] as String?),
-        stayRatePerRoomNight: (j['stayRatePerRoomNight'] as num).toDouble(),
-        mealTier: MealTier.byName(j['mealTier'] as String?),
-        mealRatePerPersonDay: (j['mealRatePerPersonDay'] as num).toDouble(),
+
+        // Stay and food were three-step tiers before tents and cooking existed.
+        // A trip saved under that schema has to keep opening, so the old keys
+        // are read when the new ones are absent.
+        stayStyle: j['stayStyle'] != null
+            ? StayStyle.byName(j['stayStyle'] as String?)
+            : StayStyle.fromLegacyTier(j['stayTier'] as String?),
+        stayRatePerUnitNight: (j['stayRatePerUnitNight'] as num?)?.toDouble() ??
+            (j['stayRatePerRoomNight'] as num?)?.toDouble() ??
+            StayStyle.hotel.defaultRatePerUnitNight,
+        foodStyle: j['foodStyle'] != null
+            ? FoodStyle.byName(j['foodStyle'] as String?)
+            : FoodStyle.fromLegacyTier(j['mealTier'] as String?),
+        mealsPerDay: (j['mealsPerDay'] as num?)?.toInt() ?? 3,
+        // The old schema stored a daily food figure. Three meals a day is the
+        // assumption it was written under, so dividing by three recovers a
+        // per-meal price that reproduces the same total.
+        pricePerMeal: (j['pricePerMeal'] as num?)?.toDouble() ??
+            ((j['mealRatePerPersonDay'] as num?)?.toDouble() ?? 2800) / 3,
+        campKitchenCost: (j['campKitchenCost'] as num?)?.toDouble() ?? 0,
+        fuelPriceIsDefault: (j['fuelPriceIsDefault'] as bool?) ?? false,
+
         selectedAttractions: ((j['selectedAttractions'] as List?) ?? const [])
             .map((e) => Attraction.fromJson(e as Map<String, dynamic>))
             .toList(growable: false),

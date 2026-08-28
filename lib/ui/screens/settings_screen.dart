@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/app_constants.dart';
+import '../../core/formatters.dart';
 import '../../core/theme.dart';
 import '../../state/app_state.dart';
 import '../widgets/inputs.dart';
@@ -30,20 +31,38 @@ class SettingsScreen extends StatelessWidget {
               style: theme.textTheme.bodySmall,
             ),
             const SizedBox(height: 20),
-            const SectionHeader(title: 'Fuel'),
+            SectionHeader(
+              title: 'Fuel',
+              subtitle: app.fuelPriceIsCustom
+                  ? 'Your own figures — the planner will not second-guess them'
+                  : 'Still the rates this app shipped with, from '
+                      '${fullDate(AppDefaults.fuelPriceAsOf)}',
+            ),
+            if (!app.fuelPriceIsCustom) ...[
+              const InfoNote(
+                icon: Icons.local_gas_station_rounded,
+                text: 'Pakistan reprices petrol daily under the OGRA mechanism, so these '
+                    'go out of date within a day of release. Fuel is usually the largest '
+                    'single line in a road trip, so putting in the price you actually '
+                    'paid changes the total more than anything else on this screen.',
+              ),
+              const SizedBox(height: 14),
+            ],
             NumberField(
               label: 'Petrol',
               value: app.petrolPrice,
               prefix: 'Rs ',
               suffix: '/L',
+              decimals: 2,
               onChanged: app.setPetrolPrice,
             ),
             const SizedBox(height: 12),
             NumberField(
-              label: 'Diesel',
+              label: 'High-speed diesel',
               value: app.dieselPrice,
               prefix: 'Rs ',
               suffix: '/L',
+              decimals: 2,
               onChanged: app.setDieselPrice,
             ),
             const SizedBox(height: 22),

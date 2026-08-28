@@ -42,6 +42,15 @@ class StorageService {
   Future<double> petrolPrice() async =>
       (await _p).getDouble(PrefKeys.petrolPrice) ?? AppDefaults.petrolPricePerLitre;
 
+  /// True once a real pump price has been entered. Pakistan reprices petrol
+  /// daily, so this is what tells the planner whether it is still quoting its
+  /// own bundled figure and should say so.
+  Future<bool> hasCustomFuelPrice() async {
+    final prefs = await _p;
+    return prefs.containsKey(PrefKeys.petrolPrice) ||
+        prefs.containsKey(PrefKeys.dieselPrice);
+  }
+
   Future<double> dieselPrice() async =>
       (await _p).getDouble(PrefKeys.dieselPrice) ?? AppDefaults.dieselPricePerLitre;
 

@@ -12,7 +12,9 @@ import 'package:trip_planner/services/destination_repository.dart';
 import 'package:trip_planner/services/osrm_service.dart';
 import 'package:trip_planner/state/app_state.dart';
 import 'package:trip_planner/state/planner_controller.dart';
+import 'package:trip_planner/core/enums.dart';
 import 'package:trip_planner/ui/screens/destination_detail_screen.dart';
+import 'package:trip_planner/ui/screens/expense_detail_screen.dart';
 import 'package:trip_planner/ui/screens/explore_screen.dart';
 import 'package:trip_planner/ui/screens/planner_screen.dart';
 import 'package:trip_planner/ui/screens/saved_trips_screen.dart';
@@ -228,6 +230,88 @@ void main() {
           await tester.drag(find.byType(ListView), const Offset(0, -600));
           await tester.pump(const Duration(milliseconds: 200));
         }
+      });
+
+      testWidgets('the full expense detail lays out', (tester) async {
+        final state = buildState();
+        final naran = state.repository.byId('naran')!;
+        final planner = PlannerController(
+          repo: state.repository,
+          appState: state,
+          osrm: OsrmService(client: _DeadClient()),
+        )
+          ..origin = const LatLng(31.5497, 74.3436)
+          ..originName = 'Lahore';
+        planner.startFor(naran);
+        planner.setPersons(4);
+        planner.setDays(5);
+        planner.setMealsPerDay(3);
+        planner.selectAllCurated();
+        await planner.refreshRoute();
+
+        await tester.pumpWidget(host(state, const ExpenseDetailScreen(), planner: planner));
+        await tester.pump(const Duration(milliseconds: 400));
+
+        expect(find.text('What this is based on'), findsOneWidget);
+        await shot(tester, '11_detail_assumptions');
+
+        // Each panel has to be scrolled into existence before it can be found.
+        await tester.scrollUntilVisible(
+          find.byKey(const ValueKey('cost-panel-Food')),
+          500,
+          scrollable: find.byType(Scrollable).first,
+          maxScrolls: 60,
+        );
+        expect(find.byKey(const ValueKey('cost-panel-Food')), findsOneWidget);
+        await shot(tester, '12_detail_lines');
+
+        await tester.scrollUntilVisible(
+          find.byKey(const ValueKey('cost-panel-Contingency')),
+          600,
+          scrollable: find.byType(Scrollable).first,
+          maxScrolls: 60,
+        );
+
+        for (var i = 0; i < 8; i++) {
+          await tester.drag(find.byType(ListView), const Offset(0, -600));
+          await tester.pump(const Duration(milliseconds: 200));
+        }
+        expect(find.text('Per person per day'), findsOneWidget);
+        await shot(tester, '13_detail_total');
+      });
+
+      testWidgets('camping and self-cooking lay out and cost less', (tester) async {
+        final state = buildState();
+        final naran = state.repository.byId('naran')!;
+        final planner = PlannerController(
+          repo: state.repository,
+          appState: state,
+          osrm: OsrmService(client: _DeadClient()),
+        )
+          ..origin = const LatLng(31.5497, 74.3436)
+          ..originName = 'Lahore';
+        planner.startFor(naran);
+        await planner.refreshRoute();
+
+        final hotelTotal = planner.breakdown!.total;
+
+        planner.setStayStyle(StayStyle.ownTent);
+        planner.setFoodStyle(FoodStyle.selfCooking);
+        planner.goTo(3);
+
+        final campTotal = planner.breakdown!.total;
+        expect(campTotal, lessThan(hotelTotal),
+            reason: 'a tent you own and food you cook must come out cheaper');
+        expect(planner.breakdown!.stayCost, 0);
+
+        await tester.pumpWidget(host(state, const PlannerScreen(), planner: planner));
+        await tester.pump(const Duration(milliseconds: 400));
+        expect(find.text('Own tent'), findsWidgets);
+        await shot(tester, '14_comfort_camping');
+
+        await tester.drag(find.byType(Scrollable).first, const Offset(0, -900));
+        await tester.pump(const Duration(milliseconds: 300));
+        await shot(tester, '15_comfort_food_math');
       });
 
       testWidgets('saved trips empty state lays out', (tester) async {

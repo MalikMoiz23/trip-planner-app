@@ -186,16 +186,32 @@ class ItineraryBuilder {
     return result.take(days).toList(growable: false);
   }
 
-  static ItineraryItem _checkIn(TripConfig config) => ItineraryItem(
-        title: config.nights == 0 ? 'Turn around same day' : 'Check in',
-        subtitle: config.nights == 0
-            ? 'No overnight stay in this plan'
-            : '${plural(config.rooms, 'room', 'rooms')} at '
-                '${config.stayTier.label.toLowerCase()} rate, '
-                '${money(config.stayRatePerRoomNight)} per night',
-        icon: config.nights == 0 ? Icons.u_turn_left_rounded : Icons.hotel_rounded,
-        hours: 0,
-      );
+  static ItineraryItem _checkIn(TripConfig config) {
+    final unit = config.stayStyle.unitLabel;
+    final unitPlural = config.stayStyle.unitLabelPlural;
+    final String subtitle;
+    if (config.nights == 0) {
+      subtitle = 'No overnight stay in this plan';
+    } else if (config.stayRatePerUnitNight == 0) {
+      subtitle = '${plural(config.rooms, unit, unitPlural)}, '
+          '${config.stayStyle.label.toLowerCase()} — nothing to pay';
+    } else {
+      subtitle = '${plural(config.rooms, unit, unitPlural)} at '
+          '${config.stayStyle.label.toLowerCase()} rate, '
+          '${money(config.stayRatePerUnitNight)} per $unit per night';
+    }
+
+    return ItineraryItem(
+      title: config.nights == 0
+          ? 'Turn around same day'
+          : (config.isCamping ? 'Pitch camp' : 'Check in'),
+      subtitle: subtitle,
+      icon: config.nights == 0
+          ? Icons.u_turn_left_rounded
+          : (config.isCamping ? Icons.cabin_rounded : Icons.hotel_rounded),
+      hours: 0,
+    );
+  }
 
   static ItineraryDay _day(TripConfig config, int number, String title, List<ItineraryItem> items) =>
       ItineraryDay(

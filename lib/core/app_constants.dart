@@ -32,10 +32,18 @@ class AppDefaults {
   const AppDefaults._();
 
   // ---- Fuel -------------------------------------------------------------
-  // Pump prices move constantly. These are starting values only; the planner
-  // and the settings screen both expose them as editable fields.
-  static const double petrolPricePerLitre = 272.0;
-  static const double dieselPricePerLitre = 278.0;
+  // OGRA ex-depot rates effective 28 August 2026. Pakistan moved to daily
+  // petroleum pricing in August 2026, so these are stale within a day and the
+  // app treats them as a starting point that needs confirming, never as fact.
+  // Retail pump prices also vary by city.
+  static const double petrolPricePerLitre = 342.60;
+  static const double dieselPricePerLitre = 371.61;
+
+  /// When the two figures above were correct.
+  static final DateTime fuelPriceAsOf = DateTime(2026, 8, 28);
+
+  /// Past this, the planner stops trusting its own default and asks.
+  static const int fuelPriceStaleAfterDays = 3;
 
   // ---- Public transport --------------------------------------------------
   /// Intercity bus/van fare per person per kilometre.
@@ -50,6 +58,16 @@ class AppDefaults {
   static const int defaultRoomOccupancy = 2;
   static const double defaultBufferPercent = 10.0;
   static const double defaultTollsAndParking = 1500.0;
+
+  // ---- Food --------------------------------------------------------------
+  /// Breakfast, lunch and dinner. Tea and snacks are what the contingency is for.
+  static const int defaultMealsPerDay = 3;
+  static const int minMealsPerDay = 1;
+  static const int maxMealsPerDay = 6;
+
+  /// One-off cost of cooking for yourself: stove, a gas cylinder and utensils,
+  /// counted once for the whole trip rather than per meal.
+  static const double defaultCampKitchenCost = 3000.0;
 
   /// Used when a route has to be estimated instead of routed.
   static const double fallbackRoadFactor = 1.45;

@@ -2,11 +2,20 @@ import 'package:intl/intl.dart';
 
 final NumberFormat _grouped = NumberFormat('#,##0', 'en_US');
 final NumberFormat _grouped1dp = NumberFormat('#,##0.0', 'en_US');
+final NumberFormat _grouped2dp = NumberFormat('#,##0.00', 'en_US');
 final DateFormat _dayMonth = DateFormat('d MMM');
 final DateFormat _fullDate = DateFormat('EEE, d MMM yyyy');
 
 /// `Rs 128,400`
 String money(num value) => 'Rs ${_grouped.format(value.round())}';
+
+/// `Rs 342.60` — for unit prices, where rounding to the rupee hides a figure
+/// the user typed in themselves. Trailing `.00` is dropped.
+String moneyExact(num value) {
+  final rounded = (value * 100).round() / 100;
+  if (rounded == rounded.roundToDouble()) return money(rounded);
+  return 'Rs ${_grouped2dp.format(rounded)}';
+}
 
 /// `Rs 1.28 L` / `Rs 128.4 k` — for headline tiles where the full number is noise.
 String moneyCompact(num value) {

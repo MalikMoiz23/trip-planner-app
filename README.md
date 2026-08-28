@@ -22,7 +22,11 @@ backend anywhere in it.
   Adding a stop adds its detour distance, its tickets and its jeep or boat fare to
   the total.
 - **Full cost breakdown** — total, per person, per day, per person per day — with a
-  stacked bar and a value table showing where every rupee goes.
+  stacked bar and a value table, plus a dedicated "See every rupee" screen that
+  itemises each category with its inputs, its formula and its per-person share.
+- **Meals a day, and how you eat** — self-cooking, dhaba, restaurant or hotel dining,
+  priced per person per meal.
+- **Tents** — carry your own and accommodation costs nothing, or rent one per night.
 - **Day-by-day itinerary**, packing stops to a ceiling of 9 sightseeing hours a day
   and splitting the drive across two days when one leg runs past 9 hours.
 - **Advisories** — too few days for the plan, out-of-season month, 4x4 needed, more
@@ -74,18 +78,72 @@ point-to-point line would.
 
 ```
 totalKm      = 2 x oneWayKm + Σ (2 x detour to each chosen stop)
-fuel         = totalKm / mileage x pricePerLitre          (own vehicle)
+
+litres       = totalKm / average                          (average in km/L)
+fuel         = litres x pricePerLitre                     (own vehicle)
 transport    = (2 x oneWayKm) x ratePerKm x persons       (public transport)
-rooms        = ceil(persons / occupancy)
-stay         = (days - 1) x rooms x ratePerRoomNight
-food         = days x persons x ratePerPersonDay
+
+units        = ceil(persons / occupancy)                  (rooms, or tents)
+stay         = (days - 1) x units x ratePerUnitNight      (zero for an own tent)
+
+meals        = days x persons x mealsPerDay
+food         = meals x pricePerMeal (+ kitchen kit, if self-cooking)
+
 tickets      = Σ entryFee x persons
 localFares   = Σ jeepFare x persons  (+ a daily allowance on public transport)
+
 subtotal     = fuel/transport + stay + food + tickets + localFares + tolls
 total        = subtotal x (1 + buffer%)
 ```
 
-Everything else — per person, per day, per person per day — divides out of `total`.
+Everything else — per person, per day, per person per day, cost per kilometre —
+divides out of those.
+
+**Fuel** is derived, not guessed: the vehicle's average in km/L and the distance give
+the litres, and the litres times the pump price give the bill. All four numbers plus
+the resulting cost per kilometre are shown, because a fuel figure nobody can reproduce
+is a figure nobody should trust.
+
+**Food** is priced per person per meal, and the planner asks how many meals a day.
+That makes the meal count matter identically whether you are cooking or paying a
+restaurant:
+
+| Style | Default per person per meal |
+|---|---|
+| Self-cooking | Rs 350, plus Rs 3,000 once for a stove, gas and utensils |
+| Dhaba | Rs 600 |
+| Restaurant | Rs 1,200 |
+| Hotel dining | Rs 2,200 |
+
+The kitchen kit is only billed when the style actually needs it, so a stale figure
+left behind after switching away from cooking never leaks into the total.
+
+**Sleeping** has five options, and carrying your own tent is genuinely free rather
+than a cheap tier — accommodation drops out of the total entirely. Tents default to
+three people each, rooms to two, and the occupancy moves with the choice.
+
+| Style | Per unit per night | Sleeps |
+|---|---|---|
+| Own tent | Free | 3 |
+| Rented tent | Rs 2,500 | 3 |
+| Guest house | Rs 5,000 | 2 |
+| Hotel | Rs 11,000 | 2 |
+| Resort | Rs 25,000 | 2 |
+
+Camping above 3,000 m raises an advisory, because nights go below freezing there even
+in summer.
+
+## Fuel prices
+
+Ship defaults are the OGRA ex-depot rates effective **28 August 2026**: petrol
+**Rs 342.60/L**, high-speed diesel **Rs 371.61/L**.
+
+Pakistan moved to *daily* petroleum pricing in August 2026, so a figure baked into an
+app is wrong almost immediately. Rather than quietly using a stale number, the planner
+tracks whether the price is still its own default, and once the default has aged past
+three days it raises an advisory naming the date it was correct and asking you to check
+the pump. Entering your own price silences it permanently. Retail pump prices also vary
+by city, and these are ex-depot.
 
 ## Services used
 
@@ -137,7 +195,7 @@ immediately.
 
 ```bash
 flutter analyze             # 0 issues
-flutter test                # 59 tests
+flutter test                # 75 tests
 ```
 
 - `test/search_test.dart` — fuzzy matching, query relaxation, the rate estimator, and

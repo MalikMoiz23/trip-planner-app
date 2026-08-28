@@ -12,6 +12,7 @@ import '../widgets/cost_chart.dart';
 import '../widgets/primitives.dart';
 import '../widgets/trip_map.dart';
 import '../widgets/warning_card.dart';
+import 'expense_detail_screen.dart';
 import 'map_screen.dart';
 
 class SummaryScreen extends StatelessWidget {
@@ -137,7 +138,7 @@ class SummaryScreen extends StatelessWidget {
                   child: StatTile(
                     label: 'Fuel cost',
                     value: money(b.travelCost),
-                    caption: '${money(c.fuelPrice)} per litre',
+                    caption: '${moneyExact(c.fuelPrice)} per litre',
                     icon: Icons.payments_rounded,
                   ),
                 ),
@@ -198,8 +199,16 @@ class SummaryScreen extends StatelessWidget {
 
           const SizedBox(height: 20),
           FilledButton.icon(
+            onPressed: () => Navigator.of(context).push(
+              MaterialPageRoute(builder: (_) => const ExpenseDetailScreen()),
+            ),
+            icon: const Icon(Icons.receipt_long_rounded, size: 20),
+            label: const Text('See every rupee'),
+          ),
+          const SizedBox(height: 10),
+          OutlinedButton.icon(
             onPressed: () => _save(context),
-            icon: const Icon(Icons.bookmark_add_rounded, size: 20),
+            icon: const Icon(Icons.bookmark_add_rounded, size: 19),
             label: const Text('Save this trip'),
           ),
           const SizedBox(height: 10),

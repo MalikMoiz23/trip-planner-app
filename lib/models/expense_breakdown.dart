@@ -39,6 +39,7 @@ class ExpenseBreakdown {
     required this.attractionsKm,
     required this.totalKm,
     required this.litres,
+    required this.costPerKm,
     required this.oneWayDrive,
     required this.totalDriveTime,
     required this.routeEstimated,
@@ -56,6 +57,10 @@ class ExpenseBreakdown {
     required this.perPersonPerDay,
     required this.nights,
     required this.rooms,
+    required this.unitLabel,
+    required this.mealCount,
+    required this.mealsCost,
+    required this.kitchenCost,
     required this.sightseeingHours,
     required this.lines,
     required this.warnings,
@@ -68,6 +73,9 @@ class ExpenseBreakdown {
   final double attractionsKm;
   final double totalKm;
   final double litres;
+
+  /// What a kilometre actually costs on this trip, fuel or fare.
+  final double costPerKm;
 
   final Duration oneWayDrive;
   final Duration totalDriveTime;
@@ -90,7 +98,21 @@ class ExpenseBreakdown {
   final double perPersonPerDay;
 
   final int nights;
+
+  /// Rooms, or tents when camping.
   final int rooms;
+
+  /// "room" or "tent", so copy can name the unit correctly.
+  final String unitLabel;
+
+  /// Meals bought or cooked across the whole trip.
+  final int mealCount;
+
+  /// The meals alone, before any one-off kitchen kit.
+  final double mealsCost;
+
+  /// Stove, gas and utensils. Zero unless self-cooking.
+  final double kitchenCost;
   final double sightseeingHours;
 
   final List<ExpenseLine> lines;

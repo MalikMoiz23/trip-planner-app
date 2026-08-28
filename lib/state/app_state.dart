@@ -26,6 +26,10 @@ class AppState extends ChangeNotifier {
   double publicRatePerKm = AppDefaults.publicRatePerKm;
   String lastVehicleId = 'sedan';
 
+  /// False while fuel is still whatever the app shipped with. Pakistan reprices
+  /// petrol daily, so a plan built on the bundled figure gets an advisory.
+  bool fuelPriceIsCustom = false;
+
   bool get isReady => _ready;
   String? get error => _error;
   List<SavedTrip> get savedTrips => _savedTrips;
@@ -41,6 +45,7 @@ class AppState extends ChangeNotifier {
       dieselPrice = await storage.dieselPrice();
       publicRatePerKm = await storage.publicRate();
       lastVehicleId = await storage.lastVehicleId();
+      fuelPriceIsCustom = await storage.hasCustomFuelPrice();
       _savedTrips = await storage.loadTrips();
       _ready = true;
       _error = null;
@@ -56,12 +61,14 @@ class AppState extends ChangeNotifier {
 
   Future<void> setPetrolPrice(double v) async {
     petrolPrice = v;
+    fuelPriceIsCustom = true;
     await storage.setPetrolPrice(v);
     notifyListeners();
   }
 
   Future<void> setDieselPrice(double v) async {
     dieselPrice = v;
+    fuelPriceIsCustom = true;
     await storage.setDieselPrice(v);
     notifyListeners();
   }

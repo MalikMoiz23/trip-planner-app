@@ -75,11 +75,17 @@ class PlannerController extends ChangeNotifier {
 
   // ---- Comfort ----------------------------------------------------------
   int roomOccupancy = AppDefaults.defaultRoomOccupancy;
-  StayTier stayTier = StayTier.standard;
-  double stayRate = StayTier.standard.defaultRatePerRoomNight;
-  MealTier mealTier = MealTier.standard;
-  double mealRate = MealTier.standard.defaultRatePerPersonDay;
+  StayStyle stayStyle = StayStyle.hotel;
+  double stayRate = StayStyle.hotel.defaultRatePerUnitNight;
+  FoodStyle foodStyle = FoodStyle.restaurant;
+  double pricePerMeal = FoodStyle.restaurant.defaultPricePerMeal;
+  int mealsPerDay = AppDefaults.defaultMealsPerDay;
+  double campKitchenCost = AppDefaults.defaultCampKitchenCost;
   double bufferPercent = AppDefaults.defaultBufferPercent;
+
+  /// Cleared the moment the fuel price is typed in, which stops the planner
+  /// warning about a default the user has already replaced.
+  bool fuelPriceIsDefault = true;
 
   // ---- Stops ------------------------------------------------------------
   final Set<String> _selectedIds = {};
@@ -181,10 +187,13 @@ class PlannerController extends ChangeNotifier {
         publicRatePerKm: publicRatePerKm,
         localTransportPerPersonDay: localTransportPerPersonDay,
         roomOccupancy: roomOccupancy,
-        stayTier: stayTier,
-        stayRatePerRoomNight: stayRate,
-        mealTier: mealTier,
-        mealRatePerPersonDay: mealRate,
+        stayStyle: stayStyle,
+        stayRatePerUnitNight: stayRate,
+        foodStyle: foodStyle,
+        pricePerMeal: pricePerMeal,
+        mealsPerDay: mealsPerDay,
+        campKitchenCost: campKitchenCost,
+        fuelPriceIsDefault: fuelPriceIsDefault,
         selectedAttractions: selectedAttractions,
         bufferPercent: bufferPercent,
         tollsAndParking: tollsAndParking,
@@ -236,6 +245,7 @@ class PlannerController extends ChangeNotifier {
     mileage = preset.mileage;
     fuel = preset.fuel;
     fuelPrice = appState.priceFor(preset.fuel);
+    fuelPriceIsDefault = !appState.fuelPriceIsCustom;
     publicRatePerKm = appState.publicRatePerKm;
 
     notifyListeners();
@@ -340,6 +350,7 @@ class PlannerController extends ChangeNotifier {
 
   void setFuelPrice(double v) {
     fuelPrice = v;
+    fuelPriceIsDefault = false;
     notifyListeners();
   }
 
@@ -358,9 +369,12 @@ class PlannerController extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setStayTier(StayTier tier) {
-    stayTier = tier;
-    stayRate = tier.defaultRatePerRoomNight;
+  void setStayStyle(StayStyle style) {
+    stayStyle = style;
+    stayRate = style.defaultRatePerUnitNight;
+    // Tents and rooms hold different numbers of people, so the occupancy moves
+    // with the choice rather than stranding a stale value.
+    roomOccupancy = style.defaultOccupancy;
     notifyListeners();
   }
 
@@ -369,14 +383,24 @@ class PlannerController extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setMealTier(MealTier tier) {
-    mealTier = tier;
-    mealRate = tier.defaultRatePerPersonDay;
+  void setFoodStyle(FoodStyle style) {
+    foodStyle = style;
+    pricePerMeal = style.defaultPricePerMeal;
     notifyListeners();
   }
 
-  void setMealRate(double v) {
-    mealRate = v;
+  void setMealsPerDay(int value) {
+    mealsPerDay = value.clamp(AppDefaults.minMealsPerDay, AppDefaults.maxMealsPerDay);
+    notifyListeners();
+  }
+
+  void setCampKitchenCost(double v) {
+    campKitchenCost = v;
+    notifyListeners();
+  }
+
+  void setPricePerMeal(double v) {
+    pricePerMeal = v;
     notifyListeners();
   }
 
@@ -496,10 +520,13 @@ class PlannerController extends ChangeNotifier {
     publicRatePerKm = c.publicRatePerKm;
     localTransportPerPersonDay = c.localTransportPerPersonDay;
     roomOccupancy = c.roomOccupancy;
-    stayTier = c.stayTier;
-    stayRate = c.stayRatePerRoomNight;
-    mealTier = c.mealTier;
-    mealRate = c.mealRatePerPersonDay;
+    stayStyle = c.stayStyle;
+    stayRate = c.stayRatePerUnitNight;
+    foodStyle = c.foodStyle;
+    pricePerMeal = c.pricePerMeal;
+    mealsPerDay = c.mealsPerDay;
+    campKitchenCost = c.campKitchenCost;
+    fuelPriceIsDefault = c.fuelPriceIsDefault;
     bufferPercent = c.bufferPercent;
     tollsAndParking = c.tollsAndParking;
 

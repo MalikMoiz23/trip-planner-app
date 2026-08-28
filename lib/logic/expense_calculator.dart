@@ -60,34 +60,56 @@ class ExpenseCalculator {
 
     // ---- Travel -----------------------------------------------------------
     double litres = 0;
+    double costPerKm = 0;
     double travelCost;
     String travelDetail;
 
     if (config.isSelfDriving) {
+      // Average (km/L) and distance give litres; litres times the pump price
+      // gives the bill. Every one of those four numbers is surfaced, because a
+      // fuel figure nobody can reproduce is a figure nobody should trust.
       final mileage = config.mileage <= 0 ? 1 : config.mileage;
       litres = totalKm / mileage;
       travelCost = litres * config.fuelPrice;
-      travelDetail = '${km(totalKm)} round trip at ${config.mileage.toStringAsFixed(1)} km/L, '
-          '${litres.toStringAsFixed(1)} L of ${config.fuel.label.toLowerCase()} '
-          'at ${money(config.fuelPrice)}/L';
+      costPerKm = totalKm > 0 ? travelCost / totalKm : 0;
+      travelDetail = '${km(totalKm)} ÷ ${config.mileage.toStringAsFixed(1)} km/L '
+          '= ${litres.toStringAsFixed(1)} L, × ${moneyExact(config.fuelPrice)}/L '
+          '${config.fuel.label.toLowerCase()} — about ${money(costPerKm)} per km';
     } else {
       final intercityKm = oneWayKm + returnKm;
       travelCost = intercityKm * config.publicRatePerKm * persons;
-      travelDetail = '${km(intercityKm)} return by road at '
-          '${money(config.publicRatePerKm)}/km per person x $persons';
+      costPerKm = intercityKm > 0 ? travelCost / intercityKm : 0;
+      travelDetail = '${km(intercityKm)} return at '
+          '${money(config.publicRatePerKm)}/km per person × $persons people';
     }
 
     // ---- Stay -------------------------------------------------------------
-    final stayCost = nights * rooms * config.stayRatePerRoomNight;
-    final stayDetail = nights == 0
-        ? 'Day trip, no overnight stay'
-        : '${plural(nights, 'night', 'nights')} x '
-            '${plural(rooms, 'room', 'rooms')} at ${money(config.stayRatePerRoomNight)}/night';
+    final unit = config.stayStyle.unitLabel;
+    final unitPlural = config.stayStyle.unitLabelPlural;
+    final stayCost = nights * rooms * config.stayRatePerUnitNight;
+    final String stayDetail;
+    if (nights == 0) {
+      stayDetail = 'Day trip, no overnight stay';
+    } else if (config.stayRatePerUnitNight == 0) {
+      stayDetail = '${config.stayStyle.label}: '
+          '${plural(rooms, unit, unitPlural)} for ${plural(nights, 'night', 'nights')}, '
+          'nothing to pay';
+    } else {
+      stayDetail = '${plural(nights, 'night', 'nights')} × '
+          '${plural(rooms, unit, unitPlural)} × '
+          '${money(config.stayRatePerUnitNight)} per $unit per night';
+    }
 
-    // ---- Meals ------------------------------------------------------------
-    final mealCost = days * persons * config.mealRatePerPersonDay;
-    final mealDetail = '${plural(days, 'day', 'days')} x $persons people at '
-        '${money(config.mealRatePerPersonDay)} per person per day';
+    // ---- Food -------------------------------------------------------------
+    // Meals, not days: how many times a day you eat drives the bill, and it
+    // does so identically whether you are cooking or paying a restaurant.
+    final mealCount = days * persons * config.mealsPerDay;
+    final mealsCost = mealCount * config.pricePerMeal;
+    final kitchenCost = config.effectiveKitchenCost;
+    final mealDetail = '${plural(days, 'day', 'days')} × $persons '
+        '${persons == 1 ? 'person' : 'people'} × ${config.mealsPerDay} '
+        '${config.mealsPerDay == 1 ? 'meal' : 'meals'} a day = $mealCount meals, '
+        'at ${money(config.pricePerMeal)} each (${config.foodStyle.label.toLowerCase()})';
 
     // ---- Entries and site transport ---------------------------------------
     var entryPerPerson = 0.0;
@@ -125,6 +147,7 @@ class ExpenseCalculator {
         : 'Not applicable on public transport';
 
     // ---- Totals -----------------------------------------------------------
+    final mealCost = mealsCost + kitchenCost;
     final subtotal = travelCost + stayCost + mealCost + entryCost + localTransportCost + tollsCost;
     final bufferCost = subtotal * (config.bufferPercent / 100.0);
     final total = subtotal + bufferCost;
@@ -139,17 +162,21 @@ class ExpenseCalculator {
       ),
       ExpenseLine(
         slot: 1,
-        label: 'Accommodation',
+        label: config.isCamping ? 'Camping' : 'Accommodation',
         detail: stayDetail,
         amount: stayCost,
-        icon: Icons.hotel_rounded,
+        icon: config.isCamping ? Icons.cabin_rounded : Icons.hotel_rounded,
       ),
       ExpenseLine(
         slot: 2,
         label: 'Food',
-        detail: mealDetail,
+        detail: kitchenCost > 0
+            ? '$mealDetail, plus ${money(kitchenCost)} for a stove and gas'
+            : mealDetail,
         amount: mealCost,
-        icon: Icons.restaurant_rounded,
+        icon: config.isSelfCooking
+            ? Icons.local_fire_department_rounded
+            : Icons.restaurant_rounded,
       ),
       ExpenseLine(
         slot: 3,
@@ -187,6 +214,7 @@ class ExpenseCalculator {
       attractionsKm: attractionsKm,
       totalKm: totalKm,
       litres: litres,
+      costPerKm: costPerKm,
       oneWayDrive: outbound.duration,
       totalDriveTime: totalDriveTime,
       routeEstimated: routeEstimated,
@@ -204,6 +232,10 @@ class ExpenseCalculator {
       perPersonPerDay: total / (persons * days),
       nights: nights,
       rooms: rooms,
+      unitLabel: unit,
+      mealCount: mealCount,
+      mealsCost: mealsCost,
+      kitchenCost: kitchenCost,
       sightseeingHours: sightseeingHours,
       lines: lines,
       warnings: _warnings(
@@ -338,6 +370,42 @@ class ExpenseCalculator {
             '${n == 1 ? 'is' : 'are'} costed at what a place of that kind normally charges — '
             '${money(estimatedTotal)} of the total. Tap the pencil on any stop to put in a '
             'real figure.',
+      ));
+    }
+
+    // Pakistan prices petrol daily, so a bundled default is wrong almost
+    // immediately. Rather than quietly using a stale number, say how old it is.
+    if (config.isSelfDriving && config.fuelPriceIsDefault) {
+      final age = DateTime.now().difference(AppDefaults.fuelPriceAsOf).inDays;
+      if (age > AppDefaults.fuelPriceStaleAfterDays) {
+        out.add(TripWarning(
+          WarningLevel.caution,
+          'Confirm the fuel price',
+          'Fuel is still at the ${moneyExact(config.fuelPrice)}/L this app shipped with, '
+              'which was the rate on ${fullDate(AppDefaults.fuelPriceAsOf)} — '
+              '${plural(age, 'day', 'days')} ago. Pakistan reprices petrol daily, so '
+              'check the pump and put the real figure in; it moves the whole total.',
+        ));
+      }
+    }
+
+    if (config.isCamping && config.destination.altitudeM >= 3000) {
+      out.add(TripWarning(
+        WarningLevel.caution,
+        'Camping at ${config.destination.altitudeM} m',
+        'Nights go below freezing at this altitude even in summer. A three-season '
+            'tent and bag are not enough, and there may be no shelter to retreat to.',
+      ));
+    }
+
+    if (config.isSelfCooking) {
+      out.add(TripWarning(
+        WarningLevel.info,
+        'Cooking for yourself',
+        'Food is costed at ${money(config.pricePerMeal)} per person per meal for '
+            'groceries, plus ${money(config.campKitchenCost)} once for a stove and gas. '
+            'Buy supplies in the last proper town — village shops in the valleys are '
+            'small and dearer.',
       ));
     }
 
