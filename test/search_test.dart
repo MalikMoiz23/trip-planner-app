@@ -131,13 +131,72 @@ void main() {
     });
 
     test('finds the two places that originally failed', () {
-      final thandiani = repo.searchRanked('Thandyani Top');
+      // "Thandyani Top" names the viewpoint, which is now its own place; the
+      // hill station itself answers to "Thandyani".
+      final top = repo.searchRanked('Thandyani Top');
+      expect(top, isNotEmpty);
+      expect(top.first.destination.name, 'Thandiani Top');
+      expect(top.first.destination.parentName, 'Thandiani');
+
+      final thandiani = repo.searchRanked('Thandyani');
       expect(thandiani, isNotEmpty);
       expect(thandiani.first.destination.name, 'Thandiani');
+      expect(thandiani.first.destination.isSpot, isFalse);
 
+      // Panj Peer Rocks is somewhere you can go on its own, so the landmark
+      // itself must win — not the town that happens to contain it.
       final panjPeer = repo.searchRanked('Panj Peer Rocks');
       expect(panjPeer, isNotEmpty);
-      expect(panjPeer.first.matchedStop, 'Panj Peer Rocks');
+      expect(panjPeer.first.destination.name, 'Panj Peer Rocks');
+      expect(panjPeer.first.destination.isSpot, isTrue);
+      expect(panjPeer.first.destination.parentName, 'Murree');
+    });
+
+    test('every stop is plannable on its own', () {
+      expect(repo.towns.length, greaterThanOrEqualTo(30));
+      expect(repo.spots.length, greaterThanOrEqualTo(120));
+      expect(repo.all.length, repo.towns.length + repo.spots.length);
+
+      // Ids stay unique once stops join the same namespace as towns.
+      final ids = <String>{};
+      for (final place in repo.all) {
+        expect(ids.add(place.id), isTrue, reason: 'duplicate id ${place.id}');
+      }
+
+      // And each one resolves back through byId.
+      for (final place in repo.all) {
+        expect(repo.byId(place.id)?.name, place.name);
+      }
+    });
+
+    test('a promoted spot offers its town and siblings as its own stops', () {
+      final spot = repo.searchRanked('Panj Peer Rocks').first.destination;
+      final names = spot.attractions.map((a) => a.name).toList();
+
+      // The town it belongs to is reachable from it.
+      expect(names, contains('Murree'));
+      // As are the town's other stops.
+      expect(names, contains('Patriata (New Murree)'));
+      // But not itself.
+      expect(names, isNot(contains('Panj Peer Rocks')));
+
+      expect(repo.parentOf(spot)?.name, 'Murree');
+      expect(spot.roadFactor, repo.byId('murree')!.roadFactor);
+      expect(spot.bestMonths, repo.byId('murree')!.bestMonths);
+    });
+
+    test('filtering by kind narrows the pool', () {
+      final townsOnly = repo.searchRanked('', kind: PlaceKind.towns);
+      final spotsOnly = repo.searchRanked('', kind: PlaceKind.spots);
+
+      expect(townsOnly.every((h) => !h.destination.isSpot), isTrue);
+      expect(spotsOnly.every((h) => h.destination.isSpot), isTrue);
+      expect(townsOnly.length + spotsOnly.length, repo.all.length);
+
+      // Searching towns only still finds Murree via the stop it contains.
+      final viaTown = repo.searchRanked('Panj Peer Rocks', kind: PlaceKind.towns);
+      expect(viaTown.first.destination.name, 'Murree');
+      expect(viaTown.first.matchedStop, 'Panj Peer Rocks');
     });
 
     test('a listed alias is an exact match, an unlisted typo is approximate', () {
@@ -151,8 +210,8 @@ void main() {
       expect(guess.first.isApproximate, isTrue);
     });
 
-    test('a stop match explains itself', () {
-      final hits = repo.searchRanked('panjpeer');
+    test('a town matched through its contents still explains itself', () {
+      final hits = repo.searchRanked('panjpeer', kind: PlaceKind.towns);
       expect(hits.first.matchedStop, isNotNull,
           reason: 'the row must be able to say why Murree is the answer');
     });
@@ -180,21 +239,39 @@ void main() {
       });
     });
 
-    test('finds a destination by one of its stops', () {
+    test('a landmark query returns the landmark, and names its town', () {
+      // Each of these is a place someone might travel to for its own sake, so
+      // the spot outranks the town, and the town is still named on the result.
       const cases = {
-        'saiful malook': 'Naran',
-        'ratti gali': 'Neelum Valley (Keran)',
-        'attabad': 'Hunza (Karimabad)',
-        'deosai': 'Skardu',
-        'derawar fort': 'Bahawalpur & Cholistan',
-        'katas raj': 'Katas Raj & Kallar Kahar',
-        'toli peer': 'Rawalakot',
-        'makli': 'Thatta & Keenjhar',
+        'saiful malook': ('Lake Saif-ul-Malook', 'Naran'),
+        'ratti gali': ('Ratti Gali Lake', 'Neelum Valley (Keran)'),
+        'attabad': ('Attabad Lake', 'Hunza (Karimabad)'),
+        'deosai': ('Deosai National Park', 'Skardu'),
+        'derawar fort': ('Derawar Fort', 'Bahawalpur & Cholistan'),
+        'toli peer': ('Toli Peer', 'Rawalakot'),
+        'makli': ('Makli Necropolis', 'Thatta & Keenjhar'),
+        'katora lake': ('Katora Lake', 'Kumrat Valley'),
       };
       cases.forEach((query, expected) {
         final hits = repo.searchRanked(query);
         expect(hits, isNotEmpty, reason: 'no hit for "$query"');
+        expect(hits.first.destination.name, expected.$1, reason: 'for query "$query"');
+        expect(hits.first.destination.parentName, expected.$2,
+            reason: 'for query "$query"');
+      });
+    });
+
+    test('a town query still returns the town', () {
+      const cases = {
+        'naran': 'Naran',
+        'hunza': 'Hunza (Karimabad)',
+        'skardu': 'Skardu',
+        'katas raj': 'Katas Raj & Kallar Kahar',
+      };
+      cases.forEach((query, expected) {
+        final hits = repo.searchRanked(query);
         expect(hits.first.destination.name, expected, reason: 'for query "$query"');
+        expect(hits.first.destination.isSpot, isFalse, reason: 'for query "$query"');
       });
     });
 

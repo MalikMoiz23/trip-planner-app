@@ -9,6 +9,16 @@ import '../models/destination.dart';
 import 'nominatim_service.dart';
 import 'overpass_service.dart';
 
+/// Which half of the catalogue to look at.
+enum PlaceKind {
+  all('All places'),
+  towns('Base towns'),
+  spots('Individual spots');
+
+  const PlaceKind(this.label);
+  final String label;
+}
+
 /// One ranked search result.
 class SearchHit {
   const SearchHit({
@@ -47,16 +57,39 @@ class DestinationRepository {
   final OverpassService _overpass;
 
   final List<Destination> _destinations = [];
+
+  /// Every stop, promoted to a place you can plan a trip to on its own.
+  final List<Destination> _spots = [];
+
   String _dataNote = '';
   bool _loaded = false;
 
-  List<Destination> get all => List.unmodifiable(_destinations);
+  /// Base towns only.
+  List<Destination> get towns => List.unmodifiable(_destinations);
+
+  /// Individual landmarks, each plannable in its own right.
+  List<Destination> get spots => List.unmodifiable(_spots);
+
+  /// Everything, towns first.
+  List<Destination> get all => List.unmodifiable([..._destinations, ..._spots]);
+
   String get dataNote => _dataNote;
   bool get isLoaded => _loaded;
 
+  /// Spots are flattened onto the same canonical categories as towns, so this
+  /// stays a short chip row rather than one chip per stop type.
   List<String> get categories {
-    final set = <String>{for (final d in _destinations) d.category};
-    final ordered = ['Mountains', 'Valleys', 'Hills', 'Beaches', 'Historical', 'City'];
+    final set = <String>{for (final d in all) d.category};
+    final ordered = [
+      'Mountains',
+      'Valleys',
+      'Hills',
+      'Lakes',
+      'Beaches',
+      'Historical',
+      'City',
+      'Desert',
+    ];
     final out = ordered.where(set.contains).toList();
     out.addAll(set.where((c) => !out.contains(c)));
     return out;
@@ -71,6 +104,16 @@ class DestinationRepository {
       ..clear()
       ..addAll(((map['destinations'] as List?) ?? const [])
           .map((e) => Destination.fromJson(e as Map<String, dynamic>)));
+
+    // Each curated stop also stands alone. Derived here rather than stored, so
+    // the JSON keeps one copy of every fee.
+    _spots
+      ..clear()
+      ..addAll([
+        for (final town in _destinations)
+          for (final stop in town.attractions) Destination.fromStop(stop, town),
+      ]);
+
     _loaded = true;
   }
 
@@ -78,8 +121,15 @@ class DestinationRepository {
     for (final d in _destinations) {
       if (d.id == id) return d;
     }
+    for (final s in _spots) {
+      if (s.id == id) return s;
+    }
     return null;
   }
+
+  /// The town a spot belongs to, or null for a town.
+  Destination? parentOf(Destination d) =>
+      d.parentId == null ? null : byId(d.parentId!);
 
   /// Typo-tolerant search over destination names, aliases, regions, categories
   /// and the names of the stops inside each destination.
@@ -88,14 +138,20 @@ class DestinationRepository {
   /// A stop match carries the stop's name back out so the row can explain
   /// itself — searching "panj peer rocks" surfaces Murree, and without that
   /// note the result looks like a mistake.
-  List<SearchHit> searchRanked(String query) {
+  List<SearchHit> searchRanked(String query, {PlaceKind kind = PlaceKind.all}) {
+    final pool = switch (kind) {
+      PlaceKind.all => all,
+      PlaceKind.towns => towns,
+      PlaceKind.spots => spots,
+    };
+
     final q = query.trim();
     if (q.isEmpty) {
-      return all.map((d) => SearchHit(destination: d, score: 1)).toList(growable: false);
+      return pool.map((d) => SearchHit(destination: d, score: 1)).toList(growable: false);
     }
 
     final hits = <SearchHit>[];
-    for (final d in _destinations) {
+    for (final d in pool) {
       final direct = scoreLabels(q, d.searchLabels);
       var best = direct.score;
       String? matchedStop;
@@ -104,14 +160,21 @@ class DestinationRepository {
       final contextScore = scoreLabels(q, [d.region, d.province, d.category]).score * 0.82;
       if (contextScore > best) best = contextScore;
 
-      for (final a in d.attractions) {
-        final stop = scoreLabels(q, a.searchLabels);
-        // Slightly discounted: the destination itself is the better answer when
-        // both match about equally well.
-        final scaled = stop.score * 0.97;
-        if (scaled > best) {
-          best = scaled;
-          matchedStop = a.name;
+      // A town also matches on what it contains, discounted so that the stop
+      // itself outranks the town holding it.
+      //
+      // Only a town, though. A promoted spot carries its neighbours in the same
+      // field, and they are options to add once you are there, not things it
+      // contains — Ayubia does not "have" Panj Peer Rocks, and saying so put
+      // every sibling into the results for a query about one of them.
+      if (!d.isSpot) {
+        for (final a in d.attractions) {
+          final stop = scoreLabels(q, a.searchLabels);
+          final scaled = stop.score * 0.90;
+          if (scaled > best) {
+            best = scaled;
+            matchedStop = a.name;
+          }
         }
       }
 

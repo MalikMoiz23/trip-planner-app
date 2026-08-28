@@ -9,10 +9,12 @@ backend anywhere in it.
 
 ## What it does
 
-- **32 curated destinations** with 132 nearby stops — Naran, Hunza, Skardu, Fairy
-  Meadows, Swat, Kumrat, Neelum, Chitral, Thandiani, Rawalakot, Phander, Khaplu,
-  Bahawalpur, Thatta, Gwadar and more — each with coordinates, altitude, best months,
-  terrain notes, entry fees and visit durations.
+- **164 places, every one plannable on its own** — 32 base towns (Naran, Hunza,
+  Skardu, Fairy Meadows, Swat, Kumrat, Neelum, Chitral, Thandiani, Rawalakot, Phander,
+  Khaplu, Bahawalpur, Thatta, Gwadar and more) plus the 132 individual landmarks
+  inside them. Panj Peer Rocks is somewhere you can drive to and go nowhere else, so
+  it is a destination in its own right, not only a side trip from Murree. See
+  [Towns and spots](#towns-and-spots).
 - **Typo-tolerant search** across all four provinces plus GB and AJK. "Thandyaani
   top", "panjpeer", "muree", "neelam valley" and "skardo" all land on the right
   place. See [Search](#search) for how.
@@ -34,6 +36,26 @@ backend anywhere in it.
   estimated rather than curated prices.
 - **Saved trips**, stored locally with the exact rates they were costed under.
 
+## Towns and spots
+
+A landmark is not only a side trip. Someone may drive out to Panj Peer Rocks, look at
+the view, and go home — so every curated stop is also a destination you can plan a
+whole trip to, with its own distance, fuel, nights and meals.
+
+Those 132 spots are **derived at load time, not duplicated in the JSON**. There is one
+copy of every fee, so a price cannot drift between two records. A promoted spot
+inherits its town's road factor, season and province, takes its own coordinates,
+4x4 flag and category, and gets its town plus that town's other stops as *its* nearby
+options — so from Panj Peer Rocks you can still add Murree.
+
+Explore has an All / Towns / Spots filter. Search covers everything either way, and
+ranks the landmark above the town that contains it: "panj peer rocks" returns Panj
+Peer Rocks first, then Murree labelled *has Panj Peer Rocks*.
+
+A town matches on what it contains; a spot matches only on its own name. That
+distinction matters — a spot carries its neighbours in the same field, and treating
+those as contents put every sibling into the results for a query about one of them.
+
 ## Search
 
 Romanised Urdu has no single agreed spelling, and the public geocoder matches
@@ -41,9 +63,10 @@ near-exactly. Measured against Nominatim directly:
 
 | Query | Nominatim alone | This app |
 |---|---|---|
-| `Thandyani Top` | 0 results | Thandiani |
-| `Panj Peer Rocks` | 0 results | Murree — *has Panj Peer Rocks* |
-| `Panj Pir` | 1, Urdu name only (`پنج پیر`) | Murree — *has Panj Peer Rocks* |
+| `Thandyani Top` | 0 results | Thandiani Top, the viewpoint |
+| `Thandyani` | 0 results | Thandiani, the hill station |
+| `Panj Peer Rocks` | 0 results | Panj Peer Rocks itself |
+| `Panj Pir` | 1, Urdu name only (`پنج پیر`) | Panj Peer Rocks itself |
 
 Three mechanisms, cheapest first:
 
@@ -65,9 +88,14 @@ Rocks, but blind shortening turns "Neela Sandh Waterfall" into "Neela" and retur
 *Neela Botho*, a different place. Hits from a rewritten query must still score
 against what was typed, and the UI states which query it actually ran.
 
-Matching against a stop rather than a destination is labelled — searching
-"panj peer rocks" returns Murree with *has Panj Peer Rocks* under it, because an
-unexplained result reads as a bug.
+When a town surfaces because of something inside it rather than its own name, the row
+says so — Murree appears under Panj Peer Rocks labelled *has Panj Peer Rocks*, because
+an unexplained result reads as a bug.
+
+Aliases are held at the level they actually name. "Makli" belongs to Makli Necropolis,
+not to the Thatta entry that contains it, and "Thandyani Top" to the viewpoint rather
+than the hill station — otherwise the town outranks the landmark for a query that names
+the landmark.
 
 ## The cost model
 
@@ -195,7 +223,7 @@ immediately.
 
 ```bash
 flutter analyze             # 0 issues
-flutter test                # 75 tests
+flutter test                # 79 tests
 ```
 
 - `test/search_test.dart` — fuzzy matching, query relaxation, the rate estimator, and

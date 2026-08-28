@@ -22,7 +22,10 @@ class Destination {
     required this.highlights,
     required this.attractions,
     this.aliases = const [],
-  });
+    this.parentId,
+    this.parentName,
+    String? iconCategory,
+  }) : _iconCategory = iconCategory;
 
   final String id;
   final String name;
@@ -48,12 +51,28 @@ class Destination {
   /// Alternate romanisations, so search finds the place however it is spelled.
   final List<String> aliases;
 
+  /// Set when this place is a single spot promoted out of a base town, rather
+  /// than a town in its own right. Panj Peer Rocks is somewhere you can go on
+  /// its own, so it has to be plannable on its own — but it is still worth
+  /// knowing it sits near Murree.
+  final String? parentId;
+  final String? parentName;
+
+  /// The stop's own category, kept for the icon. [category] is flattened to one
+  /// of the canonical set so the filter chips stay a short list.
+  final String? _iconCategory;
+
+  String get iconCategory => _iconCategory ?? category;
+
+  bool get isSpot => parentId != null;
+
   /// Name plus every alternate spelling — what fuzzy search scores against.
   List<String> get searchLabels => [name, ...aliases];
 
   LatLng get point => LatLng(lat, lng);
 
-  String get subtitle => '$region, $province';
+  String get subtitle =>
+      province.isEmpty ? region : (region.isEmpty ? province : '$region, $province');
 
   bool inSeason(DateTime when) => bestMonths.contains(when.month);
 
@@ -84,6 +103,9 @@ class Destination {
         aliases: ((j['aliases'] as List?) ?? const [])
             .map((e) => e as String)
             .toList(growable: false),
+        parentId: j['parentId'] as String?,
+        parentName: j['parentName'] as String?,
+        iconCategory: j['iconCategory'] as String?,
       );
 
   Map<String, dynamic> toJson() => {
@@ -105,7 +127,91 @@ class Destination {
         'highlights': highlights,
         'attractions': attractions.map((a) => a.toJson()).toList(),
         'aliases': aliases,
+        'parentId': parentId,
+        'parentName': parentName,
+        'iconCategory': _iconCategory,
       };
+
+  /// Promotes a single stop to a place you can plan a trip to directly.
+  ///
+  /// A landmark is not only a side trip from a town: someone may drive out to
+  /// Panj Peer Rocks and go nowhere else. So every stop becomes a destination
+  /// whose base is the landmark itself, with the town it belongs to and that
+  /// town's other stops offered as its nearby options.
+  ///
+  /// Derived rather than duplicated in the JSON, so there is one place to edit
+  /// a fee and no chance of the two copies drifting apart.
+  factory Destination.fromStop(Attraction stop, Destination parent) {
+    final siblings = parent.attractions.where((a) => a.id != stop.id).toList();
+
+    // The town itself becomes one of the options, since anyone standing at the
+    // landmark is within reach of it.
+    final town = Attraction(
+      id: 'town-${parent.id}',
+      name: parent.name,
+      category: parent.category,
+      lat: parent.lat,
+      lng: parent.lng,
+      description: parent.tagline.isEmpty
+          ? 'The main town for this area.'
+          : parent.tagline,
+      visitHours: 3,
+      aliases: parent.aliases,
+    );
+
+    return Destination(
+      // Namespaced: stop ids are only unique inside their own town.
+      id: '${parent.id}.${stop.id}',
+      name: stop.name,
+      region: 'Near ${parent.name}',
+      province: parent.province,
+      category: _canonicalCategory(stop.category, parent.category),
+      iconCategory: stop.category,
+      lat: stop.lat,
+      lng: stop.lng,
+      altitudeM: 0, // not recorded per stop
+      // A long day out needs two days once the drive is added; the planner's
+      // own suggestion refines this from the routed distance.
+      recommendedDays: stop.visitHours >= 8 ? 2 : 1,
+      roadFactor: parent.roadFactor,
+      requires4x4: stop.requires4x4,
+      difficulty: stop.requires4x4 ? 'Moderate' : parent.difficulty,
+      bestMonths: parent.bestMonths,
+      tagline: '${stop.category} near ${parent.name}',
+      description: stop.description,
+      highlights: const [],
+      attractions: [town, ...siblings],
+      aliases: stop.aliases,
+      parentId: parent.id,
+      parentName: parent.name,
+    );
+  }
+
+  /// Flattens a stop's category onto the canonical set the filter chips and the
+  /// gradients use, falling back to whatever the parent town is.
+  static String _canonicalCategory(String stopCategory, String parentCategory) {
+    switch (stopCategory) {
+      case 'Lake':
+      case 'Spring':
+      case 'River':
+      case 'Waterfall':
+        return 'Lakes';
+      case 'Beach':
+      case 'Island':
+        return 'Beaches';
+      case 'Historical':
+      case 'Culture':
+      case 'Bazaar':
+      case 'Food':
+        return 'Historical';
+      case 'Desert':
+        return 'Desert';
+      case 'Valley':
+        return 'Valleys';
+      default:
+        return parentCategory;
+    }
+  }
 
   /// Builds a destination out of a free-text geocoder hit, so a place that is
   /// not in the bundled dataset can still be planned for.
@@ -159,5 +265,8 @@ class Destination {
         highlights: highlights,
         attractions: list,
         aliases: aliases,
+        parentId: parentId,
+        parentName: parentName,
+        iconCategory: _iconCategory,
       );
 }

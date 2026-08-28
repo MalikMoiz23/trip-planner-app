@@ -14,12 +14,19 @@ class DestinationPlate extends StatelessWidget {
   const DestinationPlate({
     super.key,
     required this.category,
+    this.iconCategory,
     this.borderRadius = AppRadius.md,
     this.child,
     this.watermarkSize = 150,
   });
 
+  /// Drives the gradient. Always one of the canonical set.
   final String category;
+
+  /// Drives the watermark glyph. A promoted stop keeps its own kind — a
+  /// waterfall gets a waterfall, not its parent valley's mountain.
+  final String? iconCategory;
+
   final BorderRadius borderRadius;
   final Widget? child;
   final double watermarkSize;
@@ -45,7 +52,7 @@ class DestinationPlate extends StatelessWidget {
             right: -watermarkSize * 0.18,
             bottom: -watermarkSize * 0.22,
             child: Icon(
-              AppColors.iconFor(category),
+              AppColors.iconFor(iconCategory ?? category),
               size: watermarkSize,
               color: Colors.white.withValues(alpha: 0.10),
             ),
@@ -182,6 +189,7 @@ class DestinationRow extends StatelessWidget {
             height: 84,
             child: DestinationPlate(
               category: d.category,
+              iconCategory: d.iconCategory,
               watermarkSize: 74,
               child: Align(
                 alignment: Alignment.bottomLeft,
@@ -256,7 +264,18 @@ class DestinationRow extends StatelessWidget {
                       icon: inSeason ? Icons.check_circle_rounded : Icons.ac_unit_rounded,
                       color: inSeason ? AppColors.success : AppColors.caution,
                     ),
-                    PillTag(label: '${d.recommendedDays} days', icon: Icons.event_rounded),
+                    PillTag(
+                      label: plural(d.recommendedDays, 'day', 'days'),
+                      icon: Icons.event_rounded,
+                    ),
+                    // A promoted stop says where it is, since its name alone
+                    // rarely places it on a map.
+                    if (d.isSpot)
+                      PillTag(
+                        label: 'near ${d.parentName}',
+                        icon: Icons.near_me_rounded,
+                        color: AppColors.primary,
+                      ),
                     if (d.altitudeM > 0)
                       PillTag(label: '${d.altitudeM} m', icon: Icons.terrain_rounded),
                     if (d.requires4x4)

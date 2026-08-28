@@ -7,7 +7,9 @@ import '../../core/theme.dart';
 import '../../models/destination.dart';
 import '../../services/nominatim_service.dart';
 import '../../state/app_state.dart';
+import '../../services/destination_repository.dart';
 import '../widgets/destination_card.dart';
+import '../widgets/inputs.dart';
 import '../widgets/primitives.dart';
 import 'destination_detail_screen.dart';
 
@@ -24,6 +26,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
 
   String _query = '';
   String? _category;
+  PlaceKind _kind = PlaceKind.all;
   List<PlaceHit> _remoteHits = const [];
   bool _searchingRemote = false;
 
@@ -80,7 +83,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
     final app = context.watch<AppState>();
     final theme = Theme.of(context);
 
-    var results = app.repository.searchRanked(_query);
+    var results = app.repository.searchRanked(_query, kind: _kind);
     if (_category != null) {
       results = results
           .where((h) => h.destination.category == _category)
@@ -97,9 +100,10 @@ class _ExploreScreenState extends State<ExploreScreen> {
           slivers: [
             SliverToBoxAdapter(child: _header(theme)),
             SliverToBoxAdapter(child: _searchBar()),
+            SliverToBoxAdapter(child: _kindFilter()),
             if (_query.isEmpty) ...[
               SliverToBoxAdapter(child: _categoryChips(app)),
-              if (_category == null)
+              if (_category == null && _kind != PlaceKind.spots)
                 SliverToBoxAdapter(child: _featured(app)),
             ],
             SliverPadding(
@@ -112,7 +116,8 @@ class _ExploreScreenState extends State<ExploreScreen> {
                   subtitle: approximate
                       ? 'Nothing spelled exactly like that — closest matches first'
                       : '${results.length} '
-                          '${results.length == 1 ? 'place' : 'places'} in the built-in guide',
+                          '${results.length == 1 ? 'place' : 'places'}, each one you '
+                          'can plan a trip to on its own',
                   actionLabel: _category != null ? 'Clear' : null,
                   onAction: () => setState(() => _category = null),
                 ),
@@ -184,6 +189,27 @@ class _ExploreScreenState extends State<ExploreScreen> {
                     },
                   ),
           ),
+        ),
+      );
+
+  /// Towns and individual landmarks are both plannable, but browsing a mixed
+  /// list of 164 is noisy — so the split is one tap away rather than implicit.
+  Widget _kindFilter() => Padding(
+        padding: const EdgeInsets.fromLTRB(20, 0, 20, 14),
+        child: SegmentedChoice<PlaceKind>(
+          options: PlaceKind.values,
+          value: _kind,
+          onChanged: (k) => setState(() => _kind = k),
+          labelOf: (k) => switch (k) {
+            PlaceKind.all => 'All',
+            PlaceKind.towns => 'Towns',
+            PlaceKind.spots => 'Spots',
+          },
+          iconOf: (k) => switch (k) {
+            PlaceKind.all => Icons.apps_rounded,
+            PlaceKind.towns => Icons.location_city_rounded,
+            PlaceKind.spots => Icons.place_rounded,
+          },
         ),
       );
 

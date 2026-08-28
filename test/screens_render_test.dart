@@ -127,7 +127,7 @@ void main() {
         await shot(tester, '01b_search_typo');
       });
 
-      testWidgets('a search matching a stop says which one', (tester) async {
+      testWidgets('a landmark is its own result, and says where it is', (tester) async {
         final state = buildState();
         await tester.pumpWidget(host(state, const ExploreScreen()));
         await tester.pump(const Duration(milliseconds: 300));
@@ -135,8 +135,9 @@ void main() {
         await tester.enterText(find.byType(TextField).first, 'panj peer rocks');
         await tester.pump(const Duration(milliseconds: 300));
 
-        expect(find.text('Murree'), findsWidgets);
-        expect(find.text('has Panj Peer Rocks'), findsWidgets);
+        // The landmark itself, not the town that happens to contain it.
+        expect(find.text('Panj Peer Rocks'), findsWidgets);
+        expect(find.text('near Murree'), findsWidgets);
         await shot(tester, '01c_search_stop_match');
       });
 

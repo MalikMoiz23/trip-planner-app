@@ -69,7 +69,7 @@ class StepComfort extends StatelessWidget {
           )
         else
           NumberField(
-            label: 'Your ${unit} rate',
+            label: 'Your $unit rate',
             value: c.stayRate,
             prefix: 'Rs ',
             suffix: '/night',
@@ -78,7 +78,7 @@ class StepComfort extends StatelessWidget {
         const SizedBox(height: 10),
         CounterRow(
           label: 'People per $unit',
-          caption: 'Decides how many ${unitPlural} you need',
+          caption: 'Decides how many $unitPlural you need',
           icon: c.stayStyle.isCamping ? Icons.cabin_rounded : Icons.bed_rounded,
           value: c.roomOccupancy,
           min: 1,
