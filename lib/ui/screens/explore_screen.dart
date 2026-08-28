@@ -47,7 +47,9 @@ class _ExploreScreenState extends State<ExploreScreen> {
 
   Future<void> _searchRemote(String value) async {
     final app = context.read<AppState>();
-    if (value.trim().length < 3 || app.repository.search(value).isNotEmpty) return;
+    // Only reach for the network when fuzzy matching over the built-in guide
+    // found nothing — most misspellings are resolved locally and instantly.
+    if (value.trim().length < 3 || app.repository.hasLocalMatch(value)) return;
     setState(() => _searchingRemote = true);
     final hits = await app.repository.searchRemote(value);
     if (!mounted) return;
@@ -78,10 +80,15 @@ class _ExploreScreenState extends State<ExploreScreen> {
     final app = context.watch<AppState>();
     final theme = Theme.of(context);
 
-    var results = app.repository.search(_query);
+    var results = app.repository.searchRanked(_query);
     if (_category != null) {
-      results = results.where((d) => d.category == _category).toList(growable: false);
+      results = results
+          .where((h) => h.destination.category == _category)
+          .toList(growable: false);
     }
+    final approximate = _query.trim().isNotEmpty &&
+        results.isNotEmpty &&
+        results.first.isApproximate;
 
     return Scaffold(
       body: SafeArea(
@@ -102,8 +109,10 @@ class _ExploreScreenState extends State<ExploreScreen> {
                   title: _query.isEmpty
                       ? (_category ?? 'All destinations')
                       : 'Results for "$_query"',
-                  subtitle: '${results.length} '
-                      '${results.length == 1 ? 'place' : 'places'} in the built-in guide',
+                  subtitle: approximate
+                      ? 'Nothing spelled exactly like that — closest matches first'
+                      : '${results.length} '
+                          '${results.length == 1 ? 'place' : 'places'} in the built-in guide',
                   actionLabel: _category != null ? 'Clear' : null,
                   onAction: () => setState(() => _category = null),
                 ),
@@ -114,10 +123,16 @@ class _ExploreScreenState extends State<ExploreScreen> {
               sliver: SliverList.separated(
                 itemCount: results.length,
                 separatorBuilder: (_, _) => const SizedBox(height: 10),
-                itemBuilder: (context, i) => DestinationRow(
-                  destination: results[i],
-                  onTap: () => _openDestination(results[i]),
-                ),
+                itemBuilder: (context, i) {
+                  final hit = results[i];
+                  return DestinationRow(
+                    destination: hit.destination,
+                    matchNote: hit.matchedStop == null
+                        ? null
+                        : 'has ${hit.matchedStop}',
+                    onTap: () => _openDestination(hit.destination),
+                  );
+                },
               ),
             ),
             if (_query.trim().length >= 3)
@@ -255,12 +270,19 @@ class _ExploreScreenState extends State<ExploreScreen> {
           : const SizedBox.shrink();
     }
 
+    // If the query had to be rewritten to get any hits at all, say what was
+    // actually searched. Silently answering a different question is worse than
+    // returning nothing.
+    final via = _remoteHits.first.viaQuery;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SectionHeader(
+        SectionHeader(
           title: 'From OpenStreetMap',
-          subtitle: 'Not in the guide, so costs start at zero and you fill them in',
+          subtitle: via == null
+              ? 'Not in the guide, so stops are priced at typical rates you can edit'
+              : 'Nothing matched "$_query", so this searched for "$via" instead',
         ),
         ...(_remoteHits.map((hit) => Padding(
               padding: const EdgeInsets.only(bottom: 8),

@@ -9,9 +9,13 @@ backend anywhere in it.
 
 ## What it does
 
-- **19 curated destinations** with 84 nearby stops — Naran, Hunza, Skardu, Fairy
-  Meadows, Swat, Kumrat, Neelum, Chitral, Gwadar and more — each with coordinates,
-  altitude, best months, terrain notes, entry fees and visit durations.
+- **32 curated destinations** with 132 nearby stops — Naran, Hunza, Skardu, Fairy
+  Meadows, Swat, Kumrat, Neelum, Chitral, Thandiani, Rawalakot, Phander, Khaplu,
+  Bahawalpur, Thatta, Gwadar and more — each with coordinates, altitude, best months,
+  terrain notes, entry fees and visit durations.
+- **Typo-tolerant search** across all four provinces plus GB and AJK. "Thandyaani
+  top", "panjpeer", "muree", "neelam valley" and "skardo" all land on the right
+  place. See [Search](#search) for how.
 - **Live search** for anything not in the catalogue, via OpenStreetMap.
 - **Real road distance** from your GPS location to the destination, and the drive time.
 - **Nearby attractions**, curated plus a live OpenStreetMap lookup within 35 km.
@@ -22,8 +26,44 @@ backend anywhere in it.
 - **Day-by-day itinerary**, packing stops to a ceiling of 9 sightseeing hours a day
   and splitting the drive across two days when one leg runs past 9 hours.
 - **Advisories** — too few days for the plan, out-of-season month, 4x4 needed, more
-  people than vehicle seats, high altitude, stops with no price data.
+  people than vehicle seats, high altitude, and how much of the total rests on
+  estimated rather than curated prices.
 - **Saved trips**, stored locally with the exact rates they were costed under.
+
+## Search
+
+Romanised Urdu has no single agreed spelling, and the public geocoder matches
+near-exactly. Measured against Nominatim directly:
+
+| Query | Nominatim alone | This app |
+|---|---|---|
+| `Thandyani Top` | 0 results | Thandiani |
+| `Panj Peer Rocks` | 0 results | Murree — *has Panj Peer Rocks* |
+| `Panj Pir` | 1, Urdu name only (`پنج پیر`) | Murree — *has Panj Peer Rocks* |
+
+Three mechanisms, cheapest first:
+
+1. **Alias lists.** Every destination and stop carries its common alternate
+   spellings — 430 of them in the bundled data.
+2. **Fuzzy scoring** (`lib/core/fuzzy.dart`). Place-kind words like *Top*, *Rocks*
+   and *Lake* are stripped from both sides; a phonetic fold collapses aspirated
+   digraphs and every vowel, so `Thandyani` and `Thandiani` become the same key; the
+   remainder is ranked by optimal-string-alignment distance, which counts a swapped
+   pair of letters as one typo rather than two. Results are ranked, and the UI says
+   so when nothing matched exactly.
+3. **Query relaxation** for the live geocoder. The original query goes first; if it
+   returns nothing, place-kind words are dropped and the query is progressively
+   shortened, capped at four attempts to respect the ~1 request/second policy.
+
+A rewritten query is held to a resemblance check that the original is not: the
+geocoder's own ranking can legitimately connect "Kotli Sattian Rocks" to Panjpeer
+Rocks, but blind shortening turns "Neela Sandh Waterfall" into "Neela" and returns
+*Neela Botho*, a different place. Hits from a rewritten query must still score
+against what was typed, and the UI states which query it actually ran.
+
+Matching against a stop rather than a destination is labelled — searching
+"panj peer rocks" returns Murree with *has Panj Peer Rocks* under it, because an
+unexplained result reads as a bug.
 
 ## The cost model
 
@@ -63,6 +103,14 @@ cached, and sent with an identifying `User-Agent`. If OSRM cannot be reached, di
 falls back to great-circle distance times a per-destination terrain factor and the UI
 labels the figure **Estimated** rather than presenting it as measured.
 
+OpenStreetMap carries names and coordinates but no prices, so a stop found by live
+lookup is costed from typical rates for its kind of place — a lake gate fee, a jeep up
+to a meadow, a boat out to an island — via `lib/logic/rate_estimator.dart`. Without
+this, a trip planned around searched places came out as travel-only. Those figures are
+labelled **Est.** on the stop and called out in the breakdown's advisories, and typing
+a real number in clears the flag. Nodes named only in Urdu script are skipped rather
+than shown as mojibake.
+
 ## Read this before trusting a number
 
 **Every price in this app is an editable assumption, not a live rate.** Fuel, hotel,
@@ -89,9 +137,11 @@ immediately.
 
 ```bash
 flutter analyze             # 0 issues
-flutter test                # 29 tests
+flutter test                # 59 tests
 ```
 
+- `test/search_test.dart` — fuzzy matching, query relaxation, the rate estimator, and
+  every misspelling in the tables above resolved against the real catalogue.
 - `test/expense_calculator_test.dart` — the cost model and itinerary builder, including
   that the breakdown lines always sum to the total.
 - `test/widget_test.dart` — validates the bundled catalogue: unique ids, sane
@@ -127,7 +177,10 @@ Flutter or network dependency, which is why it can be tested directly.
 
 Append to `assets/data/destinations.json`. `roadFactor` is the straight-line-to-road
 multiplier used only when routing is unavailable — around 1.25 on the plains, 1.75 in
-the mountains. `test/widget_test.dart` will reject a malformed entry.
+the mountains. Put every spelling you have heard used into `aliases`, on the
+destination and on each stop; that list is the cheapest and most reliable half of
+search. `test/widget_test.dart` will reject a malformed entry and `test/search_test.dart`
+will reject a missing `aliases` key.
 
 ## Notes
 

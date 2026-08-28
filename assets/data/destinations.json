@@ -1,7 +1,7 @@
 {
   "currency": "PKR",
-  "version": 1,
-  "dataNote": "Coordinates are approximate town/landmark centroids. Fees and fares are editable estimates, not live prices.",
+  "version": 2,
+  "dataNote": "Coordinates are approximate town and landmark centroids. Fees and fares are editable estimates, not live prices. Alternate spellings are listed per place so search finds them.",
   "destinations": [
     {
       "id": "naran",
@@ -16,17 +16,131 @@
       "roadFactor": 1.75,
       "requires4x4": true,
       "difficulty": "Moderate",
-      "bestMonths": [5, 6, 7, 8, 9],
+      "bestMonths": [
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
       "tagline": "Alpine lakes, glaciers and the road to Babusar",
       "description": "Naran sits at the head of the Kaghan Valley on the Kunhar River, and is the launch point for Saif-ul-Malook, Lulusar and the Babusar Top crossing into Gilgit-Baltistan. The road is snow-closed from roughly November to April.",
-      "highlights": ["Lake Saif-ul-Malook", "Babusar Top", "Lulusar Lake", "Kunhar River"],
+      "highlights": [
+        "Lake Saif-ul-Malook",
+        "Babusar Top",
+        "Lulusar Lake",
+        "Kunhar River"
+      ],
       "attractions": [
-        {"id": "saif-ul-malook", "name": "Lake Saif-ul-Malook", "category": "Lake", "lat": 34.8776, "lng": 73.6936, "entryFee": 300, "localTransport": 2500, "visitHours": 4, "requires4x4": true, "description": "Glacial lake at 3,224 m below Malika Parbat. The last 9 km is a rough jeep track."},
-        {"id": "lulusar", "name": "Lulusar Lake", "category": "Lake", "lat": 35.0839, "lng": 73.9256, "entryFee": 0, "localTransport": 0, "visitHours": 2, "requires4x4": false, "description": "Source of the Kunhar River, sitting right beside the Babusar road at 3,410 m."},
-        {"id": "babusar-top", "name": "Babusar Top", "category": "Pass", "lat": 35.1447, "lng": 74.0117, "entryFee": 0, "localTransport": 0, "visitHours": 3, "requires4x4": false, "description": "A 4,173 m pass linking Kaghan to the Karakoram Highway. Open July to September in most years."},
-        {"id": "ansoo-lake", "name": "Ansoo Lake", "category": "Trek", "lat": 34.8267, "lng": 73.6733, "entryFee": 0, "localTransport": 3000, "visitHours": 9, "requires4x4": true, "description": "Tear-shaped lake reached by a demanding full-day trek from Saif-ul-Malook. A guide is strongly advised."},
-        {"id": "shogran", "name": "Shogran", "category": "Meadow", "lat": 34.6289, "lng": 73.4586, "entryFee": 0, "localTransport": 0, "visitHours": 3, "requires4x4": false, "description": "Forested plateau at 2,362 m, the staging point for the Siri Paye jeep track."},
-        {"id": "siri-paye", "name": "Siri Paye Meadows", "category": "Meadow", "lat": 34.6567, "lng": 73.4522, "entryFee": 200, "localTransport": 2000, "visitHours": 4, "requires4x4": true, "description": "High meadow above Shogran with Makra Peak views. Jeep only, roughly 8 km of track."}
+        {
+          "id": "saif-ul-malook",
+          "name": "Lake Saif-ul-Malook",
+          "category": "Lake",
+          "lat": 34.8776,
+          "lng": 73.6936,
+          "entryFee": 300,
+          "localTransport": 2500,
+          "visitHours": 4,
+          "requires4x4": true,
+          "description": "Glacial lake at 3,224 m below Malika Parbat. The last 9 km is a rough jeep track.",
+          "aliases": [
+            "Saiful Malook",
+            "Saif ul Malook",
+            "Saif-ul-Maluk",
+            "Saiful Muluk",
+            "Lake Saiful Malook"
+          ]
+        },
+        {
+          "id": "lulusar",
+          "name": "Lulusar Lake",
+          "category": "Lake",
+          "lat": 35.0839,
+          "lng": 73.9256,
+          "entryFee": 0,
+          "localTransport": 0,
+          "visitHours": 2,
+          "requires4x4": false,
+          "description": "Source of the Kunhar River, sitting right beside the Babusar road at 3,410 m.",
+          "aliases": [
+            "Lalusar Lake",
+            "Lulusar"
+          ]
+        },
+        {
+          "id": "babusar-top",
+          "name": "Babusar Top",
+          "category": "Pass",
+          "lat": 35.1447,
+          "lng": 74.0117,
+          "entryFee": 0,
+          "localTransport": 0,
+          "visitHours": 3,
+          "requires4x4": false,
+          "description": "A 4,173 m pass linking Kaghan to the Karakoram Highway. Open July to September in most years.",
+          "aliases": [
+            "Babusar Pass",
+            "Babusar",
+            "Babu Sar Top"
+          ]
+        },
+        {
+          "id": "ansoo-lake",
+          "name": "Ansoo Lake",
+          "category": "Trek",
+          "lat": 34.8267,
+          "lng": 73.6733,
+          "entryFee": 0,
+          "localTransport": 3000,
+          "visitHours": 9,
+          "requires4x4": true,
+          "description": "Tear-shaped lake reached by a demanding full-day trek from Saif-ul-Malook. A guide is strongly advised.",
+          "aliases": [
+            "Aansoo Lake",
+            "Ansu Lake",
+            "Ansoo"
+          ]
+        },
+        {
+          "id": "shogran",
+          "name": "Shogran",
+          "category": "Meadow",
+          "lat": 34.6289,
+          "lng": 73.4586,
+          "entryFee": 0,
+          "localTransport": 0,
+          "visitHours": 3,
+          "requires4x4": false,
+          "description": "Forested plateau at 2,362 m, the staging point for the Siri Paye jeep track.",
+          "aliases": [
+            "Shogran Hills",
+            "Shugran"
+          ]
+        },
+        {
+          "id": "siri-paye",
+          "name": "Siri Paye Meadows",
+          "category": "Meadow",
+          "lat": 34.6567,
+          "lng": 73.4522,
+          "entryFee": 200,
+          "localTransport": 2000,
+          "visitHours": 4,
+          "requires4x4": true,
+          "description": "High meadow above Shogran with Makra Peak views. Jeep only, roughly 8 km of track.",
+          "aliases": [
+            "Siri Payee",
+            "Sri Paye",
+            "Siripaye",
+            "Payee Meadows"
+          ]
+        }
+      ],
+      "aliases": [
+        "Naraan",
+        "Naran Kaghan",
+        "Kaghan Naran",
+        "Naran Valley"
       ]
     },
     {
@@ -42,17 +156,130 @@
       "roadFactor": 1.55,
       "requires4x4": false,
       "difficulty": "Easy",
-      "bestMonths": [4, 5, 6, 7, 8, 9, 10],
+      "bestMonths": [
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
       "tagline": "Forts, cherry blossom and the Karakoram skyline",
       "description": "Karimabad looks straight onto Rakaposhi and Ultar Sar, with two restored forts above the bazaar. It is reached on the Karakoram Highway, which is paved the whole way from Islamabad.",
-      "highlights": ["Baltit Fort", "Attabad Lake", "Passu Cones", "Khunjerab Pass"],
+      "highlights": [
+        "Baltit Fort",
+        "Attabad Lake",
+        "Passu Cones",
+        "Khunjerab Pass"
+      ],
       "attractions": [
-        {"id": "baltit-fort", "name": "Baltit Fort", "category": "Historical", "lat": 36.3242, "lng": 74.6647, "entryFee": 1000, "localTransport": 0, "visitHours": 2, "requires4x4": false, "description": "A 700-year-old fort above Karimabad, restored by the Aga Khan Trust. Guided entry only."},
-        {"id": "altit-fort", "name": "Altit Fort", "category": "Historical", "lat": 36.3244, "lng": 74.6889, "entryFee": 800, "localTransport": 0, "visitHours": 2, "requires4x4": false, "description": "The older of the two Hunza forts, with a restored royal garden beside it."},
-        {"id": "attabad-lake", "name": "Attabad Lake", "category": "Lake", "lat": 36.3400, "lng": 74.8600, "entryFee": 0, "localTransport": 1500, "visitHours": 3, "requires4x4": false, "description": "Turquoise lake formed by the 2010 landslide. Boat and jet-ski rentals sit on the KKH shore."},
-        {"id": "passu-cones", "name": "Passu Cones", "category": "Viewpoint", "lat": 36.4500, "lng": 74.8667, "entryFee": 0, "localTransport": 0, "visitHours": 2, "requires4x4": false, "description": "Serrated peaks beside the KKH, with the Hussaini suspension bridge a short walk away."},
-        {"id": "khunjerab", "name": "Khunjerab Pass", "category": "Pass", "lat": 36.8500, "lng": 75.4200, "entryFee": 800, "localTransport": 0, "visitHours": 6, "requires4x4": false, "description": "A 4,693 m China border crossing inside Khunjerab National Park. A park fee applies per person."},
-        {"id": "duikar", "name": "Eagle Nest, Duikar", "category": "Viewpoint", "lat": 36.3400, "lng": 74.6900, "entryFee": 0, "localTransport": 800, "visitHours": 2, "requires4x4": false, "description": "Sunrise and sunset viewpoint above Karimabad taking in Rakaposhi, Diran and Golden Peak."}
+        {
+          "id": "baltit-fort",
+          "name": "Baltit Fort",
+          "category": "Historical",
+          "lat": 36.3242,
+          "lng": 74.6647,
+          "entryFee": 1000,
+          "localTransport": 0,
+          "visitHours": 2,
+          "requires4x4": false,
+          "description": "A 700-year-old fort above Karimabad, restored by the Aga Khan Trust. Guided entry only.",
+          "aliases": [
+            "Baltit"
+          ]
+        },
+        {
+          "id": "altit-fort",
+          "name": "Altit Fort",
+          "category": "Historical",
+          "lat": 36.3244,
+          "lng": 74.6889,
+          "entryFee": 800,
+          "localTransport": 0,
+          "visitHours": 2,
+          "requires4x4": false,
+          "description": "The older of the two Hunza forts, with a restored royal garden beside it.",
+          "aliases": [
+            "Altit"
+          ]
+        },
+        {
+          "id": "attabad-lake",
+          "name": "Attabad Lake",
+          "category": "Lake",
+          "lat": 36.34,
+          "lng": 74.86,
+          "entryFee": 0,
+          "localTransport": 1500,
+          "visitHours": 3,
+          "requires4x4": false,
+          "description": "Turquoise lake formed by the 2010 landslide. Boat and jet-ski rentals sit on the KKH shore.",
+          "aliases": [
+            "Ata Abad Lake",
+            "Attabad",
+            "Atabad Lake"
+          ]
+        },
+        {
+          "id": "passu-cones",
+          "name": "Passu Cones",
+          "category": "Viewpoint",
+          "lat": 36.45,
+          "lng": 74.8667,
+          "entryFee": 0,
+          "localTransport": 0,
+          "visitHours": 2,
+          "requires4x4": false,
+          "description": "Serrated peaks beside the KKH, with the Hussaini suspension bridge a short walk away.",
+          "aliases": [
+            "Passu Cathedral",
+            "Pasu Cones",
+            "Passu"
+          ]
+        },
+        {
+          "id": "khunjerab",
+          "name": "Khunjerab Pass",
+          "category": "Pass",
+          "lat": 36.85,
+          "lng": 75.42,
+          "entryFee": 800,
+          "localTransport": 0,
+          "visitHours": 6,
+          "requires4x4": false,
+          "description": "A 4,693 m China border crossing inside Khunjerab National Park. A park fee applies per person.",
+          "aliases": [
+            "Khunjerab Top",
+            "Khunjrab Pass",
+            "Khunjarab",
+            "Khunjerab Border"
+          ]
+        },
+        {
+          "id": "duikar",
+          "name": "Eagle Nest, Duikar",
+          "category": "Viewpoint",
+          "lat": 36.34,
+          "lng": 74.69,
+          "entryFee": 0,
+          "localTransport": 800,
+          "visitHours": 2,
+          "requires4x4": false,
+          "description": "Sunrise and sunset viewpoint above Karimabad taking in Rakaposhi, Diran and Golden Peak.",
+          "aliases": [
+            "Duikar",
+            "Eagles Nest",
+            "Eagle Nest Hunza",
+            "Duiker"
+          ]
+        }
+      ],
+      "aliases": [
+        "Karimabad",
+        "Hunza Valley",
+        "Hunza Nagar",
+        "Karim Abad"
       ]
     },
     {
@@ -68,17 +295,132 @@
       "roadFactor": 1.65,
       "requires4x4": true,
       "difficulty": "Moderate",
-      "bestMonths": [4, 5, 6, 7, 8, 9, 10],
+      "bestMonths": [
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
       "tagline": "Cold desert, Deosai and the gateway to K2",
       "description": "Skardu sits in a broad Indus valley ringed by the Karakoram, and is the road head for Deosai, Shigar and the Baltoro treks. Flights from Islamabad exist but are weather-dependent.",
-      "highlights": ["Deosai Plains", "Shangrila Resort", "Katpana Desert", "Shigar Fort"],
+      "highlights": [
+        "Deosai Plains",
+        "Shangrila Resort",
+        "Katpana Desert",
+        "Shigar Fort"
+      ],
       "attractions": [
-        {"id": "shangrila", "name": "Lower Kachura (Shangrila) Lake", "category": "Lake", "lat": 35.4167, "lng": 75.4500, "entryFee": 500, "localTransport": 0, "visitHours": 3, "requires4x4": false, "description": "Heart-shaped lake inside the Shangrila resort grounds, 20 km from Skardu."},
-        {"id": "upper-kachura", "name": "Upper Kachura Lake", "category": "Lake", "lat": 35.4300, "lng": 75.4400, "entryFee": 300, "localTransport": 0, "visitHours": 2, "requires4x4": false, "description": "A deeper, quieter lake a short walk beyond Shangrila."},
-        {"id": "deosai", "name": "Deosai National Park", "category": "Plateau", "lat": 34.9333, "lng": 75.4333, "entryFee": 500, "localTransport": 6000, "visitHours": 10, "requires4x4": true, "description": "A 4,114 m plateau with Sheosar Lake and brown bear habitat. Full-day 4x4 trip, snow-free July to September."},
-        {"id": "katpana", "name": "Katpana Cold Desert", "category": "Desert", "lat": 35.3167, "lng": 75.5333, "entryFee": 200, "localTransport": 0, "visitHours": 2, "requires4x4": false, "description": "High-altitude sand dunes beside the Indus, minutes from Skardu airport."},
-        {"id": "shigar-fort", "name": "Shigar Fort", "category": "Historical", "lat": 35.4222, "lng": 75.7333, "entryFee": 1000, "localTransport": 0, "visitHours": 3, "requires4x4": false, "description": "A 17th-century Raja fort restored as a heritage hotel, 32 km from Skardu."},
-        {"id": "manthokha", "name": "Manthokha Waterfall", "category": "Waterfall", "lat": 35.2500, "lng": 75.9833, "entryFee": 200, "localTransport": 0, "visitHours": 4, "requires4x4": false, "description": "A 55 m waterfall in Kharmang, about 80 km from Skardu."}
+        {
+          "id": "shangrila",
+          "name": "Lower Kachura (Shangrila) Lake",
+          "category": "Lake",
+          "lat": 35.4167,
+          "lng": 75.45,
+          "entryFee": 500,
+          "localTransport": 0,
+          "visitHours": 3,
+          "requires4x4": false,
+          "description": "Heart-shaped lake inside the Shangrila resort grounds, 20 km from Skardu.",
+          "aliases": [
+            "Shangrila Lake",
+            "Lower Kachura Lake",
+            "Shangri La",
+            "Kachura"
+          ]
+        },
+        {
+          "id": "upper-kachura",
+          "name": "Upper Kachura Lake",
+          "category": "Lake",
+          "lat": 35.43,
+          "lng": 75.44,
+          "entryFee": 300,
+          "localTransport": 0,
+          "visitHours": 2,
+          "requires4x4": false,
+          "description": "A deeper, quieter lake a short walk beyond Shangrila.",
+          "aliases": [
+            "Upper Kachura",
+            "Kachura Lake"
+          ]
+        },
+        {
+          "id": "deosai",
+          "name": "Deosai National Park",
+          "category": "Plateau",
+          "lat": 34.9333,
+          "lng": 75.4333,
+          "entryFee": 500,
+          "localTransport": 6000,
+          "visitHours": 10,
+          "requires4x4": true,
+          "description": "A 4,114 m plateau with Sheosar Lake and brown bear habitat. Full-day 4x4 trip, snow-free July to September.",
+          "aliases": [
+            "Deosai Plains",
+            "Deosai",
+            "Sheosar Lake",
+            "Shausar Lake",
+            "Deosai Park"
+          ]
+        },
+        {
+          "id": "katpana",
+          "name": "Katpana Cold Desert",
+          "category": "Desert",
+          "lat": 35.3167,
+          "lng": 75.5333,
+          "entryFee": 200,
+          "localTransport": 0,
+          "visitHours": 2,
+          "requires4x4": false,
+          "description": "High-altitude sand dunes beside the Indus, minutes from Skardu airport.",
+          "aliases": [
+            "Katpana Desert",
+            "Cold Desert Skardu",
+            "Katpana"
+          ]
+        },
+        {
+          "id": "shigar-fort",
+          "name": "Shigar Fort",
+          "category": "Historical",
+          "lat": 35.4222,
+          "lng": 75.7333,
+          "entryFee": 1000,
+          "localTransport": 0,
+          "visitHours": 3,
+          "requires4x4": false,
+          "description": "A 17th-century Raja fort restored as a heritage hotel, 32 km from Skardu.",
+          "aliases": [
+            "Shigar",
+            "Fong Khar"
+          ]
+        },
+        {
+          "id": "manthokha",
+          "name": "Manthokha Waterfall",
+          "category": "Waterfall",
+          "lat": 35.25,
+          "lng": 75.9833,
+          "entryFee": 200,
+          "localTransport": 0,
+          "visitHours": 4,
+          "requires4x4": false,
+          "description": "A 55 m waterfall in Kharmang, about 80 km from Skardu.",
+          "aliases": [
+            "Manthoka Waterfall",
+            "Mantoka",
+            "Manthokha"
+          ]
+        }
+      ],
+      "aliases": [
+        "Skardo",
+        "Skurdu",
+        "Baltistan"
       ]
     },
     {
@@ -87,21 +429,82 @@
       "region": "Diamer",
       "province": "Gilgit-Baltistan",
       "category": "Mountains",
-      "lat": 35.3900,
-      "lng": 74.5800,
+      "lat": 35.39,
+      "lng": 74.58,
       "altitudeM": 3300,
       "recommendedDays": 3,
-      "roadFactor": 1.60,
+      "roadFactor": 1.6,
       "requires4x4": true,
       "difficulty": "Hard",
-      "bestMonths": [5, 6, 7, 8, 9],
+      "bestMonths": [
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
       "tagline": "Nanga Parbat from a meadow you can only walk to",
       "description": "A grass shelf facing the Nanga Parbat north face. Access is a jeep ride from Raikot Bridge to Tato, then a 3 to 4 hour walk or pony ride. No road reaches the meadow itself.",
-      "highlights": ["Nanga Parbat view", "Beyal Camp", "Raikot Glacier"],
+      "highlights": [
+        "Nanga Parbat view",
+        "Beyal Camp",
+        "Raikot Glacier"
+      ],
       "attractions": [
-        {"id": "raikot-bridge", "name": "Raikot Bridge Jeep Stand", "category": "Transit", "lat": 35.4333, "lng": 74.5833, "entryFee": 0, "localTransport": 4000, "visitHours": 3, "requires4x4": true, "description": "KKH jeep stand. Shared or reserved jeep up the Raikot track to Tato village."},
-        {"id": "beyal-camp", "name": "Beyal Camp", "category": "Trek", "lat": 35.3700, "lng": 74.5600, "entryFee": 0, "localTransport": 0, "visitHours": 5, "requires4x4": false, "description": "A two-hour walk beyond Fairy Meadows toward the glacier, with closer Nanga Parbat views."},
-        {"id": "nanga-base-camp", "name": "Nanga Parbat Base Camp", "category": "Trek", "lat": 35.2500, "lng": 74.5800, "entryFee": 0, "localTransport": 0, "visitHours": 10, "requires4x4": false, "description": "Full-day return trek from Fairy Meadows to the Rakhiot face base camp at about 3,967 m."}
+        {
+          "id": "raikot-bridge",
+          "name": "Raikot Bridge Jeep Stand",
+          "category": "Transit",
+          "lat": 35.4333,
+          "lng": 74.5833,
+          "entryFee": 0,
+          "localTransport": 4000,
+          "visitHours": 3,
+          "requires4x4": true,
+          "description": "KKH jeep stand. Shared or reserved jeep up the Raikot track to Tato village.",
+          "aliases": [
+            "Raikot",
+            "Raikhot Bridge"
+          ]
+        },
+        {
+          "id": "beyal-camp",
+          "name": "Beyal Camp",
+          "category": "Trek",
+          "lat": 35.37,
+          "lng": 74.56,
+          "entryFee": 0,
+          "localTransport": 0,
+          "visitHours": 5,
+          "requires4x4": false,
+          "description": "A two-hour walk beyond Fairy Meadows toward the glacier, with closer Nanga Parbat views.",
+          "aliases": [
+            "Bayal Camp",
+            "Beyal"
+          ]
+        },
+        {
+          "id": "nanga-base-camp",
+          "name": "Nanga Parbat Base Camp",
+          "category": "Trek",
+          "lat": 35.25,
+          "lng": 74.58,
+          "entryFee": 0,
+          "localTransport": 0,
+          "visitHours": 10,
+          "requires4x4": false,
+          "description": "Full-day return trek from Fairy Meadows to the Rakhiot face base camp at about 3,967 m.",
+          "aliases": [
+            "Nanga Parbat Base Camp",
+            "Rakhiot Base Camp",
+            "Nanga Parbat"
+          ]
+        }
+      ],
+      "aliases": [
+        "Fairy Meadow",
+        "Pari Maidan",
+        "Fairymeadows"
       ]
     },
     {
@@ -111,22 +514,121 @@
       "province": "Khyber Pakhtunkhwa",
       "category": "Valleys",
       "lat": 34.7717,
-      "lng": 72.3600,
+      "lng": 72.36,
       "altitudeM": 980,
       "recommendedDays": 4,
-      "roadFactor": 1.40,
+      "roadFactor": 1.4,
       "requires4x4": false,
       "difficulty": "Easy",
-      "bestMonths": [3, 4, 5, 6, 7, 8, 9, 10],
+      "bestMonths": [
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
       "tagline": "Buddhist ruins, ski slopes and the Upper Swat road",
       "description": "Mingora is the valley base, reached by the Swat Expressway from Islamabad in roughly four hours. Malam Jabba and the Kalam road branch north from here.",
-      "highlights": ["Malam Jabba", "Kalam", "Mahodand Lake", "Butkara Stupa"],
+      "highlights": [
+        "Malam Jabba",
+        "Kalam",
+        "Mahodand Lake",
+        "Butkara Stupa"
+      ],
       "attractions": [
-        {"id": "malam-jabba", "name": "Malam Jabba Ski Resort", "category": "Resort", "lat": 34.8000, "lng": 72.5667, "entryFee": 0, "localTransport": 1200, "visitHours": 5, "requires4x4": false, "description": "Pakistan's main ski resort at 2,804 m, with a chairlift and zipline running year round."},
-        {"id": "kalam", "name": "Kalam", "category": "Valley", "lat": 35.4833, "lng": 72.5833, "entryFee": 0, "localTransport": 0, "visitHours": 6, "requires4x4": false, "description": "Upper Swat town at 2,000 m where the Ushu and Utror rivers meet. Roughly 3 hours from Mingora."},
-        {"id": "mahodand", "name": "Mahodand Lake", "category": "Lake", "lat": 35.5833, "lng": 72.6500, "entryFee": 300, "localTransport": 3500, "visitHours": 6, "requires4x4": true, "description": "Lake of fishes, 35 km beyond Kalam on a rough track through Ushu Forest. Jeep required."},
-        {"id": "butkara", "name": "Butkara Stupa", "category": "Historical", "lat": 34.7708, "lng": 72.3600, "entryFee": 300, "localTransport": 0, "visitHours": 2, "requires4x4": false, "description": "A 2nd-century BCE Buddhist stupa complex on the edge of Mingora."},
-        {"id": "white-palace", "name": "White Palace, Marghazar", "category": "Historical", "lat": 34.6667, "lng": 72.3667, "entryFee": 400, "localTransport": 0, "visitHours": 2, "requires4x4": false, "description": "Marble summer palace of the Wali of Swat, built in 1940 about 13 km from Saidu Sharif."}
+        {
+          "id": "malam-jabba",
+          "name": "Malam Jabba Ski Resort",
+          "category": "Resort",
+          "lat": 34.8,
+          "lng": 72.5667,
+          "entryFee": 0,
+          "localTransport": 1200,
+          "visitHours": 5,
+          "requires4x4": false,
+          "description": "Pakistan's main ski resort at 2,804 m, with a chairlift and zipline running year round.",
+          "aliases": [
+            "Malamjabba",
+            "Malam Jaba",
+            "Malam Jabba Ski"
+          ]
+        },
+        {
+          "id": "kalam",
+          "name": "Kalam",
+          "category": "Valley",
+          "lat": 35.4833,
+          "lng": 72.5833,
+          "entryFee": 0,
+          "localTransport": 0,
+          "visitHours": 6,
+          "requires4x4": false,
+          "description": "Upper Swat town at 2,000 m where the Ushu and Utror rivers meet. Roughly 3 hours from Mingora.",
+          "aliases": [
+            "Kalam Valley",
+            "Kalaam"
+          ]
+        },
+        {
+          "id": "mahodand",
+          "name": "Mahodand Lake",
+          "category": "Lake",
+          "lat": 35.5833,
+          "lng": 72.65,
+          "entryFee": 300,
+          "localTransport": 3500,
+          "visitHours": 6,
+          "requires4x4": true,
+          "description": "Lake of fishes, 35 km beyond Kalam on a rough track through Ushu Forest. Jeep required.",
+          "aliases": [
+            "Mahodand",
+            "Maho Dand",
+            "Mahudand Lake",
+            "Lake of Fishes"
+          ]
+        },
+        {
+          "id": "butkara",
+          "name": "Butkara Stupa",
+          "category": "Historical",
+          "lat": 34.7708,
+          "lng": 72.36,
+          "entryFee": 300,
+          "localTransport": 0,
+          "visitHours": 2,
+          "requires4x4": false,
+          "description": "A 2nd-century BCE Buddhist stupa complex on the edge of Mingora.",
+          "aliases": [
+            "Butkara Stupa",
+            "Butkara I"
+          ]
+        },
+        {
+          "id": "white-palace",
+          "name": "White Palace, Marghazar",
+          "category": "Historical",
+          "lat": 34.6667,
+          "lng": 72.3667,
+          "entryFee": 400,
+          "localTransport": 0,
+          "visitHours": 2,
+          "requires4x4": false,
+          "description": "Marble summer palace of the Wali of Swat, built in 1940 about 13 km from Saidu Sharif.",
+          "aliases": [
+            "Sufaid Mahal",
+            "White Palace Marghazar",
+            "Marghazar"
+          ]
+        }
+      ],
+      "aliases": [
+        "Mingora",
+        "Saidu Sharif",
+        "Swat Valley",
+        "Mingaora"
       ]
     },
     {
@@ -135,22 +637,95 @@
       "region": "Upper Dir",
       "province": "Khyber Pakhtunkhwa",
       "category": "Valleys",
-      "lat": 35.5500,
-      "lng": 72.1000,
+      "lat": 35.55,
+      "lng": 72.1,
       "altitudeM": 2000,
       "recommendedDays": 3,
-      "roadFactor": 1.70,
+      "roadFactor": 1.7,
       "requires4x4": true,
       "difficulty": "Moderate",
-      "bestMonths": [5, 6, 7, 8, 9],
+      "bestMonths": [
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
       "tagline": "Deodar forest and river camping in Upper Dir",
       "description": "Kumrat is a forested valley on the Panjkora River above Thal, with camping rather than hotels as the norm. The last stretch from Thal is an unpaved jeep track.",
-      "highlights": ["Kala Chashma", "Jahaz Banda", "Katora Lake"],
+      "highlights": [
+        "Kala Chashma",
+        "Jahaz Banda",
+        "Katora Lake"
+      ],
       "attractions": [
-        {"id": "kala-chashma", "name": "Kala Chashma", "category": "Spring", "lat": 35.5667, "lng": 72.1000, "entryFee": 0, "localTransport": 1500, "visitHours": 3, "requires4x4": true, "description": "Cold spring and picnic spot in deodar forest inside the main Kumrat valley."},
-        {"id": "jahaz-banda", "name": "Jahaz Banda Meadows", "category": "Meadow", "lat": 35.4667, "lng": 72.0833, "entryFee": 0, "localTransport": 3500, "visitHours": 8, "requires4x4": true, "description": "High meadow reached by jeep to Badgoi then a 2 hour walk. Common overnight camp."},
-        {"id": "katora-lake", "name": "Katora Lake", "category": "Lake", "lat": 35.4500, "lng": 72.0667, "entryFee": 0, "localTransport": 0, "visitHours": 8, "requires4x4": false, "description": "Bowl-shaped alpine lake, a hard 3 hour climb above Jahaz Banda."},
-        {"id": "kumrat-waterfall", "name": "Kumrat Waterfall", "category": "Waterfall", "lat": 35.5800, "lng": 72.1100, "entryFee": 0, "localTransport": 0, "visitHours": 2, "requires4x4": false, "description": "Roadside waterfall near the upper camping grounds of the valley."}
+        {
+          "id": "kala-chashma",
+          "name": "Kala Chashma",
+          "category": "Spring",
+          "lat": 35.5667,
+          "lng": 72.1,
+          "entryFee": 0,
+          "localTransport": 1500,
+          "visitHours": 3,
+          "requires4x4": true,
+          "description": "Cold spring and picnic spot in deodar forest inside the main Kumrat valley.",
+          "aliases": [
+            "Kala Chashma",
+            "Black Spring"
+          ]
+        },
+        {
+          "id": "jahaz-banda",
+          "name": "Jahaz Banda Meadows",
+          "category": "Meadow",
+          "lat": 35.4667,
+          "lng": 72.0833,
+          "entryFee": 0,
+          "localTransport": 3500,
+          "visitHours": 8,
+          "requires4x4": true,
+          "description": "High meadow reached by jeep to Badgoi then a 2 hour walk. Common overnight camp.",
+          "aliases": [
+            "Jahaz Banda",
+            "Jaz Banda",
+            "Jahaz Bhanda"
+          ]
+        },
+        {
+          "id": "katora-lake",
+          "name": "Katora Lake",
+          "category": "Lake",
+          "lat": 35.45,
+          "lng": 72.0667,
+          "entryFee": 0,
+          "localTransport": 0,
+          "visitHours": 8,
+          "requires4x4": false,
+          "description": "Bowl-shaped alpine lake, a hard 3 hour climb above Jahaz Banda.",
+          "aliases": [
+            "Katora",
+            "Katoora Lake"
+          ]
+        },
+        {
+          "id": "kumrat-waterfall",
+          "name": "Kumrat Waterfall",
+          "category": "Waterfall",
+          "lat": 35.58,
+          "lng": 72.11,
+          "entryFee": 0,
+          "localTransport": 0,
+          "visitHours": 2,
+          "requires4x4": false,
+          "description": "Roadside waterfall near the upper camping grounds of the valley.",
+          "aliases": []
+        }
+      ],
+      "aliases": [
+        "Kumrat Valley",
+        "Upper Dir",
+        "Kamrat"
       ]
     },
     {
@@ -163,18 +738,102 @@
       "lng": 73.9333,
       "altitudeM": 1524,
       "recommendedDays": 4,
-      "roadFactor": 1.70,
+      "roadFactor": 1.7,
       "requires4x4": true,
       "difficulty": "Moderate",
-      "bestMonths": [4, 5, 6, 7, 8, 9, 10],
+      "bestMonths": [
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
       "tagline": "A river valley pressed against the Line of Control",
       "description": "The Neelum river road runs 200 km from Muzaffarabad past Keran and Sharda to Kel. Several stretches are single-lane and landsliding is common after rain.",
-      "highlights": ["Ratti Gali Lake", "Arang Kel", "Sharda", "Kutton Waterfall"],
+      "highlights": [
+        "Ratti Gali Lake",
+        "Arang Kel",
+        "Sharda",
+        "Kutton Waterfall"
+      ],
       "attractions": [
-        {"id": "ratti-gali", "name": "Ratti Gali Lake", "category": "Lake", "lat": 34.8083, "lng": 74.0917, "entryFee": 200, "localTransport": 5000, "visitHours": 10, "requires4x4": true, "description": "Alpine lake at 3,700 m above Dowarian. Jeep to base camp then a 2 hour climb."},
-        {"id": "arang-kel", "name": "Arang Kel", "category": "Meadow", "lat": 34.7333, "lng": 74.3000, "entryFee": 100, "localTransport": 1500, "visitHours": 8, "requires4x4": false, "description": "Hilltop village above Kel, reached by chairlift and then a steep 40 minute walk."},
-        {"id": "sharda", "name": "Sharda", "category": "Historical", "lat": 34.7833, "lng": 74.1833, "entryFee": 0, "localTransport": 0, "visitHours": 4, "requires4x4": false, "description": "Riverside town holding the ruins of the Sharda Peeth temple and university."},
-        {"id": "kutton", "name": "Kutton (Jagran) Waterfall", "category": "Waterfall", "lat": 34.5667, "lng": 73.8500, "entryFee": 100, "localTransport": 0, "visitHours": 3, "requires4x4": false, "description": "Waterfall and trout stream in a side valley about 25 km before Keran."}
+        {
+          "id": "ratti-gali",
+          "name": "Ratti Gali Lake",
+          "category": "Lake",
+          "lat": 34.8083,
+          "lng": 74.0917,
+          "entryFee": 200,
+          "localTransport": 5000,
+          "visitHours": 10,
+          "requires4x4": true,
+          "description": "Alpine lake at 3,700 m above Dowarian. Jeep to base camp then a 2 hour climb.",
+          "aliases": [
+            "Ratti Gali",
+            "Rati Gali Lake",
+            "Rattigali",
+            "Rati Gali"
+          ]
+        },
+        {
+          "id": "arang-kel",
+          "name": "Arang Kel",
+          "category": "Meadow",
+          "lat": 34.7333,
+          "lng": 74.3,
+          "entryFee": 100,
+          "localTransport": 1500,
+          "visitHours": 8,
+          "requires4x4": false,
+          "description": "Hilltop village above Kel, reached by chairlift and then a steep 40 minute walk.",
+          "aliases": [
+            "Arang Kel",
+            "Arangkel",
+            "Arang Kail"
+          ]
+        },
+        {
+          "id": "sharda",
+          "name": "Sharda",
+          "category": "Historical",
+          "lat": 34.7833,
+          "lng": 74.1833,
+          "entryFee": 0,
+          "localTransport": 0,
+          "visitHours": 4,
+          "requires4x4": false,
+          "description": "Riverside town holding the ruins of the Sharda Peeth temple and university.",
+          "aliases": [
+            "Sharda",
+            "Sharada",
+            "Sharda Peeth"
+          ]
+        },
+        {
+          "id": "kutton",
+          "name": "Kutton (Jagran) Waterfall",
+          "category": "Waterfall",
+          "lat": 34.5667,
+          "lng": 73.85,
+          "entryFee": 100,
+          "localTransport": 0,
+          "visitHours": 3,
+          "requires4x4": false,
+          "description": "Waterfall and trout stream in a side valley about 25 km before Keran.",
+          "aliases": [
+            "Kutton",
+            "Jagran Waterfall",
+            "Kutton Waterfall"
+          ]
+        }
+      ],
+      "aliases": [
+        "Neelum Valley",
+        "Neelam Valley",
+        "Keran",
+        "Nelum Valley"
       ]
     },
     {
@@ -183,22 +842,126 @@
       "region": "Galiyat",
       "province": "Punjab",
       "category": "Hills",
-      "lat": 33.9070,
+      "lat": 33.907,
       "lng": 73.3903,
       "altitudeM": 2291,
       "recommendedDays": 2,
       "roadFactor": 1.35,
       "requires4x4": false,
       "difficulty": "Easy",
-      "bestMonths": [1, 2, 3, 4, 5, 6, 9, 10, 11, 12],
+      "bestMonths": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        9,
+        10,
+        11,
+        12
+      ],
       "tagline": "The closest hill station to the capital",
       "description": "Murree is about 60 km from Islamabad on the expressway and fills up fast on weekends and during snowfall. Best treated as a one or two night stop rather than a base.",
-      "highlights": ["Mall Road", "Patriata chairlift", "Kashmir Point"],
+      "highlights": [
+        "Mall Road",
+        "Patriata chairlift",
+        "Kashmir Point",
+        "Panj Peer Rocks"
+      ],
       "attractions": [
-        {"id": "mall-road", "name": "Mall Road", "category": "Bazaar", "lat": 33.9070, "lng": 73.3903, "entryFee": 0, "localTransport": 0, "visitHours": 3, "requires4x4": false, "description": "Pedestrian bazaar with colonial-era buildings, cafes and viewpoints at both ends."},
-        {"id": "patriata", "name": "Patriata (New Murree)", "category": "Resort", "lat": 33.8300, "lng": 73.4400, "entryFee": 0, "localTransport": 1600, "visitHours": 4, "requires4x4": false, "description": "Chairlift and cable car to a 2,274 m ridge, 15 km south of Murree."},
-        {"id": "kashmir-point", "name": "Kashmir Point", "category": "Viewpoint", "lat": 33.9150, "lng": 73.3950, "entryFee": 0, "localTransport": 0, "visitHours": 1, "requires4x4": false, "description": "North-facing viewpoint looking toward the Pir Panjal range on clear days."},
-        {"id": "ayubia", "name": "Ayubia National Park", "category": "Park", "lat": 34.0333, "lng": 73.4000, "entryFee": 300, "localTransport": 800, "visitHours": 4, "requires4x4": false, "description": "Pine reserve with a chairlift and the Pipeline Track walk to Dunga Gali."}
+        {
+          "id": "mall-road",
+          "name": "Mall Road",
+          "category": "Bazaar",
+          "lat": 33.907,
+          "lng": 73.3903,
+          "entryFee": 0,
+          "localTransport": 0,
+          "visitHours": 3,
+          "requires4x4": false,
+          "description": "Pedestrian bazaar with colonial-era buildings, cafes and viewpoints at both ends.",
+          "aliases": [
+            "Mall Road Murree",
+            "The Mall Murree"
+          ]
+        },
+        {
+          "id": "patriata",
+          "name": "Patriata (New Murree)",
+          "category": "Resort",
+          "lat": 33.83,
+          "lng": 73.44,
+          "entryFee": 0,
+          "localTransport": 1600,
+          "visitHours": 4,
+          "requires4x4": false,
+          "description": "Chairlift and cable car to a 2,274 m ridge, 15 km south of Murree.",
+          "aliases": [
+            "New Murree",
+            "Patriata",
+            "Pattriata",
+            "Patriata Chairlift"
+          ]
+        },
+        {
+          "id": "kashmir-point",
+          "name": "Kashmir Point",
+          "category": "Viewpoint",
+          "lat": 33.915,
+          "lng": 73.395,
+          "entryFee": 0,
+          "localTransport": 0,
+          "visitHours": 1,
+          "requires4x4": false,
+          "description": "North-facing viewpoint looking toward the Pir Panjal range on clear days.",
+          "aliases": [
+            "Kashmir Point"
+          ]
+        },
+        {
+          "id": "ayubia",
+          "name": "Ayubia National Park",
+          "category": "Park",
+          "lat": 34.0333,
+          "lng": 73.4,
+          "entryFee": 300,
+          "localTransport": 800,
+          "visitHours": 4,
+          "requires4x4": false,
+          "description": "Pine reserve with a chairlift and the Pipeline Track walk to Dunga Gali.",
+          "aliases": [
+            "Ayubia",
+            "Ayubia Park",
+            "Ayubiya"
+          ]
+        },
+        {
+          "id": "panj-peer-rocks",
+          "name": "Panj Peer Rocks",
+          "category": "Viewpoint",
+          "lat": 33.7444,
+          "lng": 73.4833,
+          "entryFee": 100,
+          "localTransport": 800,
+          "visitHours": 4,
+          "requires4x4": false,
+          "description": "A pair of rock outcrops above Kotli Sattian with a long view over the Margalla and Murree ridges. About 25 km from Murree, then a 30 minute walk up from the road.",
+          "aliases": [
+            "Panjpeer Rocks",
+            "Panj Pir Rocks",
+            "Panj Peer",
+            "Panjpir Rocks",
+            "Panjpeer",
+            "Panj Peer Rock"
+          ]
+        }
+      ],
+      "aliases": [
+        "Marri",
+        "Muree",
+        "Mari",
+        "Murree Hills"
       ]
     },
     {
@@ -207,22 +970,105 @@
       "region": "Galiyat",
       "province": "Khyber Pakhtunkhwa",
       "category": "Hills",
-      "lat": 34.0700,
-      "lng": 73.3800,
+      "lat": 34.07,
+      "lng": 73.38,
       "altitudeM": 2501,
       "recommendedDays": 2,
-      "roadFactor": 1.40,
+      "roadFactor": 1.4,
       "requires4x4": false,
       "difficulty": "Easy",
-      "bestMonths": [3, 4, 5, 6, 7, 8, 9, 10, 11],
+      "bestMonths": [
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11
+      ],
       "tagline": "Pine ridges and short summit walks",
       "description": "A quieter alternative to Murree on the Abbottabad side of the Galiyat, with well-marked walking tracks to Mushkpuri and Miranjani.",
-      "highlights": ["Mushkpuri Top", "Pipeline Track", "Miranjani Top"],
+      "highlights": [
+        "Mushkpuri Top",
+        "Pipeline Track",
+        "Miranjani Top"
+      ],
       "attractions": [
-        {"id": "mushkpuri", "name": "Mushkpuri Top", "category": "Trek", "lat": 34.0500, "lng": 73.3833, "entryFee": 100, "localTransport": 0, "visitHours": 5, "requires4x4": false, "description": "A 2,800 m summit, a 4 km walk up from Dunga Gali through pine and oak forest."},
-        {"id": "miranjani", "name": "Miranjani Top", "category": "Trek", "lat": 34.0833, "lng": 73.4000, "entryFee": 100, "localTransport": 0, "visitHours": 6, "requires4x4": false, "description": "The highest point in the Galiyat at 2,992 m, reached from behind Nathia Gali bazaar."},
-        {"id": "pipeline-track", "name": "Pipeline Track", "category": "Walk", "lat": 34.0550, "lng": 73.3900, "entryFee": 0, "localTransport": 0, "visitHours": 2, "requires4x4": false, "description": "Level 4 km forest walk between Nathia Gali and Dunga Gali along an old water pipeline."},
-        {"id": "st-matthews", "name": "St Matthew's Church", "category": "Historical", "lat": 34.0708, "lng": 73.3789, "entryFee": 0, "localTransport": 0, "visitHours": 1, "requires4x4": false, "description": "Wooden church built in 1914 in the middle of the Nathia Gali bazaar."}
+        {
+          "id": "mushkpuri",
+          "name": "Mushkpuri Top",
+          "category": "Trek",
+          "lat": 34.05,
+          "lng": 73.3833,
+          "entryFee": 100,
+          "localTransport": 0,
+          "visitHours": 5,
+          "requires4x4": false,
+          "description": "A 2,800 m summit, a 4 km walk up from Dunga Gali through pine and oak forest.",
+          "aliases": [
+            "Mushkpuri Top",
+            "Mushk Puri",
+            "Mushkpuri"
+          ]
+        },
+        {
+          "id": "miranjani",
+          "name": "Miranjani Top",
+          "category": "Trek",
+          "lat": 34.0833,
+          "lng": 73.4,
+          "entryFee": 100,
+          "localTransport": 0,
+          "visitHours": 6,
+          "requires4x4": false,
+          "description": "The highest point in the Galiyat at 2,992 m, reached from behind Nathia Gali bazaar.",
+          "aliases": [
+            "Miranjani Top",
+            "Miran Jani",
+            "Miranjani"
+          ]
+        },
+        {
+          "id": "pipeline-track",
+          "name": "Pipeline Track",
+          "category": "Walk",
+          "lat": 34.055,
+          "lng": 73.39,
+          "entryFee": 0,
+          "localTransport": 0,
+          "visitHours": 2,
+          "requires4x4": false,
+          "description": "Level 4 km forest walk between Nathia Gali and Dunga Gali along an old water pipeline.",
+          "aliases": [
+            "Pipeline Track",
+            "Pipe Line Track",
+            "Dunga Gali Track"
+          ]
+        },
+        {
+          "id": "st-matthews",
+          "name": "St Matthew's Church",
+          "category": "Historical",
+          "lat": 34.0708,
+          "lng": 73.3789,
+          "entryFee": 0,
+          "localTransport": 0,
+          "visitHours": 1,
+          "requires4x4": false,
+          "description": "Wooden church built in 1914 in the middle of the Nathia Gali bazaar.",
+          "aliases": [
+            "St Matthews Church",
+            "Saint Matthew Church"
+          ]
+        }
+      ],
+      "aliases": [
+        "Nathiagali",
+        "Nathiya Gali",
+        "Natia Gali",
+        "Galiyat"
       ]
     },
     {
@@ -231,21 +1077,86 @@
       "region": "Gilgit District",
       "province": "Gilgit-Baltistan",
       "category": "Mountains",
-      "lat": 35.9200,
-      "lng": 74.3080,
+      "lat": 35.92,
+      "lng": 74.308,
       "altitudeM": 1500,
       "recommendedDays": 3,
       "roadFactor": 1.55,
       "requires4x4": true,
       "difficulty": "Easy",
-      "bestMonths": [4, 5, 6, 7, 8, 9, 10],
+      "bestMonths": [
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
       "tagline": "The junction town of three mountain ranges",
       "description": "Gilgit is where the Karakoram, Hindu Kush and Himalaya meet, and the main resupply stop between Hunza, Skardu and Chitral.",
-      "highlights": ["Naltar Valley", "Rakaposhi View Point", "Kargah Buddha"],
+      "highlights": [
+        "Naltar Valley",
+        "Rakaposhi View Point",
+        "Kargah Buddha"
+      ],
       "attractions": [
-        {"id": "naltar", "name": "Naltar Valley", "category": "Valley", "lat": 36.1667, "lng": 74.1833, "entryFee": 0, "localTransport": 4500, "visitHours": 8, "requires4x4": true, "description": "Coloured lakes and a ski slope, 40 km up a rough jeep track from Gilgit."},
-        {"id": "rakaposhi-view", "name": "Rakaposhi View Point", "category": "Viewpoint", "lat": 36.1500, "lng": 74.4833, "entryFee": 0, "localTransport": 0, "visitHours": 2, "requires4x4": false, "description": "KKH cafe stop at Ghulmet looking directly at the 7,788 m Rakaposhi face."},
-        {"id": "kargah-buddha", "name": "Kargah Buddha", "category": "Historical", "lat": 35.9167, "lng": 74.2500, "entryFee": 0, "localTransport": 0, "visitHours": 2, "requires4x4": false, "description": "A 7th-century Buddha carved into a cliff 10 km west of Gilgit."}
+        {
+          "id": "naltar",
+          "name": "Naltar Valley",
+          "category": "Valley",
+          "lat": 36.1667,
+          "lng": 74.1833,
+          "entryFee": 0,
+          "localTransport": 4500,
+          "visitHours": 8,
+          "requires4x4": true,
+          "description": "Coloured lakes and a ski slope, 40 km up a rough jeep track from Gilgit.",
+          "aliases": [
+            "Naltar",
+            "Naltar Lakes",
+            "Naltar Valley",
+            "Naltar Ski"
+          ]
+        },
+        {
+          "id": "rakaposhi-view",
+          "name": "Rakaposhi View Point",
+          "category": "Viewpoint",
+          "lat": 36.15,
+          "lng": 74.4833,
+          "entryFee": 0,
+          "localTransport": 0,
+          "visitHours": 2,
+          "requires4x4": false,
+          "description": "KKH cafe stop at Ghulmet looking directly at the 7,788 m Rakaposhi face.",
+          "aliases": [
+            "Rakaposhi View Point",
+            "Ghulmet",
+            "Rakaposhi"
+          ]
+        },
+        {
+          "id": "kargah-buddha",
+          "name": "Kargah Buddha",
+          "category": "Historical",
+          "lat": 35.9167,
+          "lng": 74.25,
+          "entryFee": 0,
+          "localTransport": 0,
+          "visitHours": 2,
+          "requires4x4": false,
+          "description": "A 7th-century Buddha carved into a cliff 10 km west of Gilgit.",
+          "aliases": [
+            "Kargah Buddha",
+            "Kargah",
+            "Kargah Nala"
+          ]
+        }
+      ],
+      "aliases": [
+        "Gilgit City",
+        "Gilget"
       ]
     },
     {
@@ -261,15 +1172,97 @@
       "roadFactor": 1.65,
       "requires4x4": true,
       "difficulty": "Moderate",
-      "bestMonths": [4, 5, 6, 7, 8, 9, 10],
+      "bestMonths": [
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
       "tagline": "Hindu Kush valleys and the Kalash calendar",
       "description": "Chitral town sits under Tirich Mir on the Chitral River. Access from the south is through the Lowari Tunnel, which keeps the route open in winter.",
-      "highlights": ["Kalash Valleys", "Shandur Pass", "Chitral Fort", "Tirich Mir view"],
+      "highlights": [
+        "Kalash Valleys",
+        "Shandur Pass",
+        "Chitral Fort",
+        "Tirich Mir view"
+      ],
       "attractions": [
-        {"id": "bumburet", "name": "Bumburet, Kalash Valley", "category": "Culture", "lat": 35.7167, "lng": 71.6667, "entryFee": 500, "localTransport": 3000, "visitHours": 8, "requires4x4": true, "description": "Largest of the three Kalash valleys, 36 km from Chitral. A tourist permit fee applies."},
-        {"id": "rumbur", "name": "Rumbur Valley", "category": "Culture", "lat": 35.7500, "lng": 71.6500, "entryFee": 500, "localTransport": 3000, "visitHours": 6, "requires4x4": true, "description": "Quieter Kalash valley north of Bumburet, reached on a narrow jeep road."},
-        {"id": "shandur", "name": "Shandur Pass", "category": "Pass", "lat": 36.0833, "lng": 72.5000, "entryFee": 0, "localTransport": 8000, "visitHours": 12, "requires4x4": true, "description": "A 3,700 m pass with the world's highest polo ground, 160 km east of Chitral on a rough road."},
-        {"id": "chitral-fort", "name": "Chitral Fort and Shahi Masjid", "category": "Historical", "lat": 35.8500, "lng": 71.7833, "entryFee": 300, "localTransport": 0, "visitHours": 2, "requires4x4": false, "description": "Riverside fort of the Mehtars of Chitral, beside the 1924 Shahi Mosque."}
+        {
+          "id": "bumburet",
+          "name": "Bumburet, Kalash Valley",
+          "category": "Culture",
+          "lat": 35.7167,
+          "lng": 71.6667,
+          "entryFee": 500,
+          "localTransport": 3000,
+          "visitHours": 8,
+          "requires4x4": true,
+          "description": "Largest of the three Kalash valleys, 36 km from Chitral. A tourist permit fee applies.",
+          "aliases": [
+            "Bumburet",
+            "Kalash Valley",
+            "Bumboret",
+            "Kalasha Valley",
+            "Kalash"
+          ]
+        },
+        {
+          "id": "rumbur",
+          "name": "Rumbur Valley",
+          "category": "Culture",
+          "lat": 35.75,
+          "lng": 71.65,
+          "entryFee": 500,
+          "localTransport": 3000,
+          "visitHours": 6,
+          "requires4x4": true,
+          "description": "Quieter Kalash valley north of Bumburet, reached on a narrow jeep road.",
+          "aliases": [
+            "Rumbur",
+            "Rambur"
+          ]
+        },
+        {
+          "id": "shandur",
+          "name": "Shandur Pass",
+          "category": "Pass",
+          "lat": 36.0833,
+          "lng": 72.5,
+          "entryFee": 0,
+          "localTransport": 8000,
+          "visitHours": 12,
+          "requires4x4": true,
+          "description": "A 3,700 m pass with the world's highest polo ground, 160 km east of Chitral on a rough road.",
+          "aliases": [
+            "Shandur Pass",
+            "Shandur Top",
+            "Shandoor",
+            "Shandur Polo Ground"
+          ]
+        },
+        {
+          "id": "chitral-fort",
+          "name": "Chitral Fort and Shahi Masjid",
+          "category": "Historical",
+          "lat": 35.85,
+          "lng": 71.7833,
+          "entryFee": 300,
+          "localTransport": 0,
+          "visitHours": 2,
+          "requires4x4": false,
+          "description": "Riverside fort of the Mehtars of Chitral, beside the 1924 Shahi Mosque.",
+          "aliases": [
+            "Chitral Fort",
+            "Shahi Masjid Chitral"
+          ]
+        }
+      ],
+      "aliases": [
+        "Chitraal",
+        "Chitrar"
       ]
     },
     {
@@ -278,21 +1271,84 @@
       "region": "Jhelum Valley",
       "province": "Azad Jammu & Kashmir",
       "category": "Hills",
-      "lat": 34.3700,
+      "lat": 34.37,
       "lng": 73.4711,
       "altitudeM": 737,
       "recommendedDays": 2,
       "roadFactor": 1.45,
       "requires4x4": false,
       "difficulty": "Easy",
-      "bestMonths": [3, 4, 5, 6, 9, 10, 11],
+      "bestMonths": [
+        3,
+        4,
+        5,
+        6,
+        9,
+        10,
+        11
+      ],
       "tagline": "Where the Neelum meets the Jhelum",
       "description": "The AJK capital, sitting at the confluence of two rivers and the entry point for both the Neelum and Jhelum valley roads.",
-      "highlights": ["Pir Chinasi", "Red Fort", "Neelum-Jhelum confluence"],
+      "highlights": [
+        "Pir Chinasi",
+        "Red Fort",
+        "Neelum-Jhelum confluence"
+      ],
       "attractions": [
-        {"id": "pir-chinasi", "name": "Pir Chinasi", "category": "Viewpoint", "lat": 34.3833, "lng": 73.5667, "entryFee": 0, "localTransport": 1500, "visitHours": 4, "requires4x4": false, "description": "A 2,900 m ridge shrine 30 km east of the city, with views over the whole Jhelum valley."},
-        {"id": "red-fort", "name": "Red Fort (Muzaffarabad Fort)", "category": "Historical", "lat": 34.3736, "lng": 73.4750, "entryFee": 200, "localTransport": 0, "visitHours": 2, "requires4x4": false, "description": "A 16th-century Chak dynasty fort on the bank of the Neelum River."},
-        {"id": "subri-lake", "name": "Subri Lake", "category": "Lake", "lat": 34.3167, "lng": 73.4667, "entryFee": 100, "localTransport": 0, "visitHours": 2, "requires4x4": false, "description": "Reservoir lake south of the city with boating and lakeside restaurants."}
+        {
+          "id": "pir-chinasi",
+          "name": "Pir Chinasi",
+          "category": "Viewpoint",
+          "lat": 34.3833,
+          "lng": 73.5667,
+          "entryFee": 0,
+          "localTransport": 1500,
+          "visitHours": 4,
+          "requires4x4": false,
+          "description": "A 2,900 m ridge shrine 30 km east of the city, with views over the whole Jhelum valley.",
+          "aliases": [
+            "Pir Chinasi",
+            "Peer Chinasi",
+            "Pir Chanasi"
+          ]
+        },
+        {
+          "id": "red-fort",
+          "name": "Red Fort (Muzaffarabad Fort)",
+          "category": "Historical",
+          "lat": 34.3736,
+          "lng": 73.475,
+          "entryFee": 200,
+          "localTransport": 0,
+          "visitHours": 2,
+          "requires4x4": false,
+          "description": "A 16th-century Chak dynasty fort on the bank of the Neelum River.",
+          "aliases": [
+            "Red Fort Muzaffarabad",
+            "Muzaffarabad Fort",
+            "Rutta Qila"
+          ]
+        },
+        {
+          "id": "subri-lake",
+          "name": "Subri Lake",
+          "category": "Lake",
+          "lat": 34.3167,
+          "lng": 73.4667,
+          "entryFee": 100,
+          "localTransport": 0,
+          "visitHours": 2,
+          "requires4x4": false,
+          "description": "Reservoir lake south of the city with boating and lakeside restaurants.",
+          "aliases": [
+            "Subri Lake",
+            "Sabri Lake"
+          ]
+        }
+      ],
+      "aliases": [
+        "Muzafarabad",
+        "Mozaffarabad"
       ]
     },
     {
@@ -305,19 +1361,115 @@
       "lng": 73.0479,
       "altitudeM": 540,
       "recommendedDays": 2,
-      "roadFactor": 1.30,
+      "roadFactor": 1.3,
       "requires4x4": false,
       "difficulty": "Easy",
-      "bestMonths": [2, 3, 4, 9, 10, 11],
+      "bestMonths": [
+        2,
+        3,
+        4,
+        9,
+        10,
+        11
+      ],
       "tagline": "Margalla foothills and the country's cleanest streets",
       "description": "A planned city below the Margalla Hills, and the practical staging point for every northern route. Most sights sit inside a 30 km radius.",
-      "highlights": ["Faisal Mosque", "Daman-e-Koh", "Taxila", "Rawal Lake"],
+      "highlights": [
+        "Faisal Mosque",
+        "Daman-e-Koh",
+        "Taxila",
+        "Rawal Lake"
+      ],
       "attractions": [
-        {"id": "faisal-mosque", "name": "Faisal Mosque", "category": "Historical", "lat": 33.7295, "lng": 73.0372, "entryFee": 0, "localTransport": 0, "visitHours": 2, "requires4x4": false, "description": "Tent-shaped mosque at the foot of the Margallas, completed in 1986."},
-        {"id": "daman-e-koh", "name": "Daman-e-Koh", "category": "Viewpoint", "lat": 33.7386, "lng": 73.0551, "entryFee": 0, "localTransport": 0, "visitHours": 2, "requires4x4": false, "description": "Margalla terrace viewpoint looking down the length of the city grid."},
-        {"id": "taxila", "name": "Taxila Museum and Ruins", "category": "Historical", "lat": 33.7458, "lng": 72.7867, "entryFee": 500, "localTransport": 0, "visitHours": 4, "requires4x4": false, "description": "Gandharan archaeological sites and museum, 35 km west on the GT Road."},
-        {"id": "rawal-lake", "name": "Rawal Lake", "category": "Lake", "lat": 33.6969, "lng": 73.1258, "entryFee": 100, "localTransport": 0, "visitHours": 2, "requires4x4": false, "description": "Reservoir with a lakeside park and boating, between Islamabad and Rawalpindi."},
-        {"id": "khewra", "name": "Khewra Salt Mine", "category": "Nature", "lat": 32.6486, "lng": 73.0086, "entryFee": 800, "localTransport": 0, "visitHours": 5, "requires4x4": false, "description": "The world's second-largest salt mine, 160 km south on the M2. Train ride into the tunnels."}
+        {
+          "id": "faisal-mosque",
+          "name": "Faisal Mosque",
+          "category": "Historical",
+          "lat": 33.7295,
+          "lng": 73.0372,
+          "entryFee": 0,
+          "localTransport": 0,
+          "visitHours": 2,
+          "requires4x4": false,
+          "description": "Tent-shaped mosque at the foot of the Margallas, completed in 1986.",
+          "aliases": [
+            "Faisal Masjid",
+            "Shah Faisal Mosque"
+          ]
+        },
+        {
+          "id": "daman-e-koh",
+          "name": "Daman-e-Koh",
+          "category": "Viewpoint",
+          "lat": 33.7386,
+          "lng": 73.0551,
+          "entryFee": 0,
+          "localTransport": 0,
+          "visitHours": 2,
+          "requires4x4": false,
+          "description": "Margalla terrace viewpoint looking down the length of the city grid.",
+          "aliases": [
+            "Daman e Koh",
+            "Damane Koh",
+            "Daman-e-koh"
+          ]
+        },
+        {
+          "id": "taxila",
+          "name": "Taxila Museum and Ruins",
+          "category": "Historical",
+          "lat": 33.7458,
+          "lng": 72.7867,
+          "entryFee": 500,
+          "localTransport": 0,
+          "visitHours": 4,
+          "requires4x4": false,
+          "description": "Gandharan archaeological sites and museum, 35 km west on the GT Road.",
+          "aliases": [
+            "Taxila",
+            "Takshashila",
+            "Taxila Ruins"
+          ]
+        },
+        {
+          "id": "rawal-lake",
+          "name": "Rawal Lake",
+          "category": "Lake",
+          "lat": 33.6969,
+          "lng": 73.1258,
+          "entryFee": 100,
+          "localTransport": 0,
+          "visitHours": 2,
+          "requires4x4": false,
+          "description": "Reservoir with a lakeside park and boating, between Islamabad and Rawalpindi.",
+          "aliases": [
+            "Rawal Lake",
+            "Rawal Dam"
+          ]
+        },
+        {
+          "id": "khewra",
+          "name": "Khewra Salt Mine",
+          "category": "Nature",
+          "lat": 32.6486,
+          "lng": 73.0086,
+          "entryFee": 800,
+          "localTransport": 0,
+          "visitHours": 5,
+          "requires4x4": false,
+          "description": "The world's second-largest salt mine, 160 km south on the M2. Train ride into the tunnels.",
+          "aliases": [
+            "Khewra Salt Mine",
+            "Khewra",
+            "Salt Mine",
+            "Khewra Mine"
+          ]
+        }
+      ],
+      "aliases": [
+        "Isb",
+        "Islamabad Capital",
+        "Islamabaad"
       ]
     },
     {
@@ -333,16 +1485,110 @@
       "roadFactor": 1.25,
       "requires4x4": false,
       "difficulty": "Easy",
-      "bestMonths": [10, 11, 12, 1, 2, 3],
+      "bestMonths": [
+        10,
+        11,
+        12,
+        1,
+        2,
+        3
+      ],
       "tagline": "Mughal monuments and the country's loudest food street",
       "description": "The Walled City holds the densest cluster of Mughal-era buildings in Pakistan. Everything below sits within a 25 km radius of the centre.",
-      "highlights": ["Badshahi Mosque", "Lahore Fort", "Shalimar Gardens", "Wagah Border"],
+      "highlights": [
+        "Badshahi Mosque",
+        "Lahore Fort",
+        "Shalimar Gardens",
+        "Wagah Border"
+      ],
       "attractions": [
-        {"id": "badshahi", "name": "Badshahi Mosque", "category": "Historical", "lat": 31.5880, "lng": 74.3106, "entryFee": 0, "localTransport": 0, "visitHours": 2, "requires4x4": false, "description": "Aurangzeb's 1673 mosque facing the fort across Hazuri Bagh."},
-        {"id": "lahore-fort", "name": "Lahore Fort", "category": "Historical", "lat": 31.5880, "lng": 74.3155, "entryFee": 500, "localTransport": 0, "visitHours": 3, "requires4x4": false, "description": "UNESCO-listed citadel holding the Sheesh Mahal and Naulakha Pavilion."},
-        {"id": "shalimar", "name": "Shalimar Gardens", "category": "Historical", "lat": 31.5856, "lng": 74.3806, "entryFee": 500, "localTransport": 0, "visitHours": 2, "requires4x4": false, "description": "Terraced Mughal garden built in 1642 on the Grand Trunk Road."},
-        {"id": "wagah", "name": "Wagah Border Ceremony", "category": "Culture", "lat": 31.6047, "lng": 74.5730, "entryFee": 0, "localTransport": 1200, "visitHours": 4, "requires4x4": false, "description": "Evening flag-lowering parade at the India border, 25 km east of the city."},
-        {"id": "food-street", "name": "Fort Road Food Street", "category": "Food", "lat": 31.5847, "lng": 74.3097, "entryFee": 0, "localTransport": 0, "visitHours": 2, "requires4x4": false, "description": "Rooftop restaurants inside the Walled City facing Badshahi Mosque."}
+        {
+          "id": "badshahi",
+          "name": "Badshahi Mosque",
+          "category": "Historical",
+          "lat": 31.588,
+          "lng": 74.3106,
+          "entryFee": 0,
+          "localTransport": 0,
+          "visitHours": 2,
+          "requires4x4": false,
+          "description": "Aurangzeb's 1673 mosque facing the fort across Hazuri Bagh.",
+          "aliases": [
+            "Badshahi Masjid",
+            "Badshahi Mosque"
+          ]
+        },
+        {
+          "id": "lahore-fort",
+          "name": "Lahore Fort",
+          "category": "Historical",
+          "lat": 31.588,
+          "lng": 74.3155,
+          "entryFee": 500,
+          "localTransport": 0,
+          "visitHours": 3,
+          "requires4x4": false,
+          "description": "UNESCO-listed citadel holding the Sheesh Mahal and Naulakha Pavilion.",
+          "aliases": [
+            "Shahi Qila",
+            "Lahore Fort",
+            "Shahi Kila"
+          ]
+        },
+        {
+          "id": "shalimar",
+          "name": "Shalimar Gardens",
+          "category": "Historical",
+          "lat": 31.5856,
+          "lng": 74.3806,
+          "entryFee": 500,
+          "localTransport": 0,
+          "visitHours": 2,
+          "requires4x4": false,
+          "description": "Terraced Mughal garden built in 1642 on the Grand Trunk Road.",
+          "aliases": [
+            "Shalimar Bagh",
+            "Shalamar Gardens",
+            "Shalimar Garden"
+          ]
+        },
+        {
+          "id": "wagah",
+          "name": "Wagah Border Ceremony",
+          "category": "Culture",
+          "lat": 31.6047,
+          "lng": 74.573,
+          "entryFee": 0,
+          "localTransport": 1200,
+          "visitHours": 4,
+          "requires4x4": false,
+          "description": "Evening flag-lowering parade at the India border, 25 km east of the city.",
+          "aliases": [
+            "Wagah Border",
+            "Waga Border",
+            "Wagha Border"
+          ]
+        },
+        {
+          "id": "food-street",
+          "name": "Fort Road Food Street",
+          "category": "Food",
+          "lat": 31.5847,
+          "lng": 74.3097,
+          "entryFee": 0,
+          "localTransport": 0,
+          "visitHours": 2,
+          "requires4x4": false,
+          "description": "Rooftop restaurants inside the Walled City facing Badshahi Mosque.",
+          "aliases": [
+            "Fort Road Food Street",
+            "Food Street Lahore"
+          ]
+        }
+      ],
+      "aliases": [
+        "Lahor",
+        "Lahoor"
       ]
     },
     {
@@ -358,15 +1604,90 @@
       "roadFactor": 1.25,
       "requires4x4": false,
       "difficulty": "Easy",
-      "bestMonths": [11, 12, 1, 2, 3],
+      "bestMonths": [
+        11,
+        12,
+        1,
+        2,
+        3
+      ],
       "tagline": "City of saints and blue tilework",
       "description": "Multan's old city is built around a mound of Sufi shrines, most of them faced in the blue and turquoise tile the region is known for.",
-      "highlights": ["Shah Rukn-e-Alam", "Multan Fort", "Hussain Agahi Bazaar"],
+      "highlights": [
+        "Shah Rukn-e-Alam",
+        "Multan Fort",
+        "Hussain Agahi Bazaar"
+      ],
       "attractions": [
-        {"id": "rukn-e-alam", "name": "Tomb of Shah Rukn-e-Alam", "category": "Historical", "lat": 30.1978, "lng": 71.4697, "entryFee": 0, "localTransport": 0, "visitHours": 2, "requires4x4": false, "description": "A 14th-century octagonal brick tomb on the Multan Fort mound."},
-        {"id": "bahauddin-zakariya", "name": "Shrine of Bahauddin Zakariya", "category": "Historical", "lat": 30.2000, "lng": 71.4700, "entryFee": 0, "localTransport": 0, "visitHours": 1, "requires4x4": false, "description": "A 13th-century Suhrawardi shrine, the oldest on the fort mound."},
-        {"id": "multan-fort", "name": "Multan Fort (Qasim Bagh)", "category": "Historical", "lat": 30.1983, "lng": 71.4681, "entryFee": 0, "localTransport": 0, "visitHours": 2, "requires4x4": false, "description": "Remains of the old citadel, now a public park above the bazaars."},
-        {"id": "hussain-agahi", "name": "Hussain Agahi Bazaar", "category": "Bazaar", "lat": 30.1950, "lng": 71.4740, "entryFee": 0, "localTransport": 0, "visitHours": 2, "requires4x4": false, "description": "Old-city market for blue pottery, khussa shoes and camel-skin lamps."}
+        {
+          "id": "rukn-e-alam",
+          "name": "Tomb of Shah Rukn-e-Alam",
+          "category": "Historical",
+          "lat": 30.1978,
+          "lng": 71.4697,
+          "entryFee": 0,
+          "localTransport": 0,
+          "visitHours": 2,
+          "requires4x4": false,
+          "description": "A 14th-century octagonal brick tomb on the Multan Fort mound.",
+          "aliases": [
+            "Shah Rukn e Alam",
+            "Rukn-e-Alam",
+            "Rukne Alam"
+          ]
+        },
+        {
+          "id": "bahauddin-zakariya",
+          "name": "Shrine of Bahauddin Zakariya",
+          "category": "Historical",
+          "lat": 30.2,
+          "lng": 71.47,
+          "entryFee": 0,
+          "localTransport": 0,
+          "visitHours": 1,
+          "requires4x4": false,
+          "description": "A 13th-century Suhrawardi shrine, the oldest on the fort mound.",
+          "aliases": [
+            "Bahauddin Zakariya",
+            "Baha ud din Zakariya"
+          ]
+        },
+        {
+          "id": "multan-fort",
+          "name": "Multan Fort (Qasim Bagh)",
+          "category": "Historical",
+          "lat": 30.1983,
+          "lng": 71.4681,
+          "entryFee": 0,
+          "localTransport": 0,
+          "visitHours": 2,
+          "requires4x4": false,
+          "description": "Remains of the old citadel, now a public park above the bazaars.",
+          "aliases": [
+            "Qasim Bagh",
+            "Multan Fort"
+          ]
+        },
+        {
+          "id": "hussain-agahi",
+          "name": "Hussain Agahi Bazaar",
+          "category": "Bazaar",
+          "lat": 30.195,
+          "lng": 71.474,
+          "entryFee": 0,
+          "localTransport": 0,
+          "visitHours": 2,
+          "requires4x4": false,
+          "description": "Old-city market for blue pottery, khussa shoes and camel-skin lamps.",
+          "aliases": [
+            "Hussain Agahi",
+            "Husain Agahi Bazaar"
+          ]
+        }
+      ],
+      "aliases": [
+        "Multaan",
+        "City of Saints"
       ]
     },
     {
@@ -379,19 +1700,110 @@
       "lng": 67.0011,
       "altitudeM": 8,
       "recommendedDays": 3,
-      "roadFactor": 1.30,
+      "roadFactor": 1.3,
       "requires4x4": false,
       "difficulty": "Easy",
-      "bestMonths": [11, 12, 1, 2, 3],
+      "bestMonths": [
+        11,
+        12,
+        1,
+        2,
+        3
+      ],
       "tagline": "The port city, its beaches and its food",
       "description": "Pakistan's largest city and the main Arabian Sea port. Sights are spread out, so budget for local transport between them.",
-      "highlights": ["Clifton Beach", "Mohatta Palace", "Mazar-e-Quaid", "Manora"],
+      "highlights": [
+        "Clifton Beach",
+        "Mohatta Palace",
+        "Mazar-e-Quaid",
+        "Manora"
+      ],
       "attractions": [
-        {"id": "clifton-beach", "name": "Clifton Beach", "category": "Beach", "lat": 24.8000, "lng": 67.0300, "entryFee": 0, "localTransport": 0, "visitHours": 3, "requires4x4": false, "description": "The city's main urban beach, busiest at sunset and on weekends."},
-        {"id": "mohatta", "name": "Mohatta Palace Museum", "category": "Historical", "lat": 24.8172, "lng": 67.0300, "entryFee": 300, "localTransport": 0, "visitHours": 2, "requires4x4": false, "description": "A 1927 Rajasthani-stone palace in Clifton, now an exhibition museum."},
-        {"id": "mazar-e-quaid", "name": "Mazar-e-Quaid", "category": "Historical", "lat": 24.8756, "lng": 67.0403, "entryFee": 0, "localTransport": 0, "visitHours": 2, "requires4x4": false, "description": "The white marble mausoleum of Muhammad Ali Jinnah, set in a large park."},
-        {"id": "manora", "name": "Manora Island", "category": "Beach", "lat": 24.7969, "lng": 66.9800, "entryFee": 0, "localTransport": 900, "visitHours": 5, "requires4x4": false, "description": "Peninsula reached by ferry from Keamari, with a lighthouse and quiet beaches."},
-        {"id": "empress-market", "name": "Empress Market", "category": "Bazaar", "lat": 24.8700, "lng": 67.0281, "entryFee": 0, "localTransport": 0, "visitHours": 2, "requires4x4": false, "description": "An 1889 colonial market hall in Saddar, still the city's main produce bazaar."}
+        {
+          "id": "clifton-beach",
+          "name": "Clifton Beach",
+          "category": "Beach",
+          "lat": 24.8,
+          "lng": 67.03,
+          "entryFee": 0,
+          "localTransport": 0,
+          "visitHours": 3,
+          "requires4x4": false,
+          "description": "The city's main urban beach, busiest at sunset and on weekends.",
+          "aliases": [
+            "Clifton Beach",
+            "Sea View",
+            "Seaview Karachi"
+          ]
+        },
+        {
+          "id": "mohatta",
+          "name": "Mohatta Palace Museum",
+          "category": "Historical",
+          "lat": 24.8172,
+          "lng": 67.03,
+          "entryFee": 300,
+          "localTransport": 0,
+          "visitHours": 2,
+          "requires4x4": false,
+          "description": "A 1927 Rajasthani-stone palace in Clifton, now an exhibition museum.",
+          "aliases": [
+            "Mohatta Palace"
+          ]
+        },
+        {
+          "id": "mazar-e-quaid",
+          "name": "Mazar-e-Quaid",
+          "category": "Historical",
+          "lat": 24.8756,
+          "lng": 67.0403,
+          "entryFee": 0,
+          "localTransport": 0,
+          "visitHours": 2,
+          "requires4x4": false,
+          "description": "The white marble mausoleum of Muhammad Ali Jinnah, set in a large park.",
+          "aliases": [
+            "Mazar e Quaid",
+            "Quaid Mazar",
+            "Jinnah Mausoleum"
+          ]
+        },
+        {
+          "id": "manora",
+          "name": "Manora Island",
+          "category": "Beach",
+          "lat": 24.7969,
+          "lng": 66.98,
+          "entryFee": 0,
+          "localTransport": 900,
+          "visitHours": 5,
+          "requires4x4": false,
+          "description": "Peninsula reached by ferry from Keamari, with a lighthouse and quiet beaches.",
+          "aliases": [
+            "Manora Island",
+            "Manora",
+            "Manoora"
+          ]
+        },
+        {
+          "id": "empress-market",
+          "name": "Empress Market",
+          "category": "Bazaar",
+          "lat": 24.87,
+          "lng": 67.0281,
+          "entryFee": 0,
+          "localTransport": 0,
+          "visitHours": 2,
+          "requires4x4": false,
+          "description": "An 1889 colonial market hall in Saddar, still the city's main produce bazaar.",
+          "aliases": [
+            "Empress Market"
+          ]
+        }
+      ],
+      "aliases": [
+        "Karachee",
+        "Karanchi"
       ]
     },
     {
@@ -404,18 +1816,95 @@
       "lng": 65.4833,
       "altitudeM": 10,
       "recommendedDays": 2,
-      "roadFactor": 1.30,
+      "roadFactor": 1.3,
       "requires4x4": false,
       "difficulty": "Moderate",
-      "bestMonths": [11, 12, 1, 2, 3],
+      "bestMonths": [
+        11,
+        12,
+        1,
+        2,
+        3
+      ],
       "tagline": "Desert cliffs meeting the Arabian Sea",
       "description": "A beach on the Makran Coastal Highway inside Hingol National Park, about 240 km west of Karachi. There are no hotels, so most visitors day-trip or camp.",
-      "highlights": ["Kund Malir Beach", "Princess of Hope", "Hingol mud volcanoes"],
+      "highlights": [
+        "Kund Malir Beach",
+        "Princess of Hope",
+        "Hingol mud volcanoes"
+      ],
       "attractions": [
-        {"id": "kund-malir-beach", "name": "Kund Malir Beach", "category": "Beach", "lat": 25.5167, "lng": 65.4833, "entryFee": 0, "localTransport": 0, "visitHours": 4, "requires4x4": false, "description": "Wide sand beach below desert hills, directly on the coastal highway."},
-        {"id": "princess-of-hope", "name": "Princess of Hope", "category": "Viewpoint", "lat": 25.5183, "lng": 65.4839, "entryFee": 0, "localTransport": 0, "visitHours": 1, "requires4x4": false, "description": "Wind-carved rock formation beside the highway inside Hingol National Park."},
-        {"id": "chandragup", "name": "Chandragup Mud Volcano", "category": "Nature", "lat": 25.6000, "lng": 65.7000, "entryFee": 0, "localTransport": 1500, "visitHours": 3, "requires4x4": true, "description": "Active mud volcano and Hindu pilgrimage site, reached on a short desert track."},
-        {"id": "buzi-pass", "name": "Buzi Pass", "category": "Viewpoint", "lat": 25.5500, "lng": 65.6000, "entryFee": 0, "localTransport": 0, "visitHours": 1, "requires4x4": false, "description": "Highway pass through eroded badlands, the most photographed stretch of the route."}
+        {
+          "id": "kund-malir-beach",
+          "name": "Kund Malir Beach",
+          "category": "Beach",
+          "lat": 25.5167,
+          "lng": 65.4833,
+          "entryFee": 0,
+          "localTransport": 0,
+          "visitHours": 4,
+          "requires4x4": false,
+          "description": "Wide sand beach below desert hills, directly on the coastal highway.",
+          "aliases": [
+            "Kund Malir Beach",
+            "Kundmalir Beach"
+          ]
+        },
+        {
+          "id": "princess-of-hope",
+          "name": "Princess of Hope",
+          "category": "Viewpoint",
+          "lat": 25.5183,
+          "lng": 65.4839,
+          "entryFee": 0,
+          "localTransport": 0,
+          "visitHours": 1,
+          "requires4x4": false,
+          "description": "Wind-carved rock formation beside the highway inside Hingol National Park.",
+          "aliases": [
+            "Princess of Hope",
+            "Princes of Hope"
+          ]
+        },
+        {
+          "id": "chandragup",
+          "name": "Chandragup Mud Volcano",
+          "category": "Nature",
+          "lat": 25.6,
+          "lng": 65.7,
+          "entryFee": 0,
+          "localTransport": 1500,
+          "visitHours": 3,
+          "requires4x4": true,
+          "description": "Active mud volcano and Hindu pilgrimage site, reached on a short desert track.",
+          "aliases": [
+            "Chandragup",
+            "Chandra Gup",
+            "Mud Volcano"
+          ]
+        },
+        {
+          "id": "buzi-pass",
+          "name": "Buzi Pass",
+          "category": "Viewpoint",
+          "lat": 25.55,
+          "lng": 65.6,
+          "entryFee": 0,
+          "localTransport": 0,
+          "visitHours": 1,
+          "requires4x4": false,
+          "description": "Highway pass through eroded badlands, the most photographed stretch of the route.",
+          "aliases": [
+            "Buzi Pass",
+            "Buzzi Pass"
+          ]
+        }
+      ],
+      "aliases": [
+        "Kund Malir",
+        "Kundmalir",
+        "Hingol",
+        "Kund Maleer"
       ]
     },
     {
@@ -428,17 +1917,79 @@
       "lng": 62.3225,
       "altitudeM": 12,
       "recommendedDays": 3,
-      "roadFactor": 1.30,
+      "roadFactor": 1.3,
       "requires4x4": false,
       "difficulty": "Moderate",
-      "bestMonths": [11, 12, 1, 2, 3],
+      "bestMonths": [
+        11,
+        12,
+        1,
+        2,
+        3
+      ],
       "tagline": "A hammerhead peninsula on the Arabian Sea",
       "description": "Gwadar sits on a tombolo between two bays, backed by the Koh-e-Batil ridge. It is a long drive from Karachi, so most visitors fly or break the journey at Kund Malir.",
-      "highlights": ["Koh-e-Batil", "Astola Island", "West Bay"],
+      "highlights": [
+        "Koh-e-Batil",
+        "Astola Island",
+        "West Bay"
+      ],
       "attractions": [
-        {"id": "koh-e-batil", "name": "Koh-e-Batil Viewpoint", "category": "Viewpoint", "lat": 25.1150, "lng": 62.3200, "entryFee": 0, "localTransport": 500, "visitHours": 2, "requires4x4": false, "description": "Flat-topped ridge above the port with views over both bays."},
-        {"id": "astola", "name": "Astola Island", "category": "Island", "lat": 25.1214, "lng": 63.8425, "entryFee": 0, "localTransport": 12000, "visitHours": 12, "requires4x4": false, "description": "Pakistan's largest offshore island, a 5 hour boat trip from Pasni. Camping only."},
-        {"id": "west-bay", "name": "Gwadar West Bay", "category": "Beach", "lat": 25.1300, "lng": 62.3100, "entryFee": 0, "localTransport": 0, "visitHours": 3, "requires4x4": false, "description": "Long crescent beach on the western side of the peninsula."}
+        {
+          "id": "koh-e-batil",
+          "name": "Koh-e-Batil Viewpoint",
+          "category": "Viewpoint",
+          "lat": 25.115,
+          "lng": 62.32,
+          "entryFee": 0,
+          "localTransport": 500,
+          "visitHours": 2,
+          "requires4x4": false,
+          "description": "Flat-topped ridge above the port with views over both bays.",
+          "aliases": [
+            "Koh e Batil",
+            "Koh-e-Batil",
+            "Batil Hill"
+          ]
+        },
+        {
+          "id": "astola",
+          "name": "Astola Island",
+          "category": "Island",
+          "lat": 25.1214,
+          "lng": 63.8425,
+          "entryFee": 0,
+          "localTransport": 12000,
+          "visitHours": 12,
+          "requires4x4": false,
+          "description": "Pakistan's largest offshore island, a 5 hour boat trip from Pasni. Camping only.",
+          "aliases": [
+            "Astola Island",
+            "Haft Talar",
+            "Astola"
+          ]
+        },
+        {
+          "id": "west-bay",
+          "name": "Gwadar West Bay",
+          "category": "Beach",
+          "lat": 25.13,
+          "lng": 62.31,
+          "entryFee": 0,
+          "localTransport": 0,
+          "visitHours": 3,
+          "requires4x4": false,
+          "description": "Long crescent beach on the western side of the peninsula.",
+          "aliases": [
+            "Gwadar West Bay",
+            "West Bay"
+          ]
+        }
+      ],
+      "aliases": [
+        "Gawadar",
+        "Gwader",
+        "Gawader"
       ]
     },
     {
@@ -454,15 +2005,1354 @@
       "roadFactor": 1.45,
       "requires4x4": false,
       "difficulty": "Easy",
-      "bestMonths": [4, 5, 6, 7, 8, 9, 10],
+      "bestMonths": [
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
       "tagline": "The world's second-largest juniper forest",
       "description": "Ziarat is a 2,450 m hill town 120 km east of Quetta, surrounded by juniper stands that are several thousand years old.",
-      "highlights": ["Quaid-e-Azam Residency", "Juniper forest", "Hanna Lake"],
+      "highlights": [
+        "Quaid-e-Azam Residency",
+        "Juniper forest",
+        "Hanna Lake"
+      ],
       "attractions": [
-        {"id": "quaid-residency", "name": "Quaid-e-Azam Residency", "category": "Historical", "lat": 30.3819, "lng": 67.7267, "entryFee": 200, "localTransport": 0, "visitHours": 2, "requires4x4": false, "description": "Wooden colonial residency where Jinnah spent his final months, rebuilt after 2013."},
-        {"id": "juniper-forest", "name": "Ziarat Juniper Forest", "category": "Nature", "lat": 30.3700, "lng": 67.7300, "entryFee": 100, "localTransport": 0, "visitHours": 3, "requires4x4": false, "description": "Protected juniper stand, with individual trees estimated at over 4,000 years old."},
-        {"id": "hanna-lake", "name": "Hanna Lake", "category": "Lake", "lat": 30.2167, "lng": 67.0833, "entryFee": 100, "localTransport": 0, "visitHours": 2, "requires4x4": false, "description": "Reservoir in the Urak valley 10 km from Quetta, with boating and a lakeside island."},
-        {"id": "hazarganji", "name": "Hazarganji-Chiltan National Park", "category": "Park", "lat": 30.1167, "lng": 66.8500, "entryFee": 200, "localTransport": 0, "visitHours": 4, "requires4x4": false, "description": "Mountain park south-west of Quetta protecting the Chiltan wild goat."}
+        {
+          "id": "quaid-residency",
+          "name": "Quaid-e-Azam Residency",
+          "category": "Historical",
+          "lat": 30.3819,
+          "lng": 67.7267,
+          "entryFee": 200,
+          "localTransport": 0,
+          "visitHours": 2,
+          "requires4x4": false,
+          "description": "Wooden colonial residency where Jinnah spent his final months, rebuilt after 2013.",
+          "aliases": [
+            "Quaid e Azam Residency",
+            "Jinnah Residency"
+          ]
+        },
+        {
+          "id": "juniper-forest",
+          "name": "Ziarat Juniper Forest",
+          "category": "Nature",
+          "lat": 30.37,
+          "lng": 67.73,
+          "entryFee": 100,
+          "localTransport": 0,
+          "visitHours": 3,
+          "requires4x4": false,
+          "description": "Protected juniper stand, with individual trees estimated at over 4,000 years old.",
+          "aliases": [
+            "Juniper Forest Ziarat",
+            "Ziarat Juniper"
+          ]
+        },
+        {
+          "id": "hanna-lake",
+          "name": "Hanna Lake",
+          "category": "Lake",
+          "lat": 30.2167,
+          "lng": 67.0833,
+          "entryFee": 100,
+          "localTransport": 0,
+          "visitHours": 2,
+          "requires4x4": false,
+          "description": "Reservoir in the Urak valley 10 km from Quetta, with boating and a lakeside island.",
+          "aliases": [
+            "Hanna Lake",
+            "Hana Lake"
+          ]
+        },
+        {
+          "id": "hazarganji",
+          "name": "Hazarganji-Chiltan National Park",
+          "category": "Park",
+          "lat": 30.1167,
+          "lng": 66.85,
+          "entryFee": 200,
+          "localTransport": 0,
+          "visitHours": 4,
+          "requires4x4": false,
+          "description": "Mountain park south-west of Quetta protecting the Chiltan wild goat.",
+          "aliases": [
+            "Hazarganji Chiltan",
+            "Chiltan Park"
+          ]
+        }
+      ],
+      "aliases": [
+        "Zairat",
+        "Quetta Ziarat",
+        "Ziyarat"
+      ]
+    },
+    {
+      "id": "thandiani",
+      "name": "Thandiani",
+      "region": "Galiyat",
+      "province": "Khyber Pakhtunkhwa",
+      "category": "Hills",
+      "lat": 34.2333,
+      "lng": 73.3667,
+      "altitudeM": 2750,
+      "recommendedDays": 2,
+      "roadFactor": 1.5,
+      "requires4x4": false,
+      "difficulty": "Easy",
+      "bestMonths": [
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "tagline": "A cold pine ridge above Abbottabad",
+      "description": "Thandiani sits at 2,750 m on a forested ridge 31 km east of Abbottabad, and is the quietest of the Galiyat hill stations. The name means \"very cold\". The approach road is narrow and unlit, so it is normally done as a daylight run.",
+      "highlights": [
+        "Thandiani Top",
+        "Pine forest walks",
+        "Kashmir range views"
+      ],
+      "aliases": [
+        "Thandyani",
+        "Thandyani Top",
+        "Thandiani Top",
+        "Thandiyani",
+        "Thandani",
+        "Thandiani Abbottabad"
+      ],
+      "attractions": [
+        {
+          "id": "thandiani-top",
+          "name": "Thandiani Top",
+          "category": "Viewpoint",
+          "lat": 34.2333,
+          "lng": 73.3667,
+          "entryFee": 100,
+          "localTransport": 0,
+          "visitHours": 2,
+          "requires4x4": false,
+          "description": "The ridge itself, looking east to the Kashmir mountains and north to Nanga Parbat on a clear morning.",
+          "aliases": [
+            "Thandyani Top",
+            "Thandiani Point"
+          ]
+        },
+        {
+          "id": "thandiani-forest-walk",
+          "name": "Thandiani Forest Trail",
+          "category": "Walk",
+          "lat": 34.23,
+          "lng": 73.36,
+          "entryFee": 0,
+          "localTransport": 0,
+          "visitHours": 2,
+          "requires4x4": false,
+          "description": "An easy walk through pine and fir along the ridge, with no facilities beyond the parking area.",
+          "aliases": []
+        },
+        {
+          "id": "ilyasi-mosque",
+          "name": "Ilyasi Mosque",
+          "category": "Historical",
+          "lat": 34.1631,
+          "lng": 73.2419,
+          "entryFee": 0,
+          "localTransport": 0,
+          "visitHours": 1,
+          "requires4x4": false,
+          "description": "A spring-fed mosque at Nawanshehr on the Abbottabad side, known for the food stalls around it.",
+          "aliases": [
+            "Ilyasi Masjid",
+            "Iliyasi Mosque"
+          ]
+        },
+        {
+          "id": "harnoi",
+          "name": "Harnoi",
+          "category": "Nature",
+          "lat": 34.2,
+          "lng": 73.2833,
+          "entryFee": 100,
+          "localTransport": 0,
+          "visitHours": 2,
+          "requires4x4": false,
+          "description": "A stream and picnic spot on the road up from Abbottabad, busy on weekends.",
+          "aliases": [
+            "Harnoi Picnic Spot"
+          ]
+        },
+        {
+          "id": "shimla-peak",
+          "name": "Shimla Peak",
+          "category": "Viewpoint",
+          "lat": 34.1667,
+          "lng": 73.2167,
+          "entryFee": 100,
+          "localTransport": 0,
+          "visitHours": 1,
+          "requires4x4": false,
+          "description": "A short climb above Abbottabad city with a view over the whole valley.",
+          "aliases": [
+            "Shimla Hill",
+            "Shimla Pahari"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "rawalakot",
+      "name": "Rawalakot",
+      "region": "Poonch",
+      "province": "Azad Jammu & Kashmir",
+      "category": "Hills",
+      "lat": 33.8578,
+      "lng": 73.7602,
+      "altitudeM": 1638,
+      "recommendedDays": 3,
+      "roadFactor": 1.55,
+      "requires4x4": true,
+      "difficulty": "Easy",
+      "bestMonths": [
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "tagline": "Pine bowls and lake picnics in Poonch",
+      "description": "Rawalakot lies in a wide bowl of terraced fields and pine at 1,638 m, and is the base for Banjosa and the Toli Peer ridge. Roughly a four hour drive from Islamabad.",
+      "highlights": [
+        "Banjosa Lake",
+        "Toli Peer",
+        "Devi Gali"
+      ],
+      "aliases": [
+        "Rawalakot Poonch",
+        "Rawlakot",
+        "Rawalakot City"
+      ],
+      "attractions": [
+        {
+          "id": "banjosa-lake",
+          "name": "Banjosa Lake",
+          "category": "Lake",
+          "lat": 33.8,
+          "lng": 73.8167,
+          "entryFee": 200,
+          "localTransport": 600,
+          "visitHours": 3,
+          "requires4x4": false,
+          "description": "An artificial lake ringed by pine at 1,981 m, 18 km from Rawalakot, with boating and a rest house.",
+          "aliases": [
+            "Banjosa",
+            "Ban Josa Lake"
+          ]
+        },
+        {
+          "id": "toli-peer",
+          "name": "Toli Peer",
+          "category": "Meadow",
+          "lat": 33.7833,
+          "lng": 73.9167,
+          "entryFee": 100,
+          "localTransport": 1500,
+          "visitHours": 4,
+          "requires4x4": true,
+          "description": "A 2,743 m grass ridge 30 km from Rawalakot, the last stretch on a rough jeep track.",
+          "aliases": [
+            "Toli Pir",
+            "Tolipeer",
+            "Toli Peer Top"
+          ]
+        },
+        {
+          "id": "devi-gali",
+          "name": "Devi Gali",
+          "category": "Viewpoint",
+          "lat": 33.83,
+          "lng": 73.83,
+          "entryFee": 0,
+          "localTransport": 400,
+          "visitHours": 2,
+          "requires4x4": false,
+          "description": "A roadside pass on the Banjosa road with views back over the Rawalakot bowl.",
+          "aliases": [
+            "Devi Gali Top"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "astore",
+      "name": "Astore & Rama",
+      "region": "Astore",
+      "province": "Gilgit-Baltistan",
+      "category": "Mountains",
+      "lat": 35.3667,
+      "lng": 74.85,
+      "altitudeM": 2600,
+      "recommendedDays": 3,
+      "roadFactor": 1.65,
+      "requires4x4": true,
+      "difficulty": "Moderate",
+      "bestMonths": [
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "tagline": "The quiet side of Nanga Parbat",
+      "description": "Astore town sits on the road between the Karakoram Highway and Deosai. Rama, 11 km above it, is a pine meadow and lake facing the Nanga Parbat ice.",
+      "highlights": [
+        "Rama Lake",
+        "Rama Meadow",
+        "Rupal Face"
+      ],
+      "aliases": [
+        "Astor",
+        "Rama",
+        "Rama Lake Astore",
+        "Astore Valley"
+      ],
+      "attractions": [
+        {
+          "id": "rama-lake",
+          "name": "Rama Lake",
+          "category": "Lake",
+          "lat": 35.3667,
+          "lng": 74.8167,
+          "entryFee": 200,
+          "localTransport": 1500,
+          "visitHours": 4,
+          "requires4x4": true,
+          "description": "A glacial lake above Rama meadow at about 3,300 m, reached by jeep then a short walk.",
+          "aliases": [
+            "Rama Lake",
+            "Ramma Lake"
+          ]
+        },
+        {
+          "id": "rama-meadow",
+          "name": "Rama Meadow",
+          "category": "Meadow",
+          "lat": 35.36,
+          "lng": 74.81,
+          "entryFee": 100,
+          "localTransport": 800,
+          "visitHours": 3,
+          "requires4x4": false,
+          "description": "Pine-ringed grass at 3,000 m with the standard camping ground and a PTDC rest house.",
+          "aliases": [
+            "Rama Meadows"
+          ]
+        },
+        {
+          "id": "rupal-face",
+          "name": "Rupal Face",
+          "category": "Trek",
+          "lat": 35.2167,
+          "lng": 74.6,
+          "entryFee": 0,
+          "localTransport": 3000,
+          "visitHours": 9,
+          "requires4x4": true,
+          "description": "The 4,600 m south wall of Nanga Parbat, the highest mountain face on earth, reached via Tarashing.",
+          "aliases": [
+            "Rupal Valley",
+            "Rupal",
+            "Tarashing"
+          ]
+        },
+        {
+          "id": "minimarg",
+          "name": "Minimarg",
+          "category": "Valley",
+          "lat": 34.9333,
+          "lng": 75.0333,
+          "entryFee": 0,
+          "localTransport": 4000,
+          "visitHours": 9,
+          "requires4x4": true,
+          "description": "A meadow valley beyond Domail on the Burzil road, close to the Line of Control. Permit territory.",
+          "aliases": [
+            "Mini Marg",
+            "Minimarg Valley"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "phander",
+      "name": "Phander Valley",
+      "region": "Ghizer",
+      "province": "Gilgit-Baltistan",
+      "category": "Valleys",
+      "lat": 36.15,
+      "lng": 72.4667,
+      "altitudeM": 2900,
+      "recommendedDays": 3,
+      "roadFactor": 1.6,
+      "requires4x4": true,
+      "difficulty": "Moderate",
+      "bestMonths": [
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "tagline": "Blue water and poplars on the Gilgit river",
+      "description": "Phander sits at 2,900 m on the Gilgit to Chitral road, a string of blue lake pools between poplar stands. The road onward over Shandur is seasonal.",
+      "highlights": [
+        "Phander Lake",
+        "Khalti Lake",
+        "Handrap Lake"
+      ],
+      "aliases": [
+        "Phandar",
+        "Pandar Valley",
+        "Phander Lake",
+        "Fandar"
+      ],
+      "attractions": [
+        {
+          "id": "phander-lake",
+          "name": "Phander Lake",
+          "category": "Lake",
+          "lat": 36.15,
+          "lng": 72.4667,
+          "entryFee": 100,
+          "localTransport": 0,
+          "visitHours": 3,
+          "requires4x4": false,
+          "description": "The main lake beside the road, known for trout and for the viewpoint above the bend.",
+          "aliases": [
+            "Phandar Lake"
+          ]
+        },
+        {
+          "id": "khalti-lake",
+          "name": "Khalti Lake",
+          "category": "Lake",
+          "lat": 36.1667,
+          "lng": 72.8333,
+          "entryFee": 100,
+          "localTransport": 0,
+          "visitHours": 2,
+          "requires4x4": false,
+          "description": "A wide lake at Gupis, 60 km before Phander, which freezes hard enough to walk on in winter.",
+          "aliases": [
+            "Khalti",
+            "Khalti Lake Gupis"
+          ]
+        },
+        {
+          "id": "handrap-lake",
+          "name": "Handrap Lake",
+          "category": "Lake",
+          "lat": 36.1833,
+          "lng": 72.5333,
+          "entryFee": 0,
+          "localTransport": 1500,
+          "visitHours": 5,
+          "requires4x4": true,
+          "description": "A side-valley lake above Phander, reached on a rough track then a walk.",
+          "aliases": [
+            "Handarap Lake",
+            "Handrap"
+          ]
+        },
+        {
+          "id": "shandur-phander",
+          "name": "Shandur Pass from Phander",
+          "category": "Pass",
+          "lat": 36.0833,
+          "lng": 72.5,
+          "entryFee": 0,
+          "localTransport": 5000,
+          "visitHours": 8,
+          "requires4x4": true,
+          "description": "The 3,700 m polo ground pass, about 75 km west of Phander on an unpaved road.",
+          "aliases": [
+            "Shandur",
+            "Shandur Top"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "khanpur",
+      "name": "Khanpur Lake",
+      "region": "Haripur",
+      "province": "Khyber Pakhtunkhwa",
+      "category": "Lakes",
+      "lat": 33.8,
+      "lng": 72.9333,
+      "altitudeM": 480,
+      "recommendedDays": 1,
+      "roadFactor": 1.3,
+      "requires4x4": false,
+      "difficulty": "Easy",
+      "bestMonths": [
+        2,
+        3,
+        4,
+        9,
+        10,
+        11
+      ],
+      "tagline": "Islamabad’s nearest water day trip",
+      "description": "A reservoir on the Haro River about 40 km from Islamabad, and the closest place to the capital for boating, cliff jumping and kayaking. Comfortably a day trip.",
+      "highlights": [
+        "Boating",
+        "Cliff diving",
+        "Shah Allah Ditta caves"
+      ],
+      "aliases": [
+        "Khanpur Dam",
+        "Khan Pur Lake",
+        "Khanpur"
+      ],
+      "attractions": [
+        {
+          "id": "khanpur-lake-shore",
+          "name": "Khanpur Lake Shore",
+          "category": "Lake",
+          "lat": 33.8,
+          "lng": 72.9333,
+          "entryFee": 200,
+          "localTransport": 800,
+          "visitHours": 4,
+          "requires4x4": false,
+          "description": "The main jetty area, where boats, jet skis and kayaks are hired by the hour.",
+          "aliases": [
+            "Khanpur Dam"
+          ]
+        },
+        {
+          "id": "khanpur-cliff-diving",
+          "name": "Cliff Diving Point",
+          "category": "Resort",
+          "lat": 33.805,
+          "lng": 72.93,
+          "entryFee": 1500,
+          "localTransport": 0,
+          "visitHours": 3,
+          "requires4x4": false,
+          "description": "A run of managed jumping platforms with kayaks and zip lines, charged as a day pass.",
+          "aliases": [
+            "Khanpur Cliff Diving"
+          ]
+        },
+        {
+          "id": "shah-allah-ditta",
+          "name": "Shah Allah Ditta Caves",
+          "category": "Historical",
+          "lat": 33.7167,
+          "lng": 72.9167,
+          "entryFee": 0,
+          "localTransport": 0,
+          "visitHours": 2,
+          "requires4x4": false,
+          "description": "Buddhist-era caves and a banyan grove on the far side of the Margallas, on the way back.",
+          "aliases": [
+            "Shah Allah Ditta",
+            "Sadhu ka Bagh"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "soon-valley",
+      "name": "Soon Valley",
+      "region": "Khushab",
+      "province": "Punjab",
+      "category": "Valleys",
+      "lat": 32.6167,
+      "lng": 72.0833,
+      "altitudeM": 750,
+      "recommendedDays": 2,
+      "roadFactor": 1.35,
+      "requires4x4": false,
+      "difficulty": "Easy",
+      "bestMonths": [
+        2,
+        3,
+        4,
+        9,
+        10,
+        11
+      ],
+      "tagline": "Salt Range lakes and orchards",
+      "description": "A green valley in the Salt Range about 220 km from Islamabad, with three brackish lakes that pull flamingos in winter. Reachable in an ordinary car.",
+      "highlights": [
+        "Khabeki Lake",
+        "Uchhali Lake",
+        "Sakesar",
+        "Kanhatti Garden"
+      ],
+      "aliases": [
+        "Soon Sakesar",
+        "Soon Valley Khushab",
+        "Sun Valley Khushab"
+      ],
+      "attractions": [
+        {
+          "id": "khabeki-lake",
+          "name": "Khabeki Lake",
+          "category": "Lake",
+          "lat": 32.6167,
+          "lng": 72.0833,
+          "entryFee": 100,
+          "localTransport": 0,
+          "visitHours": 2,
+          "requires4x4": false,
+          "description": "A shallow salt lake below Sakesar, the easiest of the three to reach.",
+          "aliases": [
+            "Khabeki",
+            "Khabbeki Lake"
+          ]
+        },
+        {
+          "id": "uchhali-lake",
+          "name": "Uchhali Lake",
+          "category": "Lake",
+          "lat": 32.55,
+          "lng": 72.0167,
+          "entryFee": 100,
+          "localTransport": 0,
+          "visitHours": 2,
+          "requires4x4": false,
+          "description": "The largest of the Salt Range lakes, a wintering site for flamingos and cranes.",
+          "aliases": [
+            "Uchali Lake",
+            "Ucchali"
+          ]
+        },
+        {
+          "id": "sakesar",
+          "name": "Sakesar",
+          "category": "Viewpoint",
+          "lat": 32.5333,
+          "lng": 71.95,
+          "entryFee": 100,
+          "localTransport": 0,
+          "visitHours": 2,
+          "requires4x4": false,
+          "description": "At 1,522 m the highest point of the Salt Range, with a view over all three lakes.",
+          "aliases": [
+            "Sakesar Peak",
+            "Sakaser"
+          ]
+        },
+        {
+          "id": "kanhatti-garden",
+          "name": "Kanhatti Garden",
+          "category": "Park",
+          "lat": 32.65,
+          "lng": 72.1,
+          "entryFee": 200,
+          "localTransport": 0,
+          "visitHours": 2,
+          "requires4x4": false,
+          "description": "A spring-fed orchard garden with a small waterfall, popular for picnics.",
+          "aliases": [
+            "Kanhatti",
+            "Kanhati Garden"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "thatta",
+      "name": "Thatta & Keenjhar",
+      "region": "Lower Sindh",
+      "province": "Sindh",
+      "category": "Historical",
+      "lat": 24.7461,
+      "lng": 67.9243,
+      "altitudeM": 13,
+      "recommendedDays": 2,
+      "roadFactor": 1.25,
+      "requires4x4": false,
+      "difficulty": "Easy",
+      "bestMonths": [
+        11,
+        12,
+        1,
+        2,
+        3
+      ],
+      "tagline": "A necropolis, a tiled mosque and a lake",
+      "description": "Thatta lies about 100 km east of Karachi and holds the Makli necropolis, one of the largest burial grounds anywhere, alongside Shah Jahan’s tiled mosque.",
+      "highlights": [
+        "Makli Necropolis",
+        "Shah Jahan Mosque",
+        "Keenjhar Lake",
+        "Ranikot Fort"
+      ],
+      "aliases": [
+        "Thata",
+        "Makli",
+        "Keenjhar",
+        "Thatta Sindh"
+      ],
+      "attractions": [
+        {
+          "id": "makli-necropolis",
+          "name": "Makli Necropolis",
+          "category": "Historical",
+          "lat": 24.7667,
+          "lng": 67.9,
+          "entryFee": 500,
+          "localTransport": 0,
+          "visitHours": 3,
+          "requires4x4": false,
+          "description": "A UNESCO site of half a million tombs spread over 10 km² of ridge, built between the 14th and 18th centuries.",
+          "aliases": [
+            "Makli Hill",
+            "Makli Graveyard",
+            "Chaukhandi"
+          ]
+        },
+        {
+          "id": "shah-jahan-mosque",
+          "name": "Shah Jahan Mosque",
+          "category": "Historical",
+          "lat": 24.7461,
+          "lng": 67.9243,
+          "entryFee": 300,
+          "localTransport": 0,
+          "visitHours": 1,
+          "requires4x4": false,
+          "description": "A 1647 mosque faced in blue Sindhi tile, with 93 domes and no minarets.",
+          "aliases": [
+            "Jamia Masjid Thatta",
+            "Shahjahan Mosque"
+          ]
+        },
+        {
+          "id": "keenjhar-lake",
+          "name": "Keenjhar Lake",
+          "category": "Lake",
+          "lat": 24.9333,
+          "lng": 68.05,
+          "entryFee": 200,
+          "localTransport": 800,
+          "visitHours": 4,
+          "requires4x4": false,
+          "description": "Pakistan’s largest freshwater lake and Karachi’s water supply, with boating along the near shore.",
+          "aliases": [
+            "Kinjhar Lake",
+            "Kalri Lake",
+            "Keenjhar"
+          ]
+        },
+        {
+          "id": "ranikot-fort",
+          "name": "Ranikot Fort",
+          "category": "Historical",
+          "lat": 25.8833,
+          "lng": 67.9,
+          "entryFee": 300,
+          "localTransport": 2000,
+          "visitHours": 6,
+          "requires4x4": false,
+          "description": "The Great Wall of Sindh: a 30 km circuit of rampart in the Kirthar hills, about 180 km north of Thatta.",
+          "aliases": [
+            "Rani Kot",
+            "Great Wall of Sindh",
+            "Ranikot"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "peshawar",
+      "name": "Peshawar",
+      "region": "Central KP",
+      "province": "Khyber Pakhtunkhwa",
+      "category": "Historical",
+      "lat": 34.0151,
+      "lng": 71.5249,
+      "altitudeM": 359,
+      "recommendedDays": 2,
+      "roadFactor": 1.28,
+      "requires4x4": false,
+      "difficulty": "Easy",
+      "bestMonths": [
+        10,
+        11,
+        12,
+        1,
+        2,
+        3
+      ],
+      "tagline": "Storytellers’ bazaar and the Khyber road",
+      "description": "One of the oldest continuously inhabited cities in South Asia, at the eastern end of the Khyber Pass. The walled city, the museum and the food are the draw.",
+      "highlights": [
+        "Qissa Khwani Bazaar",
+        "Peshawar Museum",
+        "Bala Hisar",
+        "Khyber Pass"
+      ],
+      "aliases": [
+        "Pashawar",
+        "Peshawer",
+        "Pekhawar"
+      ],
+      "attractions": [
+        {
+          "id": "qissa-khwani",
+          "name": "Qissa Khwani Bazaar",
+          "category": "Bazaar",
+          "lat": 34.01,
+          "lng": 71.57,
+          "entryFee": 0,
+          "localTransport": 300,
+          "visitHours": 2,
+          "requires4x4": false,
+          "description": "The storytellers’ bazaar in the old city, the traditional caravan stop and still the best street food.",
+          "aliases": [
+            "Qissa Khwani",
+            "Story Tellers Bazaar",
+            "Kissa Khwani"
+          ]
+        },
+        {
+          "id": "peshawar-museum",
+          "name": "Peshawar Museum",
+          "category": "Historical",
+          "lat": 34.0086,
+          "lng": 71.5661,
+          "entryFee": 300,
+          "localTransport": 0,
+          "visitHours": 2,
+          "requires4x4": false,
+          "description": "Holds one of the world’s largest collections of Gandharan Buddhist sculpture.",
+          "aliases": [
+            "Peshawar Museum Gandhara"
+          ]
+        },
+        {
+          "id": "bala-hisar",
+          "name": "Bala Hisar Fort",
+          "category": "Historical",
+          "lat": 34.0167,
+          "lng": 71.5667,
+          "entryFee": 0,
+          "localTransport": 0,
+          "visitHours": 1,
+          "requires4x4": false,
+          "description": "The fort on the mound above the city, occupied in some form since the Durrani period.",
+          "aliases": [
+            "Bala Hisar",
+            "Balahisar Fort"
+          ]
+        },
+        {
+          "id": "sethi-house",
+          "name": "Sethi House",
+          "category": "Historical",
+          "lat": 34.01,
+          "lng": 71.56,
+          "entryFee": 300,
+          "localTransport": 0,
+          "visitHours": 1,
+          "requires4x4": false,
+          "description": "A 19th-century merchant house in Mohalla Sethian, built with Bukhara-style woodwork and a basement for the heat.",
+          "aliases": [
+            "Sethi Mohallah",
+            "Sethi Haveli"
+          ]
+        },
+        {
+          "id": "khyber-pass",
+          "name": "Khyber Pass",
+          "category": "Pass",
+          "lat": 34.0833,
+          "lng": 71.1,
+          "entryFee": 0,
+          "localTransport": 2500,
+          "visitHours": 5,
+          "requires4x4": false,
+          "description": "The historic pass toward Torkham. Entry beyond Jamrud needs a permit and normally an escort — arrange it before you go.",
+          "aliases": [
+            "Khyber Darra",
+            "Khaibar Pass",
+            "Torkham Road"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "bahawalpur",
+      "name": "Bahawalpur & Cholistan",
+      "region": "South Punjab",
+      "province": "Punjab",
+      "category": "Desert",
+      "lat": 29.3956,
+      "lng": 71.6836,
+      "altitudeM": 116,
+      "recommendedDays": 3,
+      "roadFactor": 1.3,
+      "requires4x4": true,
+      "difficulty": "Moderate",
+      "bestMonths": [
+        11,
+        12,
+        1,
+        2
+      ],
+      "tagline": "Nawabi palaces and a fort in the sand",
+      "description": "Bahawalpur was a princely state, and its palaces still stand at the edge of the Cholistan desert. Derawar Fort, 100 km out in the sand, is the reason most people come.",
+      "highlights": [
+        "Derawar Fort",
+        "Noor Mahal",
+        "Lal Suhanra",
+        "Cholistan desert"
+      ],
+      "aliases": [
+        "Bahawalpur",
+        "Cholistan",
+        "Bhawalpur",
+        "Rohi"
+      ],
+      "attractions": [
+        {
+          "id": "noor-mahal",
+          "name": "Noor Mahal",
+          "category": "Historical",
+          "lat": 29.3833,
+          "lng": 71.6833,
+          "entryFee": 500,
+          "localTransport": 0,
+          "visitHours": 2,
+          "requires4x4": false,
+          "description": "An 1872 Italianate palace built for the Nawab of Bahawalpur, now army-managed and open to visitors.",
+          "aliases": [
+            "Noor Mahal Bahawalpur",
+            "Nur Mahal"
+          ]
+        },
+        {
+          "id": "derawar-fort",
+          "name": "Derawar Fort",
+          "category": "Desert",
+          "lat": 28.7667,
+          "lng": 71.3333,
+          "entryFee": 200,
+          "localTransport": 4000,
+          "visitHours": 8,
+          "requires4x4": true,
+          "description": "Forty square bastions rising out of the Cholistan sand, about 100 km south of Bahawalpur. 4x4 and a local driver strongly advised.",
+          "aliases": [
+            "Derawar",
+            "Dirawar Fort",
+            "Derawar Qila"
+          ]
+        },
+        {
+          "id": "lal-suhanra",
+          "name": "Lal Suhanra National Park",
+          "category": "Park",
+          "lat": 29.35,
+          "lng": 71.95,
+          "entryFee": 300,
+          "localTransport": 0,
+          "visitHours": 4,
+          "requires4x4": false,
+          "description": "A biosphere reserve of desert, wetland and forest, with a blackbuck and blue bull breeding programme.",
+          "aliases": [
+            "Lal Sohanra",
+            "Lal Suhanra Park"
+          ]
+        },
+        {
+          "id": "darbar-mahal",
+          "name": "Darbar Mahal",
+          "category": "Historical",
+          "lat": 29.39,
+          "lng": 71.69,
+          "entryFee": 300,
+          "localTransport": 0,
+          "visitHours": 1,
+          "requires4x4": false,
+          "description": "The 1905 court palace of the state, a short drive from Noor Mahal.",
+          "aliases": [
+            "Darbar Mahal Bahawalpur"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "khaplu",
+      "name": "Khaplu",
+      "region": "Ghanche",
+      "province": "Gilgit-Baltistan",
+      "category": "Mountains",
+      "lat": 35.15,
+      "lng": 76.3333,
+      "altitudeM": 2600,
+      "recommendedDays": 3,
+      "roadFactor": 1.6,
+      "requires4x4": true,
+      "difficulty": "Moderate",
+      "bestMonths": [
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "tagline": "Little Tibet on the upper Shyok",
+      "description": "Khaplu is the old capital of the Yabgo rajas, 103 km east of Skardu on the Shyok River, and the road head for the Hushe valley and the Masherbrum approaches.",
+      "highlights": [
+        "Khaplu Palace",
+        "Chaqchan Mosque",
+        "Hushe Valley"
+      ],
+      "aliases": [
+        "Khaplo",
+        "Khapalu",
+        "Ghanche",
+        "Khaplu Baltistan"
+      ],
+      "attractions": [
+        {
+          "id": "khaplu-palace",
+          "name": "Khaplu Palace",
+          "category": "Historical",
+          "lat": 35.15,
+          "lng": 76.3333,
+          "entryFee": 800,
+          "localTransport": 0,
+          "visitHours": 2,
+          "requires4x4": false,
+          "description": "An 1840 raja’s palace restored by the Aga Khan Trust, now a museum and hotel.",
+          "aliases": [
+            "Yabgo Khar",
+            "Khaplu Fort",
+            "Khapulu Palace"
+          ]
+        },
+        {
+          "id": "chaqchan-mosque",
+          "name": "Chaqchan Mosque",
+          "category": "Historical",
+          "lat": 35.16,
+          "lng": 76.34,
+          "entryFee": 0,
+          "localTransport": 0,
+          "visitHours": 1,
+          "requires4x4": false,
+          "description": "Built in 1370 when the valley converted to Islam, in a Tibetan-Kashmiri timber style.",
+          "aliases": [
+            "Chaqchan Masjid",
+            "Chakchan Mosque"
+          ]
+        },
+        {
+          "id": "hushe-valley",
+          "name": "Hushe Valley",
+          "category": "Valley",
+          "lat": 35.4167,
+          "lng": 76.3667,
+          "entryFee": 0,
+          "localTransport": 4000,
+          "visitHours": 9,
+          "requires4x4": true,
+          "description": "The trekking corridor toward Masherbrum and K6, about 80 km north of Khaplu on a rough road.",
+          "aliases": [
+            "Hushe",
+            "Hushey Valley"
+          ]
+        },
+        {
+          "id": "saling-nallah",
+          "name": "Saling Nallah",
+          "category": "Valley",
+          "lat": 35.2,
+          "lng": 76.4,
+          "entryFee": 0,
+          "localTransport": 1500,
+          "visitHours": 5,
+          "requires4x4": false,
+          "description": "A side valley of apricot orchards and terraces, an easy half day from town.",
+          "aliases": [
+            "Saling",
+            "Saling Valley"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "nagar",
+      "name": "Nagar & Hopar",
+      "region": "Nagar",
+      "province": "Gilgit-Baltistan",
+      "category": "Mountains",
+      "lat": 36.2333,
+      "lng": 74.7833,
+      "altitudeM": 2500,
+      "recommendedDays": 3,
+      "roadFactor": 1.58,
+      "requires4x4": true,
+      "difficulty": "Hard",
+      "bestMonths": [
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "tagline": "Glacier country across the river from Hunza",
+      "description": "Nagar faces Hunza across the river and holds the Hopar glacier bowl and the walk up to Rush Lake, one of the highest alpine lakes anywhere.",
+      "highlights": [
+        "Hopar Glacier",
+        "Rush Lake",
+        "Rakaposhi Base Camp"
+      ],
+      "aliases": [
+        "Nagar Valley",
+        "Hopar",
+        "Hoper",
+        "Nagar Khas"
+      ],
+      "attractions": [
+        {
+          "id": "hopar-glacier",
+          "name": "Hopar Glacier",
+          "category": "Glacier",
+          "lat": 36.15,
+          "lng": 74.8333,
+          "entryFee": 200,
+          "localTransport": 1500,
+          "visitHours": 4,
+          "requires4x4": false,
+          "description": "A bowl of grey ice below Golden Peak, about 10 km up from Nagar Khas.",
+          "aliases": [
+            "Hoper Glacier",
+            "Hopar Valley",
+            "Bualtar Glacier"
+          ]
+        },
+        {
+          "id": "rush-lake",
+          "name": "Rush Lake",
+          "category": "Trek",
+          "lat": 36.1833,
+          "lng": 74.8667,
+          "entryFee": 0,
+          "localTransport": 3000,
+          "visitHours": 12,
+          "requires4x4": false,
+          "description": "At 4,694 m one of the highest alpine lakes on earth, a two to three day trek from Hopar. Not a day trip.",
+          "aliases": [
+            "Rush Lake Nagar",
+            "Rush Pari Lake"
+          ]
+        },
+        {
+          "id": "rakaposhi-base-camp",
+          "name": "Rakaposhi Base Camp",
+          "category": "Trek",
+          "lat": 36.1333,
+          "lng": 74.5167,
+          "entryFee": 0,
+          "localTransport": 1000,
+          "visitHours": 9,
+          "requires4x4": false,
+          "description": "A long day’s walk up from Minapin to the glacier viewpoint under the 7,788 m north face.",
+          "aliases": [
+            "Minapin",
+            "Rakaposhi Basecamp",
+            "Hapakun"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "katas-raj",
+      "name": "Katas Raj & Kallar Kahar",
+      "region": "Chakwal",
+      "province": "Punjab",
+      "category": "Historical",
+      "lat": 32.7167,
+      "lng": 72.95,
+      "altitudeM": 700,
+      "recommendedDays": 1,
+      "roadFactor": 1.28,
+      "requires4x4": false,
+      "difficulty": "Easy",
+      "bestMonths": [
+        10,
+        11,
+        12,
+        1,
+        2,
+        3
+      ],
+      "tagline": "Salt Range temples on the motorway",
+      "description": "A cluster of Hindu temples around a sacred pool in the Salt Range, right off the M2 between Islamabad and Lahore. Easily combined with Khewra as one long day.",
+      "highlights": [
+        "Katas Raj Temples",
+        "Kallar Kahar",
+        "Khewra Salt Mine"
+      ],
+      "aliases": [
+        "Katas Raj",
+        "Ketas",
+        "Katasraj",
+        "Chakwal"
+      ],
+      "attractions": [
+        {
+          "id": "katas-raj-temples",
+          "name": "Katas Raj Temples",
+          "category": "Historical",
+          "lat": 32.7167,
+          "lng": 72.95,
+          "entryFee": 300,
+          "localTransport": 0,
+          "visitHours": 2,
+          "requires4x4": false,
+          "description": "Temples of the Shri Katas Raj complex around a spring-fed pool, parts dating to the 6th century.",
+          "aliases": [
+            "Katasraj",
+            "Ketas Temples",
+            "Shri Katas Raj"
+          ]
+        },
+        {
+          "id": "kallar-kahar",
+          "name": "Kallar Kahar",
+          "category": "Lake",
+          "lat": 32.7833,
+          "lng": 72.7,
+          "entryFee": 100,
+          "localTransport": 0,
+          "visitHours": 2,
+          "requires4x4": false,
+          "description": "A salt lake and peacock-populated garden beside the motorway interchange.",
+          "aliases": [
+            "Kalar Kahar",
+            "Kallar Kahar Lake"
+          ]
+        },
+        {
+          "id": "khewra-mine-chakwal",
+          "name": "Khewra Salt Mine",
+          "category": "Nature",
+          "lat": 32.6486,
+          "lng": 73.0086,
+          "entryFee": 800,
+          "localTransport": 0,
+          "visitHours": 4,
+          "requires4x4": false,
+          "description": "The world’s second-largest salt mine, with a narrow-gauge train into the tunnels. 35 km from Katas Raj.",
+          "aliases": [
+            "Khewra",
+            "Khewra Mine",
+            "Salt Mine Khewra"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ormara",
+      "name": "Ormara",
+      "region": "Makran Coast",
+      "province": "Balochistan",
+      "category": "Beaches",
+      "lat": 25.21,
+      "lng": 64.635,
+      "altitudeM": 8,
+      "recommendedDays": 2,
+      "roadFactor": 1.28,
+      "requires4x4": false,
+      "difficulty": "Moderate",
+      "bestMonths": [
+        11,
+        12,
+        1,
+        2,
+        3
+      ],
+      "tagline": "An empty hammerhead beach halfway to Gwadar",
+      "description": "Ormara sits on a tombolo on the Makran Coastal Highway, roughly halfway between Karachi and Gwadar. Long empty beaches, very little infrastructure, so most people camp.",
+      "highlights": [
+        "Ormara East Beach",
+        "Ras Ormara",
+        "Coastal Highway drive"
+      ],
+      "aliases": [
+        "Ormara Beach",
+        "Aurmara",
+        "Ormarah"
+      ],
+      "attractions": [
+        {
+          "id": "ormara-east-beach",
+          "name": "Ormara East Beach",
+          "category": "Beach",
+          "lat": 25.22,
+          "lng": 64.65,
+          "entryFee": 0,
+          "localTransport": 300,
+          "visitHours": 4,
+          "requires4x4": false,
+          "description": "A wide sand crescent on the eastern side of the peninsula, usually empty on weekdays.",
+          "aliases": [
+            "Ormara Beach"
+          ]
+        },
+        {
+          "id": "ras-ormara",
+          "name": "Ras Ormara Head",
+          "category": "Viewpoint",
+          "lat": 25.19,
+          "lng": 64.62,
+          "entryFee": 0,
+          "localTransport": 800,
+          "visitHours": 2,
+          "requires4x4": false,
+          "description": "The rocky headland at the tip of the tombolo, with a view along both bays.",
+          "aliases": [
+            "Ras Ormara"
+          ]
+        },
+        {
+          "id": "ormara-turtle-beach",
+          "name": "Turtle Nesting Beach",
+          "category": "Nature",
+          "lat": 25.23,
+          "lng": 64.67,
+          "entryFee": 0,
+          "localTransport": 500,
+          "visitHours": 3,
+          "requires4x4": false,
+          "description": "Green turtles nest along this stretch between September and January. Do not use lights near the sand at night.",
+          "aliases": [
+            "Ormara Turtle Beach"
+          ]
+        }
       ]
     }
   ]

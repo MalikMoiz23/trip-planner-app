@@ -87,17 +87,19 @@ class AttractionTile extends StatelessWidget {
                           color: AppColors.primary,
                         ),
                         PillTag(label: hours(a.visitHours), icon: Icons.schedule_rounded),
-                        if (perPerson > 0)
+                        // An estimated figure is labelled as one. A curated
+                        // figure is shown plain, because it is a real price.
+                        if (perPerson > 0 && a.ratesEstimated)
+                          PillTag(
+                            label: 'Est. ${money(perPerson)}/person',
+                            icon: Icons.help_outline_rounded,
+                            color: AppColors.caution,
+                          )
+                        else if (perPerson > 0)
                           PillTag(
                             label: '${money(perPerson)}/person',
                             icon: Icons.payments_rounded,
                             color: AppColors.primary,
-                          )
-                        else if (a.isLive)
-                          const PillTag(
-                            label: 'No price data',
-                            icon: Icons.help_outline_rounded,
-                            color: AppColors.caution,
                           )
                         else
                           const PillTag(

@@ -113,6 +113,33 @@ void main() {
         await shot(tester, "01_explore");
       });
 
+      testWidgets('a misspelled search still finds the place', (tester) async {
+        final state = buildState();
+        await tester.pumpWidget(host(state, const ExploreScreen()));
+        await tester.pump(const Duration(milliseconds: 300));
+
+        // "Thandyani Top" is a listed alias, so it matches exactly. This is a
+        // spelling nobody wrote down, which has to go through fuzzy scoring.
+        await tester.enterText(find.byType(TextField).first, 'thandyaani top');
+        await tester.pump(const Duration(milliseconds: 300));
+
+        expect(find.text('Thandiani'), findsWidgets);
+        await shot(tester, '01b_search_typo');
+      });
+
+      testWidgets('a search matching a stop says which one', (tester) async {
+        final state = buildState();
+        await tester.pumpWidget(host(state, const ExploreScreen()));
+        await tester.pump(const Duration(milliseconds: 300));
+
+        await tester.enterText(find.byType(TextField).first, 'panj peer rocks');
+        await tester.pump(const Duration(milliseconds: 300));
+
+        expect(find.text('Murree'), findsWidgets);
+        expect(find.text('has Panj Peer Rocks'), findsWidgets);
+        await shot(tester, '01c_search_stop_match');
+      });
+
       testWidgets('destination detail lays out and scrolls', (tester) async {
         final state = buildState();
         final naran = state.repository.byId('naran')!;

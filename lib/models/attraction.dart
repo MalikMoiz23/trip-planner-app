@@ -16,6 +16,8 @@ class Attraction {
     this.visitHours = 2,
     this.requires4x4 = false,
     this.isLive = false,
+    this.ratesEstimated = false,
+    this.aliases = const [],
   });
 
   final String id;
@@ -30,10 +32,20 @@ class Attraction {
   final bool requires4x4;
 
   /// True when the row came from a live Overpass lookup rather than the bundled
-  /// dataset, which means its cost fields are placeholders.
+  /// dataset.
   final bool isLive;
 
+  /// True when the fees above were inferred from the category rather than
+  /// curated. The UI must show these as estimates, never as known prices.
+  final bool ratesEstimated;
+
+  /// Alternate spellings, so search finds the place however it is romanised.
+  final List<String> aliases;
+
   LatLng get point => LatLng(lat, lng);
+
+  /// Name plus every alternate spelling — what fuzzy search scores against.
+  List<String> get searchLabels => [name, ...aliases];
 
   double costPerPerson() => entryFee + localTransport;
 
@@ -49,6 +61,10 @@ class Attraction {
         visitHours: (j['visitHours'] as num?)?.toDouble() ?? 2,
         requires4x4: (j['requires4x4'] as bool?) ?? false,
         isLive: (j['isLive'] as bool?) ?? false,
+        ratesEstimated: (j['ratesEstimated'] as bool?) ?? false,
+        aliases: ((j['aliases'] as List?) ?? const [])
+            .map((e) => e as String)
+            .toList(growable: false),
       );
 
   Map<String, dynamic> toJson() => {
@@ -63,9 +79,17 @@ class Attraction {
         'visitHours': visitHours,
         'requires4x4': requires4x4,
         'isLive': isLive,
+        'ratesEstimated': ratesEstimated,
+        'aliases': aliases,
       };
 
-  Attraction copyWith({double? entryFee, double? localTransport, double? visitHours}) => Attraction(
+  Attraction copyWith({
+    double? entryFee,
+    double? localTransport,
+    double? visitHours,
+    bool? ratesEstimated,
+  }) =>
+      Attraction(
         id: id,
         name: name,
         category: category,
@@ -77,5 +101,9 @@ class Attraction {
         visitHours: visitHours ?? this.visitHours,
         requires4x4: requires4x4,
         isLive: isLive,
+        // Once a person types a number in, it stops being an estimate.
+        ratesEstimated: ratesEstimated ??
+            (entryFee == null && localTransport == null && this.ratesEstimated),
+        aliases: aliases,
       );
 }

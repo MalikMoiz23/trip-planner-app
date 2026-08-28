@@ -6,6 +6,7 @@ import 'package:latlong2/latlong.dart';
 
 import '../core/app_constants.dart';
 import '../core/geo.dart';
+import '../logic/rate_estimator.dart';
 import '../models/attraction.dart';
 
 /// Live "what else is around here" lookup against OpenStreetMap via Overpass.
@@ -68,8 +69,12 @@ out center $limit;
       for (final raw in elements) {
         final e = raw as Map<String, dynamic>;
         final tags = (e['tags'] as Map<String, dynamic>?) ?? const {};
-        final name = (tags['name:en'] ?? tags['name']) as String?;
+        // Prefer a Latin-script name. Many rural nodes carry only `name` in
+        // Urdu, which is unreadable next to the rest of the UI and useless for
+        // matching, so those are skipped rather than shown as mojibake.
+        final name = (tags['name:en'] ?? tags['int_name'] ?? tags['name']) as String?;
         if (name == null || name.trim().isEmpty) continue;
+        if (!_hasLatinLetters(name)) continue;
         if (!seen.add(name.toLowerCase())) continue;
 
         final lat = (e['lat'] as num?)?.toDouble() ??
@@ -78,18 +83,28 @@ out center $limit;
             ((e['center'] as Map<String, dynamic>?)?['lon'] as num?)?.toDouble();
         if (lat == null || lng == null) continue;
 
+        // OpenStreetMap has no price data, so the stop is costed from typical
+        // rates for its category. Without this a plan built around searched
+        // places came out as travel-only.
+        final category = _categoryFor(tags);
+        final rates = RateEstimator.forCategory(category);
+        final fee = (tags['fee'] == 'no' || tags['fee'] == 'false') ? 0.0 : rates.entryFee;
+
         out.add(Attraction(
           id: 'osm_${e['type']}_${e['id']}',
           name: name.trim(),
-          category: _categoryFor(tags),
-          description: 'From OpenStreetMap. Costs are not published for this entry — '
-              'set the fee and local fare yourself.',
+          category: category,
+          description: 'From OpenStreetMap. It publishes no prices, so the figures below '
+              'are typical rates for a ${category.toLowerCase()} — tap the pencil to put '
+              'in what you are actually quoted.',
           lat: lat,
           lng: lng,
-          entryFee: 0,
-          localTransport: 0,
-          visitHours: 2,
+          entryFee: fee,
+          localTransport: rates.localTransport,
+          visitHours: rates.visitHours,
+          requires4x4: rates.requires4x4,
           isLive: true,
+          ratesEstimated: true,
         ));
       }
 
@@ -108,6 +123,11 @@ out center $limit;
         .take(limit)
         .toList(growable: false);
   }
+
+  /// True when the string contains at least one a-z letter. Filters out nodes
+  /// named only in Urdu or Arabic script.
+  bool _hasLatinLetters(String value) =>
+      RegExp(r'[A-Za-z]').hasMatch(value);
 
   String _categoryFor(Map<String, dynamic> tags) {
     if (tags['waterway'] == 'waterfall') return 'Waterfall';

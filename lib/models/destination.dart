@@ -21,6 +21,7 @@ class Destination {
     required this.description,
     required this.highlights,
     required this.attractions,
+    this.aliases = const [],
   });
 
   final String id;
@@ -43,6 +44,12 @@ class Destination {
   final String description;
   final List<String> highlights;
   final List<Attraction> attractions;
+
+  /// Alternate romanisations, so search finds the place however it is spelled.
+  final List<String> aliases;
+
+  /// Name plus every alternate spelling — what fuzzy search scores against.
+  List<String> get searchLabels => [name, ...aliases];
 
   LatLng get point => LatLng(lat, lng);
 
@@ -74,6 +81,9 @@ class Destination {
         attractions: ((j['attractions'] as List?) ?? const [])
             .map((e) => Attraction.fromJson(e as Map<String, dynamic>))
             .toList(growable: false),
+        aliases: ((j['aliases'] as List?) ?? const [])
+            .map((e) => e as String)
+            .toList(growable: false),
       );
 
   Map<String, dynamic> toJson() => {
@@ -94,6 +104,7 @@ class Destination {
         'description': description,
         'highlights': highlights,
         'attractions': attractions.map((a) => a.toJson()).toList(),
+        'aliases': aliases,
       };
 
   /// Builds a destination out of a free-text geocoder hit, so a place that is
@@ -121,9 +132,10 @@ class Destination {
         bestMonths: const [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
         tagline: 'Searched location',
         description:
-            'This location was resolved from a live search, so it has no curated notes. '
-            'Nearby places are pulled from OpenStreetMap and their costs default to zero '
-            'until you edit them.',
+            'This place came from a live search rather than the built-in guide, so it '
+            'carries no curated notes. Nearby stops are pulled from OpenStreetMap and '
+            'priced from typical rates for that kind of place — the plan is complete, '
+            'but check the figures against what you are actually quoted.',
         highlights: const [],
         attractions: const [],
       );
@@ -146,5 +158,6 @@ class Destination {
         description: description,
         highlights: highlights,
         attractions: list,
+        aliases: aliases,
       );
 }

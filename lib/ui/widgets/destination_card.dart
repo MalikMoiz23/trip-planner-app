@@ -154,11 +154,17 @@ class DestinationRow extends StatelessWidget {
     required this.destination,
     required this.onTap,
     this.trailing,
+    this.matchNote,
   });
 
   final Destination destination;
   final VoidCallback onTap;
   final Widget? trailing;
+
+  /// Why this row is in the results when the query does not obviously name it —
+  /// e.g. searching "panj peer rocks" returns Murree. Without saying so, the
+  /// result reads as a bug.
+  final String? matchNote;
 
   @override
   Widget build(BuildContext context) {
@@ -212,6 +218,28 @@ class DestinationRow extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 2),
+                if (matchNote != null) ...[
+                  Row(
+                    children: [
+                      const Icon(Icons.subdirectory_arrow_right_rounded,
+                          size: 13, color: AppColors.primary),
+                      const SizedBox(width: 4),
+                      Expanded(
+                        child: Text(
+                          matchNote!,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: theme.textTheme.bodySmall?.copyWith(
+                            fontSize: 12,
+                            color: AppColors.primary,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 3),
+                ],
                 Text(
                   d.tagline,
                   maxLines: 2,

@@ -326,13 +326,18 @@ class ExpenseCalculator {
       ));
     }
 
-    final liveStops = config.selectedAttractions.where((a) => a.isLive).length;
-    if (liveStops > 0) {
+    final estimatedStops = config.selectedAttractions.where((a) => a.ratesEstimated).toList();
+    if (estimatedStops.isNotEmpty) {
+      final n = estimatedStops.length;
+      final estimatedTotal =
+          estimatedStops.fold<double>(0, (sum, a) => sum + a.costPerPerson()) * config.persons;
       out.add(TripWarning(
         WarningLevel.info,
-        '$liveStops ${liveStops == 1 ? 'stop has' : 'stops have'} no cost data',
-        'These came from OpenStreetMap, which does not publish prices, so they are '
-            'costed at zero. Edit their fees to make the total accurate.',
+        '$n ${n == 1 ? 'stop is' : 'stops are'} priced from typical rates',
+        'OpenStreetMap publishes no prices, so ${n == 1 ? 'this stop' : 'these stops'} '
+            '${n == 1 ? 'is' : 'are'} costed at what a place of that kind normally charges — '
+            '${money(estimatedTotal)} of the total. Tap the pencil on any stop to put in a '
+            'real figure.',
       ));
     }
 

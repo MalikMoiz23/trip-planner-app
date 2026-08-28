@@ -88,7 +88,8 @@ class StepStops extends StatelessWidget {
         ],
         const SectionHeader(
           title: 'More from OpenStreetMap',
-          subtitle: 'Live lookup within 35 km. Free data, but it carries no prices.',
+          subtitle: 'Live lookup within 35 km. It carries no prices, so these are costed '
+              'at typical rates and marked "Est."',
         ),
         if (c.loadingNearby)
           const Padding(
