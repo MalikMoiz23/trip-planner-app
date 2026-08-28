@@ -6,8 +6,8 @@ import 'package:trip_planner/core/fuzzy.dart';
 import 'package:trip_planner/logic/rate_estimator.dart';
 import 'package:trip_planner/services/destination_repository.dart';
 
-/// The cases that sent me here: "Thandyani Top" and "Panj Peer Rocks" both
-/// returned nothing, from the bundled guide and from the geocoder alike.
+/// Regression cases: "Thandyani Top" and "Panj Peer Rocks" both returned
+/// nothing, from the bundled guide and from the geocoder alike.
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 

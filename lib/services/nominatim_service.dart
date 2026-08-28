@@ -74,7 +74,7 @@ class NominatimService {
         return hits;
       }
 
-      // A query I rewrote. Shortening can land somewhere else entirely —
+      // A rewritten query. Shortening can land somewhere else entirely —
       // "Neela Sandh Waterfall" trimmed to "Neela" returns Neela Botho — so
       // each hit has to still resemble what was actually asked for.
       final scored = hits
