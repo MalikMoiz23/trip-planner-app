@@ -187,6 +187,12 @@ will reject a missing `aliases` key.
 - Destination artwork is a per-category gradient with a watermark glyph rather than
   photography, so it renders identically offline and never shows a broken image. The
   JSON schema supports an `imageUrl` if you want to add real photos.
+- The typeface (Plus Jakarta Sans, SIL Open Font License) is bundled in
+  `assets/fonts/`, not fetched at runtime. Fetching it caused two bugs: the font
+  arrived after first layout, so intrinsically-sized widgets like the category chips
+  were measured in one face and painted in a wider one and clipped their labels; and
+  with no network the web build rendered no text at all. Bundling also means the
+  goldens use the exact files the app ships.
 - A dark palette is defined and contrast-validated but not switched on; `themeMode`
   is pinned to light in `lib/app.dart`.
 - Chart colours are a categorical palette validated for lightness band, chroma floor,

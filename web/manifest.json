@@ -1,11 +1,11 @@
 {
-    "name": "trip_planner",
-    "short_name": "trip_planner",
+    "name": "Trip Planner",
+    "short_name": "Trip Planner",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "Plan a whole trip in Pakistan and see the full cost: fuel, rooms, food, tickets and jeep fares, per person and per day.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

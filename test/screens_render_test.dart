@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show FontLoader, MethodChannel;
 import 'package:flutter_test/flutter_test.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
@@ -35,7 +34,6 @@ void main() {
   late final AppState appState;
 
   setUpAll(() async {
-    GoogleFonts.config.allowRuntimeFetching = false;
     await _loadRealFonts();
     SharedPreferences.setMockInitialValues({});
 
@@ -262,42 +260,30 @@ class _DeadClient extends http.BaseClient {
 /// real Roboto and Material Icons faces makes the layout measurements — and any
 /// overflow — match what a device would produce.
 Future<void> _loadRealFonts() async {
-  const root = r'C:\flutter\bin\cache\artifacts\material_fonts';
-
-  // The theme asks google_fonts for Plus Jakarta Sans, which cannot be fetched
-  // offline in a test. google_fonts still stamps the style with a family named
-  // "<Family>_<variant>", so each of those names is registered here against a
-  // weight-matched Roboto face. Without this the test font draws every glyph as
-  // a filled box and the goldens say nothing about the design. Metrics differ
-  // slightly from the shipped face, so treat these as layout evidence, not a
-  // pixel-exact record of the typeface.
-  const regular = 'roboto-regular.ttf';
-  const medium = 'roboto-medium.ttf';
-  const bold = 'roboto-bold.ttf';
-  const black = 'roboto-black.ttf';
-
-  final faces = <String, List<String>>{
-    'Roboto': [regular, medium, bold],
-    'PlusJakartaSans': [regular, medium, bold],
-    'PlusJakartaSans_regular': [regular],
-    'PlusJakartaSans_500': [medium],
-    'PlusJakartaSans_600': [medium],
-    'PlusJakartaSans_700': [bold],
-    'PlusJakartaSans_800': [black],
-    'PlusJakartaSans_900': [black],
-    'MaterialIcons': ['materialicons-regular.otf'],
-  };
-
-  for (final entry in faces.entries) {
-    final loader = FontLoader(entry.key);
-    var loaded = false;
-    for (final file in entry.value) {
-      final f = File('$root\\$file');
-      if (f.existsSync()) {
-        loader.addFont(f.readAsBytes().then((b) => b.buffer.asByteData()));
-        loaded = true;
-      }
+  // The test binding ships a font that draws every glyph as a filled box, so
+  // without this the goldens say nothing about the design and text measurement
+  // does not match a device.
+  //
+  // The typeface is now bundled in the app, so the goldens use the exact same
+  // files the app ships — no stand-in, and the images are a faithful record.
+  final jakarta = FontLoader(AppTheme.fontFamily);
+  var loadedAny = false;
+  for (final weight in ['400', '500', '600', '700', '800']) {
+    final file = File('assets/fonts/PlusJakartaSans-$weight.ttf');
+    if (file.existsSync()) {
+      jakarta.addFont(file.readAsBytes().then((b) => b.buffer.asByteData()));
+      loadedAny = true;
     }
-    if (loaded) await loader.load();
+  }
+  if (loadedAny) await jakarta.load();
+
+  // Material's icon font is not bundled with the app, it comes from the SDK.
+  final iconFile = File(
+    r'C:\flutter\bin\cache\artifacts\material_fonts\materialicons-regular.otf',
+  );
+  if (iconFile.existsSync()) {
+    final icons = FontLoader('MaterialIcons')
+      ..addFont(iconFile.readAsBytes().then((b) => b.buffer.asByteData()));
+    await icons.load();
   }
 }

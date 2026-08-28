@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class AppColors {
   const AppColors._();
@@ -146,6 +145,27 @@ class AppShadows {
 class AppTheme {
   const AppTheme._();
 
+  /// Bundled with the app, not fetched. See the `fonts:` block in pubspec.yaml
+  /// for why that matters.
+  static const String fontFamily = 'Plus Jakarta Sans';
+  static const String _fontFamily = fontFamily;
+
+  static TextStyle _font({
+    double? fontSize,
+    FontWeight? fontWeight,
+    Color? color,
+    double? letterSpacing,
+    double? height,
+  }) =>
+      TextStyle(
+        fontFamily: _fontFamily,
+        fontSize: fontSize,
+        fontWeight: fontWeight,
+        color: color,
+        letterSpacing: letterSpacing,
+        height: height,
+      );
+
   static const SystemUiOverlayStyle lightOverlay = SystemUiOverlayStyle(
     statusBarColor: Colors.transparent,
     statusBarIconBrightness: Brightness.dark,
@@ -186,7 +206,7 @@ class AppTheme {
         backgroundColor: AppColors.canvas,
         side: const BorderSide(color: AppColors.line),
         shape: const RoundedRectangleBorder(borderRadius: AppRadius.pill),
-        labelStyle: GoogleFonts.plusJakartaSans(
+        labelStyle: _font(
           fontSize: 12.5,
           fontWeight: FontWeight.w600,
           color: AppColors.ink,
@@ -196,7 +216,7 @@ class AppTheme {
         style: FilledButton.styleFrom(
           minimumSize: const Size.fromHeight(54),
           shape: const RoundedRectangleBorder(borderRadius: AppRadius.md),
-          textStyle: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w700),
+          textStyle: _font(fontSize: 16, fontWeight: FontWeight.w700),
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
@@ -205,13 +225,13 @@ class AppTheme {
           side: const BorderSide(color: AppColors.line),
           foregroundColor: AppColors.ink,
           shape: const RoundedRectangleBorder(borderRadius: AppRadius.md),
-          textStyle: GoogleFonts.plusJakartaSans(fontSize: 15, fontWeight: FontWeight.w700),
+          textStyle: _font(fontSize: 15, fontWeight: FontWeight.w700),
         ),
       ),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
           foregroundColor: AppColors.primary,
-          textStyle: GoogleFonts.plusJakartaSans(fontSize: 14.5, fontWeight: FontWeight.w700),
+          textStyle: _font(fontSize: 14.5, fontWeight: FontWeight.w700),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
@@ -230,8 +250,8 @@ class AppTheme {
           borderRadius: AppRadius.md,
           borderSide: BorderSide(color: AppColors.primary, width: 1.6),
         ),
-        hintStyle: GoogleFonts.plusJakartaSans(color: AppColors.inkSoft, fontSize: 14.5),
-        labelStyle: GoogleFonts.plusJakartaSans(color: AppColors.inkSoft, fontSize: 14.5),
+        hintStyle: _font(color: AppColors.inkSoft, fontSize: 14.5),
+        labelStyle: _font(color: AppColors.inkSoft, fontSize: 14.5),
       ),
       sliderTheme: base.sliderTheme.copyWith(
         activeTrackColor: AppColors.primary,
@@ -243,7 +263,7 @@ class AppTheme {
         behavior: SnackBarBehavior.floating,
         backgroundColor: AppColors.ink,
         shape: const RoundedRectangleBorder(borderRadius: AppRadius.sm),
-        contentTextStyle: GoogleFonts.plusJakartaSans(color: Colors.white, fontSize: 14),
+        contentTextStyle: _font(color: Colors.white, fontSize: 14),
       ),
       bottomSheetTheme: const BottomSheetThemeData(
         backgroundColor: AppColors.surface,
@@ -292,7 +312,7 @@ class AppTheme {
         style: FilledButton.styleFrom(
           minimumSize: const Size.fromHeight(54),
           shape: const RoundedRectangleBorder(borderRadius: AppRadius.md),
-          textStyle: GoogleFonts.plusJakartaSans(fontSize: 16, fontWeight: FontWeight.w700),
+          textStyle: _font(fontSize: 16, fontWeight: FontWeight.w700),
         ),
       ),
       inputDecorationTheme: InputDecorationTheme(
@@ -307,13 +327,13 @@ class AppTheme {
           borderRadius: AppRadius.md,
           borderSide: BorderSide(color: Color(0xFF23323A)),
         ),
-        hintStyle: GoogleFonts.plusJakartaSans(color: const Color(0xFF8FA2AE), fontSize: 14.5),
+        hintStyle: _font(color: const Color(0xFF8FA2AE), fontSize: 14.5),
       ),
     );
   }
 
   static TextTheme _text(TextTheme base, Color ink) {
-    final t = GoogleFonts.plusJakartaSansTextTheme(base);
+    final t = base.apply(fontFamily: _fontFamily);
     return t.copyWith(
       displaySmall: t.displaySmall?.copyWith(fontWeight: FontWeight.w800, color: ink, height: 1.1),
       headlineMedium:
