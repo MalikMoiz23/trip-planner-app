@@ -1,0 +1,158 @@
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../../core/app_constants.dart';
+import '../../core/theme.dart';
+import '../../state/app_state.dart';
+import '../widgets/inputs.dart';
+import '../widgets/primitives.dart';
+
+/// Default rates. These seed every new plan; a saved trip keeps whatever rates
+/// it was costed with, so changing a price here never rewrites history.
+class SettingsScreen extends StatelessWidget {
+  const SettingsScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final app = context.watch<AppState>();
+    final theme = Theme.of(context);
+
+    return Scaffold(
+      body: SafeArea(
+        bottom: false,
+        child: ListView(
+          padding: const EdgeInsets.fromLTRB(20, 16, 20, 28),
+          children: [
+            Text('Rates', style: theme.textTheme.headlineMedium?.copyWith(fontSize: 26)),
+            const SizedBox(height: 4),
+            Text(
+              'Starting values for new plans. Update them whenever prices move.',
+              style: theme.textTheme.bodySmall,
+            ),
+            const SizedBox(height: 20),
+            const SectionHeader(title: 'Fuel'),
+            NumberField(
+              label: 'Petrol',
+              value: app.petrolPrice,
+              prefix: 'Rs ',
+              suffix: '/L',
+              onChanged: app.setPetrolPrice,
+            ),
+            const SizedBox(height: 12),
+            NumberField(
+              label: 'Diesel',
+              value: app.dieselPrice,
+              prefix: 'Rs ',
+              suffix: '/L',
+              onChanged: app.setDieselPrice,
+            ),
+            const SizedBox(height: 22),
+            const SectionHeader(title: 'Public transport'),
+            NumberField(
+              label: 'Intercity fare per person per km',
+              value: app.publicRatePerKm,
+              prefix: 'Rs ',
+              decimals: 1,
+              onChanged: app.setPublicRate,
+            ),
+            const SizedBox(height: 22),
+            const SectionHeader(
+              title: 'Vehicle mileage defaults',
+              subtitle: 'Applied when you pick a vehicle, overridable per trip',
+            ),
+            ...AppDefaults.vehicles.map((v) => Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: AppCard(
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                    child: Row(
+                      children: [
+                        Icon(v.icon, size: 20, color: AppColors.inkSoft),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(v.label,
+                                  style: theme.textTheme.titleSmall?.copyWith(fontSize: 14)),
+                              Text(v.blurb,
+                                  style: theme.textTheme.bodySmall?.copyWith(fontSize: 12)),
+                            ],
+                          ),
+                        ),
+                        Text(
+                          '${v.mileage.toStringAsFixed(0)} km/L',
+                          style: theme.textTheme.titleSmall?.copyWith(fontSize: 13.5),
+                        ),
+                      ],
+                    ),
+                  ),
+                )),
+            const SizedBox(height: 20),
+            const InfoNote(
+              text: 'Nothing in this app is a live price. Fuel, hotel, food and ticket '
+                  'figures are your own assumptions — the app only does the arithmetic on '
+                  'top of them. Distances and maps come from OpenStreetMap and OSRM, which '
+                  'are free and need no account.',
+            ),
+            const SizedBox(height: 18),
+            const SectionHeader(title: 'Data'),
+            AppCard(
+              onTap: app.savedTrips.isEmpty
+                  ? null
+                  : () async {
+                      final ok = await showDialog<bool>(
+                        context: context,
+                        builder: (ctx) => AlertDialog(
+                          title: const Text('Delete all saved trips?'),
+                          content: Text('${app.savedTrips.length} saved plans will be removed '
+                              'from this device. This cannot be undone.'),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.of(ctx).pop(false),
+                              child: const Text('Keep'),
+                            ),
+                            TextButton(
+                              onPressed: () => Navigator.of(ctx).pop(true),
+                              child: const Text('Delete all',
+                                  style: TextStyle(color: AppColors.danger)),
+                            ),
+                          ],
+                        ),
+                      );
+                      if (ok == true) await app.clearTrips();
+                    },
+              child: Row(
+                children: [
+                  const Icon(Icons.delete_sweep_outlined, size: 20, color: AppColors.inkSoft),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Clear saved trips',
+                            style: theme.textTheme.titleSmall?.copyWith(fontSize: 14)),
+                        Text(
+                          app.savedTrips.isEmpty
+                              ? 'Nothing saved'
+                              : '${app.savedTrips.length} stored on this device',
+                          style: theme.textTheme.bodySmall?.copyWith(fontSize: 12),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 22),
+            Text(
+              'Map data © OpenStreetMap contributors. Routing by the public OSRM demo '
+              'server. Search and nearby lookups by Nominatim and Overpass. All free, '
+              'no keys, no accounts.',
+              style: theme.textTheme.bodySmall?.copyWith(fontSize: 11.8),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

@@ -1,0 +1,50 @@
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import 'core/theme.dart';
+import 'state/app_state.dart';
+import 'state/planner_controller.dart';
+import 'ui/screens/home_shell.dart';
+import 'ui/screens/splash_screen.dart';
+
+class TripPlannerApp extends StatelessWidget {
+  const TripPlannerApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider<AppState>(create: (_) => AppState()..init()),
+        ChangeNotifierProvider<PlannerController>(
+          create: (context) {
+            final app = context.read<AppState>();
+            return PlannerController(repo: app.repository, appState: app);
+          },
+        ),
+      ],
+      child: MaterialApp(
+        title: 'Trip Planner',
+        debugShowCheckedModeBanner: false,
+        theme: AppTheme.light(),
+        darkTheme: AppTheme.dark(),
+        themeMode: ThemeMode.light,
+        home: const _Bootstrap(),
+      ),
+    );
+  }
+}
+
+/// Holds the splash until the bundled catalogue and stored settings are in
+/// memory, so no screen ever renders against a half-loaded repository.
+class _Bootstrap extends StatelessWidget {
+  const _Bootstrap();
+
+  @override
+  Widget build(BuildContext context) {
+    final app = context.watch<AppState>();
+    if (app.error != null) {
+      return SplashScreen(error: app.error, onRetry: app.init);
+    }
+    return app.isReady ? const HomeShell() : const SplashScreen();
+  }
+}

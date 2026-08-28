@@ -1,0 +1,107 @@
+import 'package:flutter/material.dart';
+
+import '../core/enums.dart';
+
+class ExpenseLine {
+  const ExpenseLine({
+    required this.slot,
+    required this.label,
+    required this.detail,
+    required this.amount,
+    required this.icon,
+  });
+
+  /// Fixed categorical slot. The colour is resolved at paint time from the
+  /// theme's series palette, so a category keeps its hue in light and dark and
+  /// re-sorting the legend never reassigns colours.
+  final int slot;
+
+  final String label;
+
+  /// The arithmetic behind the number, spelled out so nothing looks invented.
+  final String detail;
+  final double amount;
+  final IconData icon;
+}
+
+class TripWarning {
+  const TripWarning(this.level, this.title, this.detail);
+
+  final WarningLevel level;
+  final String title;
+  final String detail;
+}
+
+class ExpenseBreakdown {
+  const ExpenseBreakdown({
+    required this.oneWayKm,
+    required this.returnKm,
+    required this.attractionsKm,
+    required this.totalKm,
+    required this.litres,
+    required this.oneWayDrive,
+    required this.totalDriveTime,
+    required this.routeEstimated,
+    required this.travelCost,
+    required this.stayCost,
+    required this.mealCost,
+    required this.entryCost,
+    required this.localTransportCost,
+    required this.tollsCost,
+    required this.bufferCost,
+    required this.subtotal,
+    required this.total,
+    required this.perPerson,
+    required this.perDay,
+    required this.perPersonPerDay,
+    required this.nights,
+    required this.rooms,
+    required this.sightseeingHours,
+    required this.lines,
+    required this.warnings,
+  });
+
+  final double oneWayKm;
+  final double returnKm;
+
+  /// Sum of the round-trip detours from the base town out to each chosen spot.
+  final double attractionsKm;
+  final double totalKm;
+  final double litres;
+
+  final Duration oneWayDrive;
+  final Duration totalDriveTime;
+
+  /// True when any leg fell back to straight-line estimation.
+  final bool routeEstimated;
+
+  final double travelCost;
+  final double stayCost;
+  final double mealCost;
+  final double entryCost;
+  final double localTransportCost;
+  final double tollsCost;
+  final double bufferCost;
+
+  final double subtotal;
+  final double total;
+  final double perPerson;
+  final double perDay;
+  final double perPersonPerDay;
+
+  final int nights;
+  final int rooms;
+  final double sightseeingHours;
+
+  final List<ExpenseLine> lines;
+  final List<TripWarning> warnings;
+
+  /// Non-zero lines only, largest first — what the bar chart and legend render.
+  List<ExpenseLine> get visibleLines {
+    final list = lines.where((l) => l.amount > 0).toList()
+      ..sort((a, b) => b.amount.compareTo(a.amount));
+    return list;
+  }
+
+  double shareOf(ExpenseLine line) => total <= 0 ? 0 : line.amount / total;
+}
