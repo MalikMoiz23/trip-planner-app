@@ -16,9 +16,9 @@ class WarningCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final (color, icon, level) = switch (warning.level) {
-      WarningLevel.blocker => (AppColors.danger, Icons.error_outline_rounded, 'Fix this'),
-      WarningLevel.caution => (AppColors.serious, Icons.warning_amber_rounded, 'Check this'),
-      WarningLevel.info => (AppColors.primary, Icons.info_outline_rounded, 'Note'),
+      WarningLevel.blocker => (context.palette.danger, Icons.error_outline_rounded, 'Fix this'),
+      WarningLevel.caution => (context.palette.serious, Icons.warning_amber_rounded, 'Check this'),
+      WarningLevel.info => (context.palette.primary, Icons.info_outline_rounded, 'Note'),
     };
 
     return Container(

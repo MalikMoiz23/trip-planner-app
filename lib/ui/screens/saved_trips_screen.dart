@@ -36,7 +36,7 @@ class SavedTripsScreen extends StatelessWidget {
           TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: const Text('Keep')),
           TextButton(
             onPressed: () => Navigator.of(ctx).pop(true),
-            child: const Text('Delete', style: TextStyle(color: AppColors.danger)),
+            child: Text('Delete', style: TextStyle(color: context.palette.danger)),
           ),
         ],
       ),
@@ -216,7 +216,7 @@ class _TripCard extends StatelessWidget {
                     IconButton(
                       onPressed: onDelete,
                       icon: const Icon(Icons.delete_outline_rounded, size: 20),
-                      color: AppColors.inkSoft,
+                      color: context.palette.inkSoft,
                       tooltip: 'Delete',
                     ),
                   ],

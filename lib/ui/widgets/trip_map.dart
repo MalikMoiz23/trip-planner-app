@@ -87,7 +87,7 @@ class _TripMapState extends State<TripMap> {
         initialZoom: 7,
         minZoom: 3,
         maxZoom: 17,
-        backgroundColor: AppColors.canvas,
+        backgroundColor: context.palette.canvas,
         interactionOptions: InteractionOptions(
           flags: widget.interactive
               ? InteractiveFlag.all & ~InteractiveFlag.rotate
@@ -110,7 +110,7 @@ class _TripMapState extends State<TripMap> {
               // A white casing under the route keeps it readable over both the
               // pale plains and the dark hill shading in the OSM raster.
               Polyline(points: line, strokeWidth: 7, color: Colors.white.withValues(alpha: 0.9)),
-              Polyline(points: line, strokeWidth: 3.5, color: AppColors.seriesLight[0]),
+              Polyline(points: line, strokeWidth: 3.5, color: context.palette.series[0]),
             ],
           ),
         MarkerLayer(
@@ -124,7 +124,7 @@ class _TripMapState extends State<TripMap> {
                 child: _Pin(
                   label: widget.originLabel,
                   icon: Icons.trip_origin_rounded,
-                  color: AppColors.ink,
+                  color: context.palette.ink,
                 ),
               ),
             // Stop names are suppressed on the non-interactive preview: half a
@@ -151,7 +151,7 @@ class _TripMapState extends State<TripMap> {
               child: _Pin(
                 label: widget.destinationLabel,
                 icon: AppColors.iconFor(widget.category),
-                color: AppColors.primary,
+                color: context.palette.primary,
               ),
             ),
           ],
@@ -197,7 +197,7 @@ class _Pin extends StatelessWidget {
             color: color,
             shape: BoxShape.circle,
             border: Border.all(color: Colors.white, width: 2.5),
-            boxShadow: AppShadows.card,
+            boxShadow: context.palette.shadowCard,
           ),
           child: Icon(icon, size: small ? 13 : 16, color: Colors.white),
         ),
@@ -209,7 +209,7 @@ class _Pin extends StatelessWidget {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: AppRadius.sm,
-                boxShadow: AppShadows.card,
+                boxShadow: context.palette.shadowCard,
               ),
               child: Text(
                 label!,
@@ -219,7 +219,7 @@ class _Pin extends StatelessWidget {
                 style: TextStyle(
                   fontSize: small ? 10 : 11,
                   fontWeight: FontWeight.w700,
-                  color: AppColors.ink,
+                  color: context.palette.ink,
                 ),
               ),
             ),

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/app_constants.dart';
-import '../../core/enums.dart';
 import '../../core/formatters.dart';
 import '../../core/theme.dart';
 import '../../models/expense_breakdown.dart';
@@ -248,11 +247,11 @@ class ExpenseDetailScreen extends StatelessWidget {
     final theme = Theme.of(context);
     return Container(
       padding: const EdgeInsets.all(18),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [AppColors.primaryDark, AppColors.primary],
+          colors: [AppColors.primaryDark, context.palette.primary],
         ),
         borderRadius: AppRadius.lg,
       ),
@@ -415,7 +414,7 @@ class _KeyValue extends StatelessWidget {
               style: theme.textTheme.bodySmall?.copyWith(
                 fontSize: 12.6,
                 fontWeight: FontWeight.w700,
-                color: AppColors.ink,
+                color: context.palette.ink,
               ),
             ),
           ),

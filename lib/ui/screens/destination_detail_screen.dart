@@ -2,25 +2,62 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/geo.dart';
+import '../../core/motion.dart';
 import '../../core/theme.dart';
 import '../../models/attraction.dart';
 import '../../models/destination.dart';
+import '../../state/app_state.dart';
+import '../../models/weather.dart';
 import '../../state/planner_controller.dart';
 import '../widgets/attraction_tile.dart';
 import '../widgets/destination_card.dart';
 import '../widgets/primitives.dart';
+import '../widgets/weather_card.dart';
 import 'planner_screen.dart';
 
-class DestinationDetailScreen extends StatelessWidget {
+class DestinationDetailScreen extends StatefulWidget {
   const DestinationDetailScreen({super.key, required this.destination});
 
   final Destination destination;
 
+  @override
+  State<DestinationDetailScreen> createState() => _DestinationDetailScreenState();
+}
+
+class _DestinationDetailScreenState extends State<DestinationDetailScreen> {
+  final ScrollController _scroll = ScrollController();
+  PlaceWeather? _weather;
+  bool _loadingWeather = true;
+
+  Destination get destination => widget.destination;
+
+  @override
+  void initState() {
+    super.initState();
+    // Fired here rather than in the planner so the forecast is already on screen
+    // while someone is still deciding whether to go at all.
+    WidgetsBinding.instance.addPostFrameCallback((_) => _loadWeather());
+  }
+
+  Future<void> _loadWeather() async {
+    final service = context.read<AppState>().weatherService;
+    final w = await service.load(destination.point);
+    if (!mounted) return;
+    setState(() {
+      _weather = w;
+      _loadingWeather = false;
+    });
+  }
+
+  @override
+  void dispose() {
+    _scroll.dispose();
+    super.dispose();
+  }
+
   void _plan(BuildContext context) {
     context.read<PlannerController>().startFor(destination);
-    Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => const PlannerScreen()),
-    );
+    context.pushScreen(const PlannerScreen());
   }
 
   @override
@@ -31,6 +68,7 @@ class DestinationDetailScreen extends StatelessWidget {
 
     return Scaffold(
       body: CustomScrollView(
+        controller: _scroll,
         slivers: [
           SliverAppBar(
             expandedHeight: 268,
@@ -38,8 +76,11 @@ class DestinationDetailScreen extends StatelessWidget {
             backgroundColor: AppColors.gradientFor(d.category).last,
             foregroundColor: Colors.white,
             flexibleSpace: FlexibleSpaceBar(
+              collapseMode: CollapseMode.parallax,
               background: DestinationPlate(
+                animated: true,
                 category: d.category,
+                iconCategory: d.iconCategory,
                 borderRadius: BorderRadius.zero,
                 watermarkSize: 250,
                 child: SafeArea(
@@ -101,11 +142,23 @@ class DestinationDetailScreen extends StatelessWidget {
                 const SizedBox(height: 20),
                 _facts(context),
                 const SizedBox(height: 24),
-                const SectionHeader(
+                SectionHeader(
                   title: 'When to go',
-                  subtitle: 'Months this place is normally open and worth the drive',
+                  subtitle: d.isSpot
+                      ? 'The guide months come from ${d.parentName}; the climate below '
+                          'is measured at this exact spot'
+                      : 'Months this place is normally open and worth the drive',
                 ),
                 MonthStrip(months: d.bestMonths),
+                const SizedBox(height: 14),
+                WeatherPanel(
+                  weather: _weather,
+                  start: DateTime.now(),
+                  end: DateTime.now().add(const Duration(days: 2)),
+                  loading: _loadingWeather,
+                  altitudeM: d.altitudeM,
+                  guideMonths: d.bestMonths,
+                ),
                 if (d.highlights.isNotEmpty) ...[
                   const SizedBox(height: 24),
                   const SectionHeader(title: 'Known for'),

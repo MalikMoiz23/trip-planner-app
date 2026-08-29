@@ -7,6 +7,7 @@ import 'package:latlong2/latlong.dart';
 import '../core/app_constants.dart';
 import '../core/enums.dart';
 import '../core/geo.dart';
+import '../logic/budget_advisor.dart';
 import '../logic/expense_calculator.dart';
 import '../logic/itinerary_builder.dart';
 import '../models/attraction.dart';
@@ -14,6 +15,7 @@ import '../models/destination.dart';
 import '../models/expense_breakdown.dart';
 import '../models/itinerary.dart';
 import '../models/route_info.dart';
+import '../models/weather.dart';
 import '../models/saved_trip.dart';
 import '../models/trip_config.dart';
 import '../services/destination_repository.dart';
@@ -83,6 +85,10 @@ class PlannerController extends ChangeNotifier {
   double campKitchenCost = AppDefaults.defaultCampKitchenCost;
   double bufferPercent = AppDefaults.defaultBufferPercent;
 
+  /// What the traveller can actually spend. Zero means they have not said, and
+  /// the app offers no advice rather than inventing a target.
+  double budget = 0;
+
   /// Cleared the moment the fuel price is typed in, which stops the planner
   /// warning about a default the user has already replaced.
   bool fuelPriceIsDefault = true;
@@ -105,6 +111,7 @@ class PlannerController extends ChangeNotifier {
   // =======================================================================
 
   bool get hasOrigin => origin != null;
+  bool get hasBudget => budget > 0;
   bool get hasDestination => destination != null;
 
   List<Attraction> get candidates => [..._curated, ..._live];
@@ -254,6 +261,59 @@ class PlannerController extends ChangeNotifier {
     } else {
       unawaited(detectLocation());
     }
+  }
+
+  // ---- Budget -------------------------------------------------------------
+
+  /// Advice on fitting the trip inside [budget], recomputed from the live
+  /// breakdown. Null until both a route and a budget exist.
+  BudgetAdvice? get budgetAdvice {
+    final d = _destination;
+    final route = outbound;
+    if (d == null || route == null || !hasBudget) return null;
+    return BudgetAdvisor.advise(
+      config: buildConfig(),
+      outbound: route,
+      attractionRoutes: attractionRoutes,
+      budget: budget,
+    );
+  }
+
+  void setBudget(double value) {
+    budget = value < 0 ? 0 : value;
+    notifyListeners();
+  }
+
+  /// Swaps the plan for the cheaper variant the advisor worked out, so taking a
+  /// suggestion is one tap rather than a list of edits to reproduce by hand.
+  void applyLever(BudgetLever lever) {
+    _adopt(lever.apply(buildConfig()));
+    notifyListeners();
+  }
+
+  // ---- Weather ------------------------------------------------------------
+
+  PlaceWeather? weather;
+  bool loadingWeather = false;
+
+  /// Climate and forecast for wherever the trip is going. Never throws; on
+  /// failure [weather] stays null and the UI omits those sections.
+  Future<void> loadWeather() async {
+    final d = _destination;
+    if (d == null || loadingWeather) return;
+
+    final hit = appState.weatherService.cached(d.point);
+    if (hit != null) {
+      weather = hit;
+      notifyListeners();
+      return;
+    }
+
+    loadingWeather = true;
+    notifyListeners();
+    weather = await appState.weatherService.load(d.point);
+    loadingWeather = false;
+    notifyListeners();
   }
 
   void setDestination(Destination d) {
@@ -488,6 +548,11 @@ class PlannerController extends ChangeNotifier {
 
     finalising = false;
     notifyListeners();
+
+    // Deliberately not awaited: the summary is worth showing the instant the
+    // costing is done, and the weather section fills itself in a moment later
+    // rather than holding up the whole screen behind a third-party service.
+    unawaited(loadWeather());
   }
 
   SavedTrip toSavedTrip() {
@@ -500,12 +565,27 @@ class PlannerController extends ChangeNotifier {
       total: b.total,
       perPerson: b.perPerson,
       totalKm: b.totalKm,
+      budget: budget,
     );
   }
 
   /// Reopens a saved trip in the planner so it can be adjusted and re-costed.
   void loadFrom(SavedTrip trip) {
-    final c = trip.config;
+    _adopt(trip.config);
+    budget = trip.budget;
+    weather = null;
+    attractionRoutes = {};
+    outbound = trip.outboundRoute;
+    step = 0;
+    notifyListeners();
+  }
+
+  /// Copies every field of a config into this controller.
+  ///
+  /// Shared by [loadFrom] and by the budget advisor, which hands back a whole
+  /// modified config rather than a diff — keeping one adoption path means a new
+  /// field cannot be wired into saving but forgotten in the advice flow.
+  void _adopt(TripConfig c) {
     _destination = c.destination;
     origin = c.origin;
     originName = c.originName;
@@ -537,9 +617,5 @@ class PlannerController extends ChangeNotifier {
       ..clear()
       ..addAll(c.selectedAttractions.map((a) => a.id));
     liveAttempted = false;
-    attractionRoutes = {};
-    outbound = trip.outboundRoute;
-    step = 0;
-    notifyListeners();
   }
 }

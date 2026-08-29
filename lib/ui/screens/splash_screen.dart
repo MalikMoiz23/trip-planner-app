@@ -13,11 +13,11 @@ class SplashScreen extends StatelessWidget {
     final failed = error != null;
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [AppColors.primaryDark, AppColors.primary],
+            colors: [AppColors.primaryDark, context.palette.primary],
           ),
         ),
         child: SafeArea(

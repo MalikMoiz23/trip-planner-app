@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 
 import '../core/app_constants.dart';
 import '../core/enums.dart';
@@ -6,6 +6,7 @@ import '../models/destination.dart';
 import '../models/saved_trip.dart';
 import '../services/destination_repository.dart';
 import '../services/storage_service.dart';
+import '../services/weather_service.dart';
 
 /// App-wide, long-lived state: the catalogue, the saved trips, and the price
 /// settings that seed every new plan.
@@ -17,6 +18,9 @@ class AppState extends ChangeNotifier {
   final DestinationRepository repository;
   final StorageService storage;
 
+  /// Shared so two screens asking about the same place hit the network once.
+  final WeatherService weatherService = WeatherService();
+
   bool _ready = false;
   String? _error;
   List<SavedTrip> _savedTrips = const [];
@@ -25,6 +29,10 @@ class AppState extends ChangeNotifier {
   double dieselPrice = AppDefaults.dieselPricePerLitre;
   double publicRatePerKm = AppDefaults.publicRatePerKm;
   String lastVehicleId = 'sedan';
+
+  /// Light, dark, or follow the device. Persisted, because a theme that resets
+  /// on every launch is worse than not offering the choice at all.
+  ThemeMode themeMode = ThemeMode.system;
 
   /// False while fuel is still whatever the app shipped with. Pakistan reprices
   /// petrol daily, so a plan built on the bundled figure gets an advisory.
@@ -46,6 +54,7 @@ class AppState extends ChangeNotifier {
       publicRatePerKm = await storage.publicRate();
       lastVehicleId = await storage.lastVehicleId();
       fuelPriceIsCustom = await storage.hasCustomFuelPrice();
+      themeMode = _themeModeByName(await storage.themeMode());
       _savedTrips = await storage.loadTrips();
       _ready = true;
       _error = null;
@@ -54,6 +63,16 @@ class AppState extends ChangeNotifier {
       _ready = false;
     }
     notifyListeners();
+  }
+
+  static ThemeMode _themeModeByName(String? name) => ThemeMode.values
+      .firstWhere((m) => m.name == name, orElse: () => ThemeMode.system);
+
+  Future<void> setThemeMode(ThemeMode mode) async {
+    if (themeMode == mode) return;
+    themeMode = mode;
+    notifyListeners();
+    await storage.setThemeMode(mode.name);
   }
 
   double priceFor(FuelKind fuel) =>
@@ -82,6 +101,23 @@ class AppState extends ChangeNotifier {
   Future<void> rememberVehicle(String id) async {
     lastVehicleId = id;
     await storage.setLastVehicleId(id);
+  }
+
+  SavedTrip? tripById(String id) {
+    for (final t in _savedTrips) {
+      if (t.id == id) return t;
+    }
+    return null;
+  }
+
+  /// Writes the packing ticks through to storage. Called on every tap, which is
+  /// fine — shared_preferences batches to a single small file.
+  Future<void> setPackedItems(String tripId, Set<String> ids) async {
+    _savedTrips = _savedTrips
+        .map((t) => t.id == tripId ? t.withPacked(ids) : t)
+        .toList(growable: false);
+    notifyListeners();
+    await storage.saveTrips(_savedTrips);
   }
 
   Future<void> addTrip(SavedTrip trip) async {

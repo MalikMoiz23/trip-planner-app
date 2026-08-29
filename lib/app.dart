@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'core/motion.dart';
 import 'core/theme.dart';
 import 'state/app_state.dart';
 import 'state/planner_controller.dart';
@@ -22,13 +23,19 @@ class TripPlannerApp extends StatelessWidget {
           },
         ),
       ],
-      child: MaterialApp(
-        title: 'Trip Planner',
-        debugShowCheckedModeBanner: false,
-        theme: AppTheme.light(),
-        darkTheme: AppTheme.dark(),
-        themeMode: ThemeMode.light,
-        home: const _Bootstrap(),
+      child: Consumer<AppState>(
+        builder: (context, app, _) => MaterialApp(
+          title: 'Trip Planner',
+          debugShowCheckedModeBanner: false,
+          theme: AppTheme.light(),
+          darkTheme: AppTheme.dark(),
+          // MaterialApp crossfades between the two over this, so switching mode
+          // sweeps rather than snaps — the palette is lerpable for that reason.
+          themeAnimationDuration: Motion.slow,
+          themeAnimationCurve: Motion.standard,
+          themeMode: app.themeMode,
+          home: const _Bootstrap(),
+        ),
       ),
     );
   }

@@ -24,13 +24,33 @@ class SettingsScreen extends StatelessWidget {
         child: ListView(
           padding: const EdgeInsets.fromLTRB(20, 16, 20, 28),
           children: [
-            Text('Rates', style: theme.textTheme.headlineMedium?.copyWith(fontSize: 26)),
+            Text('Settings', style: theme.textTheme.headlineMedium?.copyWith(fontSize: 26)),
             const SizedBox(height: 4),
             Text(
-              'Starting values for new plans. Update them whenever prices move.',
+              'How the app looks, and the rates that seed every new plan.',
               style: theme.textTheme.bodySmall,
             ),
             const SizedBox(height: 20),
+            const SectionHeader(
+              title: 'Appearance',
+              subtitle: 'Follow the device, or pin it',
+            ),
+            SegmentedChoice<ThemeMode>(
+              options: const [ThemeMode.system, ThemeMode.light, ThemeMode.dark],
+              value: app.themeMode,
+              onChanged: app.setThemeMode,
+              labelOf: (m) => switch (m) {
+                ThemeMode.system => 'System',
+                ThemeMode.light => 'Light',
+                ThemeMode.dark => 'Dark',
+              },
+              iconOf: (m) => switch (m) {
+                ThemeMode.system => Icons.brightness_auto_rounded,
+                ThemeMode.light => Icons.light_mode_rounded,
+                ThemeMode.dark => Icons.dark_mode_rounded,
+              },
+            ),
+            const SizedBox(height: 26),
             SectionHeader(
               title: 'Fuel',
               subtitle: app.fuelPriceIsCustom
@@ -85,7 +105,7 @@ class SettingsScreen extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                     child: Row(
                       children: [
-                        Icon(v.icon, size: 20, color: AppColors.inkSoft),
+                        Icon(v.icon, size: 20, color: context.palette.inkSoft),
                         const SizedBox(width: 12),
                         Expanded(
                           child: Column(
@@ -132,8 +152,8 @@ class SettingsScreen extends StatelessWidget {
                             ),
                             TextButton(
                               onPressed: () => Navigator.of(ctx).pop(true),
-                              child: const Text('Delete all',
-                                  style: TextStyle(color: AppColors.danger)),
+                              child: Text('Delete all',
+                                  style: TextStyle(color: context.palette.danger)),
                             ),
                           ],
                         ),
@@ -142,7 +162,7 @@ class SettingsScreen extends StatelessWidget {
                     },
               child: Row(
                 children: [
-                  const Icon(Icons.delete_sweep_outlined, size: 20, color: AppColors.inkSoft),
+                  Icon(Icons.delete_sweep_outlined, size: 20, color: context.palette.inkSoft),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(

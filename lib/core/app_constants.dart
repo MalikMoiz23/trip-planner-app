@@ -157,6 +157,10 @@ class Endpoints {
   static const String osrmBase = 'https://router.project-osrm.org/route/v1/driving';
   static const String nominatimBase = 'https://nominatim.openstreetmap.org';
   static const String overpassBase = 'https://overpass-api.de/api/interpreter';
+
+  // Open-Meteo: free for non-commercial use, no key and no account.
+  static const String openMeteoForecast = 'https://api.open-meteo.com/v1/forecast';
+  static const String openMeteoArchive = 'https://archive-api.open-meteo.com/v1/archive';
 }
 
 class PrefKeys {
@@ -168,4 +172,5 @@ class PrefKeys {
   static const String publicRate = 'setting_public_rate';
   static const String lastVehicleId = 'setting_last_vehicle';
   static const String routeCache = 'route_cache_v1';
+  static const String themeMode = 'setting_theme_mode';
 }

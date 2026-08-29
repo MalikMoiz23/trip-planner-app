@@ -204,7 +204,7 @@ class _VehicleCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Material(
-      color: selected ? AppColors.primary.withValues(alpha: 0.07) : theme.cardTheme.color,
+      color: selected ? context.palette.primary.withValues(alpha: 0.07) : theme.cardTheme.color,
       borderRadius: AppRadius.md,
       child: InkWell(
         onTap: onTap,
@@ -214,13 +214,13 @@ class _VehicleCard extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: AppRadius.md,
             border: Border.all(
-              color: selected ? AppColors.primary : (theme.dividerTheme.color ?? AppColors.line),
+              color: selected ? context.palette.primary : (theme.dividerTheme.color ?? context.palette.line),
               width: selected ? 1.6 : 1,
             ),
           ),
           child: Row(
             children: [
-              Icon(preset.icon, size: 22, color: selected ? AppColors.primary : AppColors.inkSoft),
+              Icon(preset.icon, size: 22, color: selected ? context.palette.primary : context.palette.inkSoft),
               const SizedBox(width: 10),
               Expanded(
                 child: Column(

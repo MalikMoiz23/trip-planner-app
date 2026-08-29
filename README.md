@@ -34,6 +34,19 @@ backend anywhere in it.
 - **Advisories** — too few days for the plan, out-of-season month, 4x4 needed, more
   people than vehicle seats, high altitude, and how much of the total rests on
   estimated rather than curated prices.
+- **Budget-first planning.** Say what you can spend and the app tells you whether the
+  trip fits, and if not, exactly what to change. Each suggestion is re-costed against
+  your actual trip, so the saving shown is measured rather than guessed, and one tap
+  applies it.
+- **Weather and best time**, from [Open-Meteo](https://open-meteo.com) — free, no key.
+  A real forecast when you are leaving inside 16 days, and month-by-month climate
+  averaged from two years of daily records at the destination's own coordinates. That
+  last part matters: a landmark promoted out of a town inherits the town's season, and
+  measured climate at 3,300 m corrects it.
+- **A packing list built from the plan** — altitude, month, camping, self-cooking, 4x4
+  stops and trek hours each add their own items, and every item says which fact about
+  your trip put it there. Ticks persist with the saved trip.
+- **Light and dark mode**, following the system by default and overridable in settings.
 - **Saved trips**, stored locally with the exact rates they were costed under.
 
 ## Towns and spots
@@ -96,6 +109,35 @@ Aliases are held at the level they actually name. "Makli" belongs to Makli Necro
 not to the Thatta entry that contains it, and "Thandyani Top" to the viewpoint rather
 than the hill station — otherwise the town outranks the landmark for a query that names
 the landmark.
+
+## Look and motion
+
+**Two modes, one source.** Every colour that differs between light and dark lives on
+`AppPalette`, a `ThemeExtension` reached through `context.palette`. Widgets never name a
+light constant, which is what makes one widget tree correct in both modes — the dark
+theme existed before this and was unusable, because 46 references to the light palette
+were compiled into the widgets and stayed light-on-light.
+
+Dark is not an inversion: the surfaces are a desaturated blue-slate and every status
+colour is re-picked for its own ground. `test/theme_test.dart` asserts WCAG contrast on
+both palettes and **found three real failures** when first written — light `inkFaint` at
+2.70:1, light `caution` at 4.24:1, and a Beaches gradient stop at 2.97:1 against the
+white label sitting on it. All three are fixed and the test now guards them.
+
+The palette is lerpable, so switching mode crossfades instead of snapping.
+
+**Motion** is defined once in `lib/core/motion.dart` — five durations, four curves — and
+every duration passes through `Motion.of(context)`, which collapses them all to zero when
+the OS asks for reduced motion. Nothing animates on a device set to stillness.
+
+What moves: shared-axis page transitions, staggered list entrances, a drifting hero
+gradient, parallax on the detail header, spring-scale on every tappable card, totals that
+roll to their new value, chart and meter bars that grow on first paint, and a crossfaded
+tab switch.
+
+Stagger delays are served by an `Interval` on the animation's own controller rather than
+`Future.delayed`. A pending timer outlives its widget and fails a widget test outright as
+an unclaimed timer; an interval is cancelled for free when the controller is disposed.
 
 ## The cost model
 
@@ -181,6 +223,7 @@ by city, and these are ex-depot.
 | Place search, reverse geocoding | [Nominatim](https://nominatim.org) | Free, no key |
 | Nearby attractions | [Overpass API](https://overpass-api.de) | Free, no key |
 | Map tiles | OpenStreetMap raster tiles | Free, no key |
+| Forecast and climate | [Open-Meteo](https://open-meteo.com) | Free, no key |
 
 Map data © OpenStreetMap contributors.
 
@@ -223,7 +266,7 @@ immediately.
 
 ```bash
 flutter analyze             # 0 issues
-flutter test                # 79 tests
+flutter test                # 129 tests
 ```
 
 - `test/search_test.dart` — fuzzy matching, query relaxation, the rate estimator, and
@@ -232,7 +275,12 @@ flutter test                # 79 tests
   that the breakdown lines always sum to the total.
 - `test/widget_test.dart` — validates the bundled catalogue: unique ids, sane
   coordinates, months in range, no negative fees.
-- `test/screens_render_test.dart` — renders every screen at 360x780 and 430x932 and
+- `test/theme_test.dart` — WCAG contrast on both palettes, and that the two themes
+  actually carry their palette. Caught three real contrast failures.
+- `test/features_test.dart` — the budget advisor (every lever must save what it claims,
+  measured by re-costing), the packing builder, and the weather scoring.
+- `test/screens_render_test.dart` — renders every screen at 360x780 and 430x932, plus a
+  dark-mode pass, and
   fails on any layout exception, with all network clients stubbed to throw so the
   offline paths are the ones under test. This is what catches `RenderFlex` overflows.
 

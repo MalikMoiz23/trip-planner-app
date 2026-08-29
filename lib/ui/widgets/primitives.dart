@@ -66,13 +66,13 @@ class StatTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final tone = accent ?? AppColors.primary;
+    final tone = accent ?? context.palette.primary;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
         color: emphasis ? tone : theme.cardTheme.color,
         borderRadius: AppRadius.md,
-        border: emphasis ? null : Border.all(color: theme.dividerTheme.color ?? AppColors.line),
+        border: emphasis ? null : Border.all(color: theme.dividerTheme.color ?? context.palette.line),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -83,14 +83,14 @@ class StatTile extends StatelessWidget {
               if (icon != null) ...[
                 Icon(icon,
                     size: 16,
-                    color: emphasis ? Colors.white70 : AppColors.inkSoft),
+                    color: emphasis ? Colors.white70 : context.palette.inkSoft),
                 const SizedBox(width: 6),
               ],
               Expanded(
                 child: Text(
                   label,
                   style: theme.textTheme.bodySmall?.copyWith(
-                    color: emphasis ? Colors.white70 : AppColors.inkSoft,
+                    color: emphasis ? Colors.white70 : context.palette.inkSoft,
                     fontWeight: FontWeight.w600,
                     letterSpacing: 0.2,
                   ),
@@ -118,7 +118,7 @@ class StatTile extends StatelessWidget {
               caption!,
               style: theme.textTheme.bodySmall?.copyWith(
                 fontSize: 11.5,
-                color: emphasis ? Colors.white70 : AppColors.inkSoft,
+                color: emphasis ? Colors.white70 : context.palette.inkSoft,
               ),
             ),
           ],
@@ -146,10 +146,10 @@ class PillTag extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final fg = onSurface ? Colors.white : (color ?? AppColors.inkSoft);
+    final fg = onSurface ? Colors.white : (color ?? context.palette.inkSoft);
     final bg = onSurface
         ? Colors.white.withValues(alpha: 0.18)
-        : (color ?? AppColors.inkSoft).withValues(alpha: 0.10);
+        : (color ?? context.palette.inkSoft).withValues(alpha: 0.10);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
@@ -198,14 +198,14 @@ class InfoNote extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppColors.primary.withValues(alpha: 0.06),
+        color: context.palette.primary.withValues(alpha: 0.06),
         borderRadius: AppRadius.sm,
-        border: Border.all(color: AppColors.primary.withValues(alpha: 0.16)),
+        border: Border.all(color: context.palette.primary.withValues(alpha: 0.16)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, size: 17, color: AppColors.primary),
+          Icon(icon, size: 17, color: context.palette.primary),
           const SizedBox(width: 10),
           Expanded(
             child: Text(
@@ -246,10 +246,10 @@ class EmptyState extends StatelessWidget {
               width: 76,
               height: 76,
               decoration: BoxDecoration(
-                color: AppColors.primary.withValues(alpha: 0.08),
+                color: context.palette.primary.withValues(alpha: 0.08),
                 shape: BoxShape.circle,
               ),
-              child: Icon(icon, size: 34, color: AppColors.primary),
+              child: Icon(icon, size: 34, color: context.palette.primary),
             ),
             const SizedBox(height: 18),
             Text(title, style: theme.textTheme.titleMedium, textAlign: TextAlign.center),
@@ -314,7 +314,7 @@ class AppCard extends StatelessWidget {
           padding: padding,
           decoration: BoxDecoration(
             borderRadius: AppRadius.md,
-            border: Border.all(color: theme.dividerTheme.color ?? AppColors.line),
+            border: Border.all(color: theme.dividerTheme.color ?? context.palette.line),
           ),
           child: child,
         ),

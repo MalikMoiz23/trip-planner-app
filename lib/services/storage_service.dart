@@ -39,6 +39,12 @@ class StorageService {
 
   // ---- Settings ----------------------------------------------------------
 
+  /// Stored by enum name so the value survives a reordering of ThemeMode.
+  Future<String?> themeMode() async => (await _p).getString(PrefKeys.themeMode);
+
+  Future<void> setThemeMode(String name) async =>
+      (await _p).setString(PrefKeys.themeMode, name);
+
   Future<double> petrolPrice() async =>
       (await _p).getDouble(PrefKeys.petrolPrice) ?? AppDefaults.petrolPricePerLitre;
 

@@ -135,7 +135,7 @@ class _StepBar extends StatelessWidget {
                   duration: const Duration(milliseconds: 200),
                   height: 4,
                   decoration: BoxDecoration(
-                    color: done ? AppColors.primary : AppColors.line,
+                    color: done ? context.palette.primary : context.palette.line,
                     borderRadius: AppRadius.pill,
                   ),
                 ),
@@ -168,7 +168,7 @@ class _Footer extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: theme.cardTheme.color,
-        border: Border(top: BorderSide(color: theme.dividerTheme.color ?? AppColors.line)),
+        border: Border(top: BorderSide(color: theme.dividerTheme.color ?? context.palette.line)),
       ),
       child: SafeArea(
         top: false,

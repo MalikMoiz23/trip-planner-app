@@ -12,7 +12,11 @@ import '../widgets/cost_chart.dart';
 import '../widgets/primitives.dart';
 import '../widgets/trip_map.dart';
 import '../widgets/warning_card.dart';
+import '../../core/motion.dart';
+import '../widgets/budget_panel.dart';
+import '../widgets/weather_card.dart';
 import 'expense_detail_screen.dart';
+import 'packing_screen.dart';
 import 'map_screen.dart';
 
 class SummaryScreen extends StatelessWidget {
@@ -70,7 +74,7 @@ class SummaryScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
         children: [
-          _hero(b),
+          _hero(context, b),
           const SizedBox(height: 12),
           Row(
             children: [
@@ -161,7 +165,7 @@ class SummaryScreen extends StatelessWidget {
             decoration: BoxDecoration(
               color: theme.cardTheme.color,
               borderRadius: AppRadius.md,
-              border: Border.all(color: theme.dividerTheme.color ?? AppColors.line),
+              border: Border.all(color: theme.dividerTheme.color ?? context.palette.line),
             ),
             child: CostBreakdownChart(breakdown: b),
           ),
@@ -197,13 +201,40 @@ class SummaryScreen extends StatelessWidget {
           ),
           ...c.itinerary.map((day) => _DayCard(day: day)),
 
-          const SizedBox(height: 20),
+          // ---- Weather -------------------------------------------------------
+          const SizedBox(height: 22),
+          const SectionHeader(
+            title: 'Weather',
+            subtitle: 'Measured at these coordinates, not inherited from the region',
+          ),
+          WeatherPanel(
+            weather: c.weather,
+            start: c.startDate,
+            end: c.startDate.add(Duration(days: c.days - 1)),
+            loading: c.loadingWeather,
+            altitudeM: d.altitudeM,
+            guideMonths: d.bestMonths,
+          ),
+
+          // ---- Budget --------------------------------------------------------
+          const SizedBox(height: 22),
+          const SectionHeader(
+            title: 'Against your budget',
+            subtitle: 'Say what you can spend and the app works out how to fit it',
+          ),
+          const BudgetPanel(),
+
+          const SizedBox(height: 22),
           FilledButton.icon(
-            onPressed: () => Navigator.of(context).push(
-              MaterialPageRoute(builder: (_) => const ExpenseDetailScreen()),
-            ),
+            onPressed: () => context.pushScreen(const ExpenseDetailScreen()),
             icon: const Icon(Icons.receipt_long_rounded, size: 20),
             label: const Text('See every rupee'),
+          ),
+          const SizedBox(height: 10),
+          OutlinedButton.icon(
+            onPressed: () => context.pushScreen(const PackingScreen()),
+            icon: const Icon(Icons.checklist_rounded, size: 19),
+            label: const Text('Packing list'),
           ),
           const SizedBox(height: 10),
           OutlinedButton.icon(
@@ -222,14 +253,14 @@ class SummaryScreen extends StatelessWidget {
     );
   }
 
-  Widget _hero(ExpenseBreakdown b) {
+  Widget _hero(BuildContext context, ExpenseBreakdown b) {
     return Container(
       padding: const EdgeInsets.all(20),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [AppColors.primaryDark, AppColors.primary],
+          colors: [AppColors.primaryDark, context.palette.primary],
         ),
         borderRadius: AppRadius.lg,
       ),
@@ -324,19 +355,19 @@ class SummaryScreen extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: AppRadius.pill,
-                  boxShadow: AppShadows.card,
+                  boxShadow: context.palette.shadowCard,
                 ),
-                child: const Row(
+                child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.open_in_full_rounded, size: 14, color: AppColors.ink),
+                    Icon(Icons.open_in_full_rounded, size: 14, color: context.palette.ink),
                     SizedBox(width: 6),
                     Text(
                       'Open map',
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
-                        color: AppColors.ink,
+                        color: context.palette.ink,
                       ),
                     ),
                   ],
@@ -349,9 +380,9 @@ class SummaryScreen extends StatelessWidget {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 color: Colors.white70,
-                child: const Text(
+                child: Text(
                   '© OpenStreetMap contributors',
-                  style: TextStyle(fontSize: 9, color: AppColors.ink),
+                  style: TextStyle(fontSize: 9, color: context.palette.ink),
                 ),
               ),
             ),
@@ -383,13 +414,13 @@ class _DayCard extends StatelessWidget {
                   height: 34,
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
-                    color: AppColors.primary.withValues(alpha: 0.10),
+                    color: context.palette.primary.withValues(alpha: 0.10),
                     borderRadius: AppRadius.sm,
                   ),
                   child: Text(
                     '${day.dayNumber}',
-                    style: const TextStyle(
-                      color: AppColors.primary,
+                    style: TextStyle(
+                      color: context.palette.primary,
                       fontWeight: FontWeight.w800,
                       fontSize: 15,
                     ),
@@ -418,7 +449,7 @@ class _DayCard extends StatelessWidget {
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Icon(item.icon, size: 17, color: AppColors.inkSoft),
+                      Icon(item.icon, size: 17, color: context.palette.inkSoft),
                       const SizedBox(width: 11),
                       Expanded(
                         child: Column(

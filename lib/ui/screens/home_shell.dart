@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../core/motion.dart';
 import '../../core/theme.dart';
 import 'explore_screen.dart';
 import 'saved_trips_screen.dart';
@@ -21,32 +22,60 @@ class _HomeShellState extends State<HomeShell> {
     SettingsScreen(),
   ];
 
+  void _select(int i) {
+    if (i == _index) return;
+    setState(() => _index = i);
+  }
+
   @override
   Widget build(BuildContext context) {
+    final p = context.palette;
+    final motion = Motion.of(context);
+
     return Scaffold(
-      body: IndexedStack(index: _index, children: _tabs),
+      // IndexedStack keeps each tab's scroll position, so the switch is a
+      // crossfade over live state rather than a rebuild from the top.
+      body: AnimatedSwitcher(
+        duration: motion.d(Motion.base),
+        switchInCurve: Motion.enter,
+        switchOutCurve: Motion.exit,
+        transitionBuilder: (child, animation) => FadeTransition(
+          opacity: animation,
+          child: SlideTransition(
+            position: Tween(begin: const Offset(0, 0.012), end: Offset.zero)
+                .animate(animation),
+            child: child,
+          ),
+        ),
+        child: KeyedSubtree(
+          key: ValueKey(_index),
+          child: IndexedStack(index: _index, children: _tabs),
+        ),
+      ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _index,
-        onDestinationSelected: (i) => setState(() => _index = i),
+        onDestinationSelected: _select,
         height: 66,
         backgroundColor: Theme.of(context).cardTheme.color,
-        indicatorColor: AppColors.primary.withValues(alpha: 0.12),
+        indicatorColor: p.primary.withValues(alpha: 0.14),
+        // The default is a snap; this is the same easing as everything else.
+        animationDuration: motion.d(Motion.base),
         labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
-        destinations: const [
+        destinations: [
           NavigationDestination(
-            icon: Icon(Icons.explore_outlined),
-            selectedIcon: Icon(Icons.explore_rounded, color: AppColors.primary),
+            icon: const Icon(Icons.explore_outlined),
+            selectedIcon: Icon(Icons.explore_rounded, color: p.primary),
             label: 'Explore',
           ),
           NavigationDestination(
-            icon: Icon(Icons.bookmark_border_rounded),
-            selectedIcon: Icon(Icons.bookmark_rounded, color: AppColors.primary),
+            icon: const Icon(Icons.bookmark_border_rounded),
+            selectedIcon: Icon(Icons.bookmark_rounded, color: p.primary),
             label: 'My trips',
           ),
           NavigationDestination(
-            icon: Icon(Icons.tune_rounded),
-            selectedIcon: Icon(Icons.tune_rounded, color: AppColors.primary),
-            label: 'Rates',
+            icon: const Icon(Icons.tune_outlined),
+            selectedIcon: Icon(Icons.tune_rounded, color: p.primary),
+            label: 'Settings',
           ),
         ],
       ),

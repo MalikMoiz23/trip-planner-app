@@ -71,10 +71,10 @@ class MapScreen extends StatelessWidget {
                             ),
                           ),
                           if (route != null && route.estimated)
-                            const PillTag(
+                            PillTag(
                               label: 'Estimated',
                               icon: Icons.help_outline_rounded,
-                              color: AppColors.caution,
+                              color: context.palette.caution,
                             ),
                         ],
                       ),
@@ -87,13 +87,13 @@ class MapScreen extends StatelessWidget {
                             PillTag(
                               label: km(route.distanceKm),
                               icon: Icons.route_rounded,
-                              color: AppColors.primary,
+                              color: context.palette.primary,
                             ),
                           if (route != null)
                             PillTag(
                               label: durationText(route.duration),
                               icon: Icons.schedule_rounded,
-                              color: AppColors.primary,
+                              color: context.palette.primary,
                             ),
                           PillTag(
                             label: '${c.selectedCount} stops pinned',
@@ -129,7 +129,7 @@ class _RoundIcon extends StatelessWidget {
       child: InkWell(
         customBorder: const CircleBorder(),
         onTap: onTap,
-        child: SizedBox(width: 42, height: 42, child: Icon(icon, size: 20, color: AppColors.ink)),
+        child: SizedBox(width: 42, height: 42, child: Icon(icon, size: 20, color: context.palette.ink)),
       ),
     );
   }

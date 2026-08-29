@@ -19,7 +19,9 @@ import 'package:trip_planner/ui/screens/explore_screen.dart';
 import 'package:trip_planner/ui/screens/planner_screen.dart';
 import 'package:trip_planner/ui/screens/saved_trips_screen.dart';
 import 'package:trip_planner/ui/screens/settings_screen.dart';
+import 'package:trip_planner/ui/screens/packing_screen.dart';
 import 'package:trip_planner/ui/screens/summary_screen.dart';
+import 'package:trip_planner/ui/widgets/weather_card.dart';
 
 /// Renders every screen at a common phone size and fails on any layout
 /// exception. RenderFlex overflows are reported as errors by the test binding,
@@ -55,7 +57,12 @@ void main() {
 
   AppState buildState() => appState;
 
-  Widget host(AppState state, Widget child, {PlannerController? planner}) {
+  Widget host(
+    AppState state,
+    Widget child, {
+    PlannerController? planner,
+    ThemeData? theme,
+  }) {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider<AppState>.value(value: state),
@@ -69,8 +76,24 @@ void main() {
               ),
         ),
       ],
-      child: MaterialApp(theme: AppTheme.light(), home: child),
+      child: MaterialApp(theme: theme ?? AppTheme.light(), home: child),
     );
+  }
+
+  /// A controller far enough along to render the summary and everything hung
+  /// off it, with the network dead so the offline paths are what is exercised.
+  Future<PlannerController> costedPlan(AppState state, {String id = 'hunza'}) async {
+    final planner = PlannerController(
+      repo: state.repository,
+      appState: state,
+      osrm: OsrmService(client: _DeadClient()),
+    )
+      ..origin = const LatLng(31.5497, 74.3436)
+      ..originName = 'Lahore';
+    planner.startFor(state.repository.byId(id)!);
+    planner.selectAllCurated();
+    await planner.finalise();
+    return planner;
   }
 
   for (final size in const [Size(360, 780), Size(430, 932)]) {
@@ -326,12 +349,186 @@ void main() {
         final state = buildState();
         await tester.pumpWidget(host(state, const SettingsScreen()));
         await tester.pump(const Duration(milliseconds: 300));
-        expect(find.text('Rates'), findsOneWidget);
+        expect(find.text('Settings'), findsOneWidget);
         await tester.drag(find.byType(ListView), const Offset(0, -1200));
         await tester.pump(const Duration(milliseconds: 300));
       });
     });
   }
+
+  // Dark mode is a second full paint of every widget, and the palette is the
+  // only thing standing between it and light-on-light text. Rendering the main
+  // screens under it catches anything still holding a light constant.
+  group('dark mode', () {
+    setUp(() {
+      final view = TestWidgetsFlutterBinding.instance.platformDispatcher.views.first;
+      view.physicalSize = const Size(390, 844);
+      view.devicePixelRatio = 1.0;
+    });
+
+    tearDown(() {
+      final view = TestWidgetsFlutterBinding.instance.platformDispatcher.views.first;
+      view.resetPhysicalSize();
+      view.resetDevicePixelRatio();
+    });
+
+    Future<void> shotDark(WidgetTester tester, String name) async {
+      if (Platform.environment['GOLDENS'] != '1') return;
+      await expectLater(
+        find.byType(MaterialApp),
+        matchesGoldenFile('goldens/$name.png'),
+      );
+    }
+
+    testWidgets('explore lays out in dark', (tester) async {
+      final state = buildState();
+      await tester.pumpWidget(
+        host(state, const ExploreScreen(), theme: AppTheme.dark()),
+      );
+      await tester.pump(const Duration(milliseconds: 600));
+      expect(find.text('Plan the whole trip'), findsOneWidget);
+      await shotDark(tester, '20_dark_explore');
+    });
+
+    testWidgets('destination detail lays out in dark', (tester) async {
+      final state = buildState();
+      await tester.pumpWidget(host(
+        state,
+        DestinationDetailScreen(destination: state.repository.byId('skardu')!),
+        theme: AppTheme.dark(),
+      ));
+      await tester.pump(const Duration(milliseconds: 600));
+      await shotDark(tester, '21_dark_detail');
+    });
+
+    testWidgets('summary lays out in dark', (tester) async {
+      final state = buildState();
+      final planner = await costedPlan(state);
+      await tester.pumpWidget(
+        host(state, const SummaryScreen(), planner: planner, theme: AppTheme.dark()),
+      );
+      await tester.pump(const Duration(milliseconds: 600));
+      expect(find.text('Estimated total'), findsOneWidget);
+      await shotDark(tester, '22_dark_summary');
+    });
+
+    testWidgets('settings lays out in dark', (tester) async {
+      final state = buildState();
+      await tester.pumpWidget(
+        host(state, const SettingsScreen(), theme: AppTheme.dark()),
+      );
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(find.text('Dark'), findsOneWidget);
+      await shotDark(tester, '23_dark_settings');
+    });
+  });
+
+  group('new screens', () {
+    setUp(() {
+      final view = TestWidgetsFlutterBinding.instance.platformDispatcher.views.first;
+      view.physicalSize = const Size(390, 844);
+      view.devicePixelRatio = 1.0;
+    });
+
+    tearDown(() {
+      final view = TestWidgetsFlutterBinding.instance.platformDispatcher.views.first;
+      view.resetPhysicalSize();
+      view.resetDevicePixelRatio();
+    });
+
+    Future<void> shot(WidgetTester tester, String name) async {
+      if (Platform.environment['GOLDENS'] != '1') return;
+      await expectLater(
+        find.byType(MaterialApp),
+        matchesGoldenFile('goldens/$name.png'),
+      );
+    }
+
+    testWidgets('the packing list builds from the plan and ticks', (tester) async {
+      final state = buildState();
+      final planner = await costedPlan(state, id: 'fairy-meadows');
+      planner.setStayStyle(StayStyle.ownTent);
+      planner.setFoodStyle(FoodStyle.selfCooking);
+
+      await tester.pumpWidget(host(state, const PackingScreen(), planner: planner));
+      await tester.pump(const Duration(milliseconds: 700));
+
+      // The list opens on documents and clothing; the camping and cooking
+      // sections that prove it was built from *this* plan are further down.
+      expect(find.textContaining('packed'), findsOneWidget);
+      await shot(tester, '24_packing');
+
+      await tester.dragUntilVisible(
+        find.text('Tent'),
+        find.byType(ListView),
+        const Offset(0, -300),
+      );
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(find.text('Tent'), findsOneWidget);
+
+      // Ticking must register against the item that was actually tapped.
+      await tester.tap(find.text('Tent'));
+      await tester.pump(const Duration(milliseconds: 500));
+      await shot(tester, '25_packing_ticked');
+
+      // The counter lives at the top of the list, which the scroll above left
+      // behind, so come back to it to read the result.
+      await tester.dragUntilVisible(
+        find.textContaining('packed'),
+        find.byType(ListView),
+        const Offset(0, 300),
+      );
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(
+        tester.widget<Text>(find.textContaining('packed')).data,
+        startsWith('1 of '),
+        reason: 'tapping an item must tick exactly that item',
+      );
+
+      await tester.dragUntilVisible(
+        find.text('Stove and gas'),
+        find.byType(ListView),
+        const Offset(0, -300),
+      );
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(find.text('Stove and gas'), findsOneWidget);
+    });
+
+    testWidgets('the budget advisor renders its levers', (tester) async {
+      final state = buildState();
+      final planner = await costedPlan(state);
+      // Deliberately unaffordable, so the levers list is populated.
+      planner.setBudget(planner.breakdown!.total * 0.55);
+
+      await tester.pumpWidget(host(state, const SummaryScreen(), planner: planner));
+      await tester.pump(const Duration(milliseconds: 700));
+
+      await tester.dragUntilVisible(
+        find.text('Ways to close the gap'),
+        find.byType(ListView),
+        const Offset(0, -320),
+      );
+      await tester.pump(const Duration(milliseconds: 500));
+      expect(find.text('Ways to close the gap'), findsOneWidget);
+      await shot(tester, '26_budget_levers');
+    });
+
+    testWidgets('weather degrades to a note when the lookup fails', (tester) async {
+      final state = buildState();
+      final planner = await costedPlan(state);
+      await tester.pumpWidget(host(state, const SummaryScreen(), planner: planner));
+      await tester.pump(const Duration(milliseconds: 700));
+
+      // No network in tests, so the panel must say so rather than spin forever.
+      await tester.dragUntilVisible(
+        find.byType(WeatherPanel),
+        find.byType(ListView),
+        const Offset(0, -320),
+      );
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(find.byType(WeatherPanel), findsOneWidget);
+    });
+  });
 }
 
 /// Stands in for a total network outage.

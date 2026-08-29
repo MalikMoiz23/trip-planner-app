@@ -33,7 +33,7 @@ class AttractionTile extends StatelessWidget {
     final groupCost = perPerson * persons;
 
     return Material(
-      color: selected ? AppColors.primary.withValues(alpha: 0.06) : theme.cardTheme.color,
+      color: selected ? context.palette.primary.withValues(alpha: 0.06) : theme.cardTheme.color,
       borderRadius: AppRadius.md,
       child: InkWell(
         onTap: onToggle,
@@ -43,7 +43,7 @@ class AttractionTile extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: AppRadius.md,
             border: Border.all(
-              color: selected ? AppColors.primary : (theme.dividerTheme.color ?? AppColors.line),
+              color: selected ? context.palette.primary : (theme.dividerTheme.color ?? context.palette.line),
               width: selected ? 1.6 : 1,
             ),
           ),
@@ -84,7 +84,7 @@ class AttractionTile extends StatelessWidget {
                         PillTag(
                           label: km(distanceKm),
                           icon: Icons.route_rounded,
-                          color: AppColors.primary,
+                          color: context.palette.primary,
                         ),
                         PillTag(label: hours(a.visitHours), icon: Icons.schedule_rounded),
                         // An estimated figure is labelled as one. A curated
@@ -93,25 +93,25 @@ class AttractionTile extends StatelessWidget {
                           PillTag(
                             label: 'Est. ${money(perPerson)}/person',
                             icon: Icons.help_outline_rounded,
-                            color: AppColors.caution,
+                            color: context.palette.caution,
                           )
                         else if (perPerson > 0)
                           PillTag(
                             label: '${money(perPerson)}/person',
                             icon: Icons.payments_rounded,
-                            color: AppColors.primary,
+                            color: context.palette.primary,
                           )
                         else
-                          const PillTag(
+                          PillTag(
                             label: 'Free entry',
                             icon: Icons.check_rounded,
-                            color: AppColors.success,
+                            color: context.palette.success,
                           ),
                         if (a.requires4x4)
-                          const PillTag(
+                          PillTag(
                             label: 'Jeep only',
                             icon: Icons.airport_shuttle_rounded,
-                            color: AppColors.caution,
+                            color: context.palette.caution,
                           ),
                       ],
                     ),
@@ -121,7 +121,7 @@ class AttractionTile extends StatelessWidget {
                         'Adds ${money(groupCost)} for $persons '
                         '${persons == 1 ? 'person' : 'people'}',
                         style: theme.textTheme.bodySmall?.copyWith(
-                          color: AppColors.primary,
+                          color: context.palette.primary,
                           fontWeight: FontWeight.w700,
                           fontSize: 12,
                         ),
@@ -142,7 +142,7 @@ class AttractionTile extends StatelessWidget {
                       padding: EdgeInsets.zero,
                       constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
                       icon: const Icon(Icons.edit_outlined, size: 17),
-                      color: AppColors.inkSoft,
+                      color: context.palette.inkSoft,
                       tooltip: 'Edit cost',
                     ),
                   ],
@@ -171,10 +171,10 @@ class _Check extends StatelessWidget {
         width: 26,
         height: 26,
         decoration: BoxDecoration(
-          color: selected ? AppColors.primary : Colors.transparent,
+          color: selected ? context.palette.primary : Colors.transparent,
           borderRadius: AppRadius.sm,
           border: Border.all(
-            color: selected ? AppColors.primary : AppColors.line,
+            color: selected ? context.palette.primary : context.palette.line,
             width: 1.6,
           ),
         ),

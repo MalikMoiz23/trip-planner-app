@@ -12,6 +12,8 @@ class SavedTrip {
     required this.total,
     required this.perPerson,
     required this.totalKm,
+    this.packedItemIds = const {},
+    this.budget = 0,
   });
 
   final String id;
@@ -22,6 +24,12 @@ class SavedTrip {
   final double perPerson;
   final double totalKm;
 
+  /// Packing-list items already ticked off, kept so the list survives a restart.
+  final Set<String> packedItemIds;
+
+  /// What the traveller said they could spend, zero when they never said.
+  final double budget;
+
   Map<String, dynamic> toJson() => {
         'id': id,
         'createdAt': createdAt.toIso8601String(),
@@ -30,7 +38,21 @@ class SavedTrip {
         'total': total,
         'perPerson': perPerson,
         'totalKm': totalKm,
+        'packedItemIds': packedItemIds.toList(),
+        'budget': budget,
       };
+
+  SavedTrip withPacked(Set<String> ids) => SavedTrip(
+        id: id,
+        createdAt: createdAt,
+        config: config,
+        outboundRoute: outboundRoute,
+        total: total,
+        perPerson: perPerson,
+        totalKm: totalKm,
+        packedItemIds: ids,
+        budget: budget,
+      );
 
   factory SavedTrip.fromJson(Map<String, dynamic> j) => SavedTrip(
         id: j['id'] as String,
@@ -40,5 +62,9 @@ class SavedTrip {
         total: (j['total'] as num).toDouble(),
         perPerson: (j['perPerson'] as num).toDouble(),
         totalKm: (j['totalKm'] as num?)?.toDouble() ?? 0,
+        packedItemIds: ((j['packedItemIds'] as List?) ?? const [])
+            .map((e) => e as String)
+            .toSet(),
+        budget: (j['budget'] as num?)?.toDouble() ?? 0,
       );
 }

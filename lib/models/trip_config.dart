@@ -103,6 +103,10 @@ class TripConfig {
   /// Total meals bought or cooked across the whole trip.
   int get totalMeals => days * persons * mealsPerDay;
 
+  /// True when the road in, or any chosen stop, expects a 4x4.
+  bool get requires4x4Anywhere =>
+      destination.requires4x4 || selectedAttractions.any((a) => a.requires4x4);
+
   /// The kitchen kit is only a cost if you are actually cooking.
   double get effectiveKitchenCost => isSelfCooking ? campKitchenCost : 0;
 

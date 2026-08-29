@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../core/formatters.dart';
 import '../../core/theme.dart';
 import '../../models/destination.dart';
+import 'ambient.dart';
 import 'primitives.dart';
 
 /// The gradient plate every destination visual is built on.
@@ -18,7 +19,12 @@ class DestinationPlate extends StatelessWidget {
     this.borderRadius = AppRadius.md,
     this.child,
     this.watermarkSize = 150,
+    this.animated = false,
   });
+
+  /// Slowly drifts the gradient. Reserved for the one hero plate on screen —
+  /// a list of forty drifting thumbnails would be a mess and a battery drain.
+  final bool animated;
 
   /// Drives the gradient. Always one of the canonical set.
   final String category;
@@ -39,15 +45,18 @@ class DestinationPlate extends StatelessWidget {
       child: Stack(
         fit: StackFit.expand,
         children: [
-          DecoratedBox(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: colors,
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
+          if (animated)
+            DriftingGradient(colors: colors)
+          else
+            DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: colors,
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
               ),
             ),
-          ),
           Positioned(
             right: -watermarkSize * 0.18,
             bottom: -watermarkSize * 0.22,
@@ -229,8 +238,8 @@ class DestinationRow extends StatelessWidget {
                 if (matchNote != null) ...[
                   Row(
                     children: [
-                      const Icon(Icons.subdirectory_arrow_right_rounded,
-                          size: 13, color: AppColors.primary),
+                      Icon(Icons.subdirectory_arrow_right_rounded,
+                          size: 13, color: context.palette.primary),
                       const SizedBox(width: 4),
                       Expanded(
                         child: Text(
@@ -239,7 +248,7 @@ class DestinationRow extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                           style: theme.textTheme.bodySmall?.copyWith(
                             fontSize: 12,
-                            color: AppColors.primary,
+                            color: context.palette.primary,
                             fontWeight: FontWeight.w700,
                           ),
                         ),
@@ -262,7 +271,7 @@ class DestinationRow extends StatelessWidget {
                     PillTag(
                       label: inSeason ? 'In season' : 'Off season',
                       icon: inSeason ? Icons.check_circle_rounded : Icons.ac_unit_rounded,
-                      color: inSeason ? AppColors.success : AppColors.caution,
+                      color: inSeason ? context.palette.success : context.palette.caution,
                     ),
                     PillTag(
                       label: plural(d.recommendedDays, 'day', 'days'),
@@ -274,15 +283,15 @@ class DestinationRow extends StatelessWidget {
                       PillTag(
                         label: 'near ${d.parentName}',
                         icon: Icons.near_me_rounded,
-                        color: AppColors.primary,
+                        color: context.palette.primary,
                       ),
                     if (d.altitudeM > 0)
                       PillTag(label: '${d.altitudeM} m', icon: Icons.terrain_rounded),
                     if (d.requires4x4)
-                      const PillTag(
+                      PillTag(
                         label: '4x4',
                         icon: Icons.airport_shuttle_rounded,
-                        color: AppColors.caution,
+                        color: context.palette.caution,
                       ),
                   ],
                 ),
@@ -329,10 +338,10 @@ class MonthStrip extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 6),
           alignment: Alignment.center,
           decoration: BoxDecoration(
-            color: good ? AppColors.primary.withValues(alpha: 0.12) : AppColors.canvas,
+            color: good ? context.palette.primary.withValues(alpha: 0.12) : context.palette.canvas,
             borderRadius: AppRadius.sm,
             border: Border.all(
-              color: isNow ? AppColors.primary : AppColors.line,
+              color: isNow ? context.palette.primary : context.palette.line,
               width: isNow ? 1.6 : 1,
             ),
           ),
@@ -341,7 +350,7 @@ class MonthStrip extends StatelessWidget {
             style: TextStyle(
               fontSize: 11,
               fontWeight: FontWeight.w700,
-              color: good ? AppColors.primary : AppColors.inkSoft,
+              color: good ? context.palette.primary : context.palette.inkSoft,
             ),
           ),
         );

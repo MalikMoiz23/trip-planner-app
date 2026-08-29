@@ -35,12 +35,12 @@ class CounterRow extends StatelessWidget {
       decoration: BoxDecoration(
         color: theme.cardTheme.color,
         borderRadius: AppRadius.md,
-        border: Border.all(color: theme.dividerTheme.color ?? AppColors.line),
+        border: Border.all(color: theme.dividerTheme.color ?? context.palette.line),
       ),
       child: Row(
         children: [
           if (icon != null) ...[
-            Icon(icon, size: 19, color: AppColors.primary),
+            Icon(icon, size: 19, color: context.palette.primary),
             const SizedBox(width: 11),
           ],
           Expanded(
@@ -89,7 +89,7 @@ class _RoundButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: enabled ? AppColors.primary.withValues(alpha: 0.10) : Colors.transparent,
+      color: enabled ? context.palette.primary.withValues(alpha: 0.10) : Colors.transparent,
       shape: const CircleBorder(),
       child: InkWell(
         customBorder: const CircleBorder(),
@@ -100,7 +100,7 @@ class _RoundButton extends StatelessWidget {
           child: Icon(
             icon,
             size: 18,
-            color: enabled ? AppColors.primary : AppColors.line,
+            color: enabled ? context.palette.primary : context.palette.line,
           ),
         ),
       ),
@@ -225,9 +225,9 @@ class SegmentedChoice<T> extends StatelessWidget {
       decoration: BoxDecoration(
         color: theme.brightness == Brightness.dark
             ? Colors.white.withValues(alpha: 0.04)
-            : AppColors.canvas,
+            : context.palette.canvas,
         borderRadius: AppRadius.md,
-        border: Border.all(color: theme.dividerTheme.color ?? AppColors.line),
+        border: Border.all(color: theme.dividerTheme.color ?? context.palette.line),
       ),
       child: Row(
         children: options.map((option) {
@@ -239,7 +239,7 @@ class SegmentedChoice<T> extends StatelessWidget {
                 duration: const Duration(milliseconds: 160),
                 padding: const EdgeInsets.symmetric(vertical: 11),
                 decoration: BoxDecoration(
-                  color: selected ? AppColors.primary : Colors.transparent,
+                  color: selected ? context.palette.primary : Colors.transparent,
                   borderRadius: AppRadius.sm,
                 ),
                 child: Row(
@@ -249,7 +249,7 @@ class SegmentedChoice<T> extends StatelessWidget {
                       Icon(
                         iconOf!(option),
                         size: 16,
-                        color: selected ? Colors.white : AppColors.inkSoft,
+                        color: selected ? Colors.white : context.palette.inkSoft,
                       ),
                       const SizedBox(width: 7),
                     ],
@@ -261,7 +261,7 @@ class SegmentedChoice<T> extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 13.5,
                           fontWeight: FontWeight.w700,
-                          color: selected ? Colors.white : AppColors.inkSoft,
+                          color: selected ? Colors.white : context.palette.inkSoft,
                         ),
                       ),
                     ),
@@ -300,7 +300,7 @@ class TierOption extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Material(
-      color: selected ? AppColors.primary.withValues(alpha: 0.06) : theme.cardTheme.color,
+      color: selected ? context.palette.primary.withValues(alpha: 0.06) : theme.cardTheme.color,
       borderRadius: AppRadius.md,
       child: InkWell(
         onTap: onTap,
@@ -310,13 +310,13 @@ class TierOption extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: AppRadius.md,
             border: Border.all(
-              color: selected ? AppColors.primary : (theme.dividerTheme.color ?? AppColors.line),
+              color: selected ? context.palette.primary : (theme.dividerTheme.color ?? context.palette.line),
               width: selected ? 1.6 : 1,
             ),
           ),
           child: Row(
             children: [
-              Icon(icon, size: 20, color: selected ? AppColors.primary : AppColors.inkSoft),
+              Icon(icon, size: 20, color: selected ? context.palette.primary : context.palette.inkSoft),
               const SizedBox(width: 13),
               Expanded(
                 child: Column(

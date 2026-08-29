@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../core/motion.dart';
 import '../../core/theme.dart';
 import '../../models/destination.dart';
 import '../../services/nominatim_service.dart';
@@ -63,9 +64,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
   }
 
   void _openDestination(Destination d) {
-    Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => DestinationDetailScreen(destination: d)),
-    );
+    context.pushScreen(DestinationDetailScreen(destination: d));
   }
 
   void _openRemote(PlaceHit hit) {
@@ -130,12 +129,18 @@ class _ExploreScreenState extends State<ExploreScreen> {
                 separatorBuilder: (_, _) => const SizedBox(height: 10),
                 itemBuilder: (context, i) {
                   final hit = results[i];
-                  return DestinationRow(
+                  // Keyed on the place so re-sorting a filtered list replays the
+                  // entrance for genuinely new rows only.
+                  return FadeSlideIn(
+                    key: ValueKey(hit.destination.id),
+                    delay: Motion.of(context).stagger(i, cap: 8),
+                    child: DestinationRow(
                     destination: hit.destination,
                     matchNote: hit.matchedStop == null
                         ? null
                         : 'has ${hit.matchedStop}',
                     onTap: () => _openDestination(hit.destination),
+                    ),
                   );
                 },
               ),
@@ -164,7 +169,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
             const SizedBox(height: 5),
             Text(
               'Distance, fuel, hotel, food and tickets — costed per person before you go.',
-              style: theme.textTheme.bodyMedium?.copyWith(color: AppColors.inkSoft, fontSize: 14),
+              style: theme.textTheme.bodyMedium?.copyWith(color: context.palette.inkSoft, fontSize: 14),
             ),
           ],
         ),
@@ -229,17 +234,17 @@ class _ExploreScreenState extends State<ExploreScreen> {
               avatar: Icon(
                 AppColors.iconFor(category),
                 size: 16,
-                color: selected ? Colors.white : AppColors.inkSoft,
+                color: selected ? Colors.white : context.palette.inkSoft,
               ),
               label: Text(category),
               labelStyle: TextStyle(
                 fontSize: 12.5,
                 fontWeight: FontWeight.w700,
-                color: selected ? Colors.white : AppColors.ink,
+                color: selected ? Colors.white : context.palette.ink,
               ),
               backgroundColor: Theme.of(context).cardTheme.color,
-              selectedColor: AppColors.primary,
-              side: BorderSide(color: selected ? AppColors.primary : AppColors.line),
+              selectedColor: context.palette.primary,
+              side: BorderSide(color: selected ? context.palette.primary : context.palette.line),
               onSelected: (v) => setState(() => _category = v ? category : null),
             );
           },
@@ -317,7 +322,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
                 child: Row(
                   children: [
-                    const Icon(Icons.travel_explore_rounded, size: 20, color: AppColors.primary),
+                    Icon(Icons.travel_explore_rounded, size: 20, color: context.palette.primary),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Column(
@@ -336,7 +341,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
                         ],
                       ),
                     ),
-                    const Icon(Icons.chevron_right_rounded, color: AppColors.inkSoft),
+                    Icon(Icons.chevron_right_rounded, color: context.palette.inkSoft),
                   ],
                 ),
               ),

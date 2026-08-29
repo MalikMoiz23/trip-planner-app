@@ -8,6 +8,7 @@ import '../../../core/theme.dart';
 import '../../../services/nominatim_service.dart';
 import '../../../state/app_state.dart';
 import '../../../state/planner_controller.dart';
+import '../../widgets/budget_panel.dart';
 import '../../widgets/inputs.dart';
 import '../../widgets/primitives.dart';
 
@@ -66,7 +67,7 @@ class StepBasics extends StatelessWidget {
       children: [
         _originCard(context, controller, theme),
         const SizedBox(height: 10),
-        _leg(theme, controller),
+        _leg(context, theme, controller),
         const SizedBox(height: 10),
         AppCard(
           onTap: () => _changeDestination(context),
@@ -98,9 +99,9 @@ class StepBasics extends StatelessWidget {
                   ],
                 ),
               ),
-              const Text('Change',
+              Text('Change',
                   style: TextStyle(
-                    color: AppColors.primary,
+                    color: context.palette.primary,
                     fontWeight: FontWeight.w700,
                     fontSize: 13.5,
                   )),
@@ -113,7 +114,7 @@ class StepBasics extends StatelessWidget {
           onTap: () => _pickDate(context),
           child: Row(
             children: [
-              const Icon(Icons.calendar_month_rounded, size: 19, color: AppColors.primary),
+              Icon(Icons.calendar_month_rounded, size: 19, color: context.palette.primary),
               const SizedBox(width: 12),
               Expanded(
                 child: Column(
@@ -154,6 +155,12 @@ class StepBasics extends StatelessWidget {
           max: 40,
           onChanged: controller.setPersons,
         ),
+        const SizedBox(height: 22),
+        const SectionHeader(
+          title: 'Budget',
+          subtitle: 'Optional, but it changes the app from a calculator into advice',
+        ),
+        const BudgetPanel(compact: true),
         if (route != null && route.estimated) ...[
           const SizedBox(height: 16),
           const InfoNote(
@@ -184,7 +191,7 @@ class StepBasics extends StatelessWidget {
           children: [
             Row(
               children: [
-                const Icon(Icons.my_location_rounded, size: 19, color: AppColors.primary),
+                Icon(Icons.my_location_rounded, size: 19, color: context.palette.primary),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text('Starting point',
@@ -195,7 +202,7 @@ class StepBasics extends StatelessWidget {
             if (c.locationError != null) ...[
               const SizedBox(height: 8),
               Text(c.locationError!,
-                  style: theme.textTheme.bodySmall?.copyWith(color: AppColors.danger)),
+                  style: theme.textTheme.bodySmall?.copyWith(color: context.palette.danger)),
             ] else ...[
               const SizedBox(height: 6),
               Text(
@@ -233,7 +240,7 @@ class StepBasics extends StatelessWidget {
     return AppCard(
       child: Row(
         children: [
-          const Icon(Icons.trip_origin_rounded, size: 19, color: AppColors.primary),
+          Icon(Icons.trip_origin_rounded, size: 19, color: context.palette.primary),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -249,13 +256,13 @@ class StepBasics extends StatelessWidget {
             tooltip: 'Use current location',
             onPressed: c.detectLocation,
             icon: const Icon(Icons.gps_fixed_rounded, size: 19),
-            color: AppColors.inkSoft,
+            color: context.palette.inkSoft,
           ),
           IconButton(
             tooltip: 'Search a different city',
             onPressed: () => _searchOrigin(context),
             icon: const Icon(Icons.edit_location_alt_outlined, size: 19),
-            color: AppColors.inkSoft,
+            color: context.palette.inkSoft,
           ),
         ],
       ),
@@ -264,13 +271,13 @@ class StepBasics extends StatelessWidget {
 
   /// The connector between origin and destination cards, carrying the routed
   /// distance once it is known.
-  Widget _leg(ThemeData theme, PlannerController c) {
+  Widget _leg(BuildContext context, ThemeData theme, PlannerController c) {
     final route = c.outbound;
     return Padding(
       padding: const EdgeInsets.only(left: 18),
       child: Row(
         children: [
-          Container(width: 2, height: 34, color: AppColors.line),
+          Container(width: 2, height: 34, color: context.palette.line),
           const SizedBox(width: 16),
           // Expanded, because the pill row wraps to two lines on a narrow phone
           // once the "Estimated" badge appears.
@@ -287,18 +294,18 @@ class StepBasics extends StatelessWidget {
                           PillTag(
                             label: km(route.distanceKm),
                             icon: Icons.route_rounded,
-                            color: AppColors.primary,
+                            color: context.palette.primary,
                           ),
                           PillTag(
                             label: durationText(route.duration),
                             icon: Icons.schedule_rounded,
-                            color: AppColors.primary,
+                            color: context.palette.primary,
                           ),
                           if (route.estimated)
-                            const PillTag(
+                            PillTag(
                               label: 'Estimated',
                               icon: Icons.help_outline_rounded,
-                              color: AppColors.caution,
+                              color: context.palette.caution,
                             ),
                         ],
                       ),
@@ -383,7 +390,7 @@ class _OriginSearchSheetState extends State<_OriginSearchSheet> {
                     final hit = _hits[i];
                     return ListTile(
                       contentPadding: EdgeInsets.zero,
-                      leading: const Icon(Icons.place_outlined, color: AppColors.primary),
+                      leading: Icon(Icons.place_outlined, color: context.palette.primary),
                       title: Text(hit.name, style: theme.textTheme.titleSmall),
                       subtitle: hit.context.isEmpty
                           ? null

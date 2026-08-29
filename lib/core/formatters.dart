@@ -52,4 +52,7 @@ String monthName(int month) => DateFormat('MMMM').format(DateTime(2024, month));
 
 String shortMonthName(int month) => DateFormat('MMM').format(DateTime(2024, month));
 
+/// Whole degrees. Fractions of a degree are noise at planning resolution.
+String temp(num celsius) => '${celsius.round()}°C';
+
 String plural(int n, String one, String many) => n == 1 ? '$n $one' : '$n $many';
