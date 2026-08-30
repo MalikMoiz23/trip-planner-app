@@ -77,7 +77,11 @@ void main() {
               ),
         ),
       ],
-      child: MaterialApp(theme: theme ?? AppTheme.light(), home: child),
+      child: MaterialApp(
+        theme: theme ?? AppTheme.light(),
+        debugShowCheckedModeBanner: false,
+        home: child,
+      ),
     );
   }
 
@@ -134,6 +138,8 @@ void main() {
         await tester.pump(const Duration(milliseconds: 400));
         expect(find.text('Plan the whole trip'), findsOneWidget);
         expect(find.text('Naran'), findsWidgets);
+        expect(find.text('Triplyst'), findsOneWidget);
+        await _settle(tester);
         await shot(tester, "01_explore");
       });
 

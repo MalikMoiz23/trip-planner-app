@@ -47,13 +47,15 @@ void main() {
   final foreground = _seat(_trim(mark), 1024, 0.91);
   _write('$_src/icon_foreground.png', foreground);
 
-  // ---- Full-bleed icon: same mark on the brand green -----------------------
+  // ---- Full-bleed icon: the mark on white ---------------------------------
   // iOS and the web favicon have no separate background layer, and iOS rejects
-  // an icon with transparency outright, so the ground is baked in here.
-  final onBrand = Image(width: 1024, height: 1024, numChannels: 4)
-    ..clear(ColorRgb8(0x0F, 0x6E, 0x5C));
-  compositeImage(onBrand, _seat(_trim(mark), 1024, 0.62));
-  _write('$_src/icon_full.png', onBrand);
+  // an icon with transparency outright, so the ground is baked in here. It has
+  // to match the Android adaptive background in pubspec.yaml, or the same app
+  // ships with two different-looking icons.
+  final onWhite = Image(width: 1024, height: 1024, numChannels: 4)
+    ..clear(ColorRgb8(0xFF, 0xFF, 0xFF));
+  compositeImage(onWhite, _seat(_trim(mark), 1024, 0.62));
+  _write('$_src/icon_full.png', onWhite);
 
   // ---- Runtime: the mark, and the wordmark with its paper removed ----------
   _write('$_out/mark.png', _fit(_trim(mark), _runtimeMax));

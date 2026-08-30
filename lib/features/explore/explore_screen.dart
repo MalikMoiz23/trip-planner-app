@@ -161,10 +161,36 @@ class _ExploreScreenState extends State<ExploreScreen> {
   }
 
   Widget _header(ThemeData theme) => Padding(
-        padding: const EdgeInsets.fromLTRB(20, 16, 20, 14),
+        padding: const EdgeInsets.fromLTRB(20, 14, 20, 14),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // The brand sits above the page heading rather than replacing it:
+            // the mark says which app this is, the heading says what the screen
+            // is for, and neither does the other's job.
+            Row(
+              children: [
+                Image.asset(
+                  'assets/brand/mark.png',
+                  height: 34,
+                  filterQuality: FilterQuality.medium,
+                  errorBuilder: (_, _, _) => Icon(
+                    Icons.landscape_rounded,
+                    size: 30,
+                    color: context.palette.primary,
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Text(
+                  'Triplyst',
+                  style: theme.textTheme.titleLarge?.copyWith(
+                    fontSize: 22,
+                    letterSpacing: -0.5,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 18),
             Text('Plan the whole trip', style: theme.textTheme.headlineMedium?.copyWith(fontSize: 27)),
             const SizedBox(height: 5),
             Text(

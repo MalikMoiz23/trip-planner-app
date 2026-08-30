@@ -106,10 +106,16 @@ void main() {
       );
     });
 
-    test('the adaptive background matches the brand green', () {
+    test('the adaptive background is white on every platform', () {
       final colors = File('android/app/src/main/res/values/colors.xml');
       expect(colors.existsSync(), isTrue);
-      expect(colors.readAsStringSync().toLowerCase(), contains('#0f6e5c'));
+      expect(colors.readAsStringSync().toLowerCase(), contains('#ffffff'));
+
+      // Android reads the colour, iOS and web bake it into the image. If those
+      // drift apart the same app ships two different-looking icons.
+      final pubspec = File('pubspec.yaml').readAsStringSync();
+      expect(pubspec, contains('adaptive_icon_background: "#FFFFFF"'));
+      expect(pubspec, contains('background_color_ios: "#FFFFFF"'));
     });
 
     test('the iOS icon carries no alpha, which the App Store rejects', () {

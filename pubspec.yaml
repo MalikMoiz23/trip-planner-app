@@ -67,7 +67,7 @@ flutter_launcher_icons:
   image_path: "brand/icon_full.png"
 
   android: "ic_launcher"
-  adaptive_icon_background: "#0F6E5C"
+  adaptive_icon_background: "#FFFFFF"
   adaptive_icon_foreground: "brand/icon_foreground.png"
   # Android 13 themed icons tint the alpha channel, so the pin silhouette is
   # what shows through on a themed home screen.
@@ -75,12 +75,12 @@ flutter_launcher_icons:
 
   ios: true
   remove_alpha_ios: true
-  background_color_ios: "#0F6E5C"
+  background_color_ios: "#FFFFFF"
 
   web:
     generate: true
     image_path: "brand/icon_full.png"
-    background_color: "#0F6E5C"
+    background_color: "#FFFFFF"
     theme_color: "#0F6E5C"
 
 # For information on the generic Dart part of this file, see the
