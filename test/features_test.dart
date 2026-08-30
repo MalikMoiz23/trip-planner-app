@@ -7,6 +7,7 @@ import 'package:trip_planner/data/models/attraction.dart';
 import 'package:trip_planner/data/models/destination.dart';
 import 'package:trip_planner/data/models/route_info.dart';
 import 'package:trip_planner/data/models/trip_config.dart';
+import 'package:trip_planner/data/models/trip_stop.dart';
 import 'package:trip_planner/data/models/weather.dart';
 
 Destination _destination({
@@ -51,7 +52,13 @@ TripConfig _config({
       originName: 'Origin',
       originLat: 33.6844,
       originLng: 73.0479,
-      destination: destination ?? _destination(),
+      stops: [
+        TripStop(
+          destination: destination ?? _destination(),
+          nights: days > 1 ? days - 1 : 0,
+          selectedAttractions: stops,
+        ),
+      ],
       startDate: start ?? DateTime(2026, 7, 1),
       days: days,
       persons: persons,
@@ -70,15 +77,18 @@ TripConfig _config({
       mealsPerDay: mealsPerDay,
       campKitchenCost: 3000,
       fuelPriceIsDefault: false,
-      selectedAttractions: stops,
       bufferPercent: buffer,
       tollsAndParking: 1500,
     );
 
 const _route = RouteInfo(distanceKm: 260, duration: Duration(hours: 7));
 
+/// Out and back for a single-destination trip. The calculator wants one leg
+/// more than there are stops, so a one-stop trip is two legs.
+const _legs2 = [_route, _route];
+
 double _totalOf(TripConfig c) =>
-    ExpenseCalculator.compute(config: c, outbound: _route).total;
+    ExpenseCalculator.compute(config: c, legs: _legs2).total;
 
 void main() {
   group('BudgetAdvisor', () {
@@ -86,7 +96,7 @@ void main() {
       final config = _config();
       final advice = BudgetAdvisor.advise(
         config: config,
-        outbound: _route,
+        legs: _legs2,
         attractionRoutes: const {},
         budget: _totalOf(config) * 2,
       );
@@ -102,7 +112,7 @@ void main() {
       final config = _config();
       final advice = BudgetAdvisor.advise(
         config: config,
-        outbound: _route,
+        legs: _legs2,
         attractionRoutes: const {},
         budget: _totalOf(config) * 0.6,
       );
@@ -117,7 +127,7 @@ void main() {
       final baseline = _totalOf(config);
       final advice = BudgetAdvisor.advise(
         config: config,
-        outbound: _route,
+        legs: _legs2,
         attractionRoutes: const {},
         budget: baseline * 0.5,
       );
@@ -137,7 +147,7 @@ void main() {
       final config = _config();
       final advice = BudgetAdvisor.advise(
         config: config,
-        outbound: _route,
+        legs: _legs2,
         attractionRoutes: const {},
         budget: _totalOf(config) * 0.5,
       );
@@ -160,7 +170,7 @@ void main() {
       );
       final advice = BudgetAdvisor.advise(
         config: config,
-        outbound: _route,
+        legs: _legs2,
         attractionRoutes: const {},
         budget: 1,
       );
@@ -177,7 +187,7 @@ void main() {
       final config = _config();
       final advice = BudgetAdvisor.advise(
         config: config,
-        outbound: _route,
+        legs: _legs2,
         attractionRoutes: const {},
         budget: _totalOf(config) * 0.7,
       );
@@ -191,7 +201,7 @@ void main() {
       final config = _config();
       final advice = BudgetAdvisor.advise(
         config: config,
-        outbound: _route,
+        legs: _legs2,
         attractionRoutes: const {},
         budget: _totalOf(config) * 0.75,
       );
@@ -205,7 +215,7 @@ void main() {
     test('a zero budget is treated as no budget rather than an impossible one', () {
       final advice = BudgetAdvisor.advise(
         config: _config(),
-        outbound: _route,
+        legs: _legs2,
         attractionRoutes: const {},
         budget: 0,
       );

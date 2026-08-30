@@ -8,6 +8,7 @@ import 'package:trip_planner/data/models/attraction.dart';
 import 'package:trip_planner/data/models/destination.dart';
 import 'package:trip_planner/data/models/route_info.dart';
 import 'package:trip_planner/data/models/trip_config.dart';
+import 'package:trip_planner/data/models/trip_stop.dart';
 
 /// A stand-in base town roughly where Naran is, so the terrain road factor is
 /// realistic when a leg has to fall back to straight-line distance.
@@ -63,7 +64,13 @@ TripConfig _config({
       originName: 'Origin',
       originLat: 33.6844,
       originLng: 73.0479,
-      destination: destination ?? _destination(),
+      stops: [
+        TripStop(
+          destination: destination ?? _destination(),
+          nights: days > 1 ? days - 1 : 0,
+          selectedAttractions: stops,
+        ),
+      ],
       startDate: start ?? DateTime(2026, 7, 1),
       days: days,
       persons: persons,
@@ -82,7 +89,6 @@ TripConfig _config({
       mealsPerDay: mealsPerDay,
       campKitchenCost: campKitchen,
       fuelPriceIsDefault: fuelPriceIsDefault,
-      selectedAttractions: stops,
       bufferPercent: buffer,
       tollsAndParking: tolls,
     );
@@ -92,7 +98,7 @@ const _route100km = RouteInfo(distanceKm: 100, duration: Duration(hours: 3));
 void main() {
   group('ExpenseCalculator, own vehicle', () {
     test('adds up fuel, rooms, food, tolls and buffer', () {
-      final b = ExpenseCalculator.compute(config: _config(), outbound: _route100km);
+      final b = ExpenseCalculator.compute(config: _config(), legs: const [_route100km, _route100km]);
 
       // 100 km out, 100 km back.
       expect(b.totalKm, 200);
@@ -121,7 +127,7 @@ void main() {
     test('cost per kilometre follows from average and pump price', () {
       final b = ExpenseCalculator.compute(
         config: _config(mileage: 10, fuelPrice: 300),
-        outbound: _route100km,
+        legs: const [_route100km, _route100km],
       );
       // Rs 300 a litre over 10 km per litre is Rs 30 a kilometre.
       expect(b.costPerKm, closeTo(30, 0.001));
@@ -130,11 +136,11 @@ void main() {
     test('a thirstier vehicle costs proportionally more fuel', () {
       final thirsty = ExpenseCalculator.compute(
         config: _config(mileage: 5, fuelPrice: 300),
-        outbound: _route100km,
+        legs: const [_route100km, _route100km],
       );
       final frugal = ExpenseCalculator.compute(
         config: _config(mileage: 20, fuelPrice: 300),
-        outbound: _route100km,
+        legs: const [_route100km, _route100km],
       );
       expect(thirsty.litres, closeTo(frugal.litres * 4, 0.001));
       expect(thirsty.travelCost, closeTo(frugal.travelCost * 4, 0.01));
@@ -143,22 +149,161 @@ void main() {
     test('odd group sizes round rooms up', () {
       final b = ExpenseCalculator.compute(
         config: _config(persons: 5, occupancy: 2),
-        outbound: _route100km,
+        legs: const [_route100km, _route100km],
       );
       expect(b.rooms, 3);
       expect(b.stayCost, closeTo(2 * 3 * 9000, 0.01));
     });
 
     test('a single day books no rooms', () {
-      final b = ExpenseCalculator.compute(config: _config(days: 1), outbound: _route100km);
+      final b = ExpenseCalculator.compute(config: _config(days: 1), legs: const [_route100km, _route100km]);
       expect(b.nights, 0);
       expect(b.stayCost, 0);
     });
 
     test('the lines always sum to the total', () {
-      final b = ExpenseCalculator.compute(config: _config(), outbound: _route100km);
+      final b = ExpenseCalculator.compute(config: _config(), legs: const [_route100km, _route100km]);
       final sum = b.lines.fold<double>(0, (acc, l) => acc + l.amount);
       expect(sum, closeTo(b.total, 0.01));
+    });
+  });
+
+  group('ExpenseCalculator, multi-stop', () {
+    Destination town(String id, String name, double lat, double lng) => Destination(
+          id: id,
+          name: name,
+          region: 'R',
+          province: 'P',
+          category: 'Mountains',
+          lat: lat,
+          lng: lng,
+          altitudeM: 2000,
+          recommendedDays: 2,
+          roadFactor: 1.6,
+          requires4x4: false,
+          difficulty: 'Moderate',
+          bestMonths: const [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+          tagline: '',
+          description: '',
+          highlights: const [],
+          attractions: const [],
+        );
+
+    test('distance is the whole loop, not one destination doubled', () {
+      final b = ExpenseCalculator.compute(
+        config: _config(days: 5).copyWith(
+          stops: [
+            TripStop(destination: town('a', 'A', 34.9, 73.6), nights: 2),
+            TripStop(destination: town('b', 'B', 36.3, 74.6), nights: 2),
+          ],
+        ),
+        legs: const [
+          RouteInfo(distanceKm: 100, duration: Duration(hours: 3)),
+          RouteInfo(distanceKm: 200, duration: Duration(hours: 5)),
+          RouteInfo(distanceKm: 250, duration: Duration(hours: 6)),
+        ],
+      );
+
+      expect(b.travelKm, closeTo(550, 0.01));
+      expect(b.totalKm, closeTo(550, 0.01));
+      expect(b.legKms.length, 3);
+      expect(b.longestLegDrive, const Duration(hours: 6));
+    });
+
+    test('nights come from the stops, and rooms are billed for all of them', () {
+      final b = ExpenseCalculator.compute(
+        config: _config(days: 6, persons: 4, occupancy: 2).copyWith(
+          stops: [
+            TripStop(destination: town('a', 'A', 34.9, 73.6), nights: 3),
+            TripStop(destination: town('b', 'B', 36.3, 74.6), nights: 2),
+          ],
+        ),
+        legs: const [
+          RouteInfo(distanceKm: 100, duration: Duration(hours: 3)),
+          RouteInfo(distanceKm: 100, duration: Duration(hours: 3)),
+          RouteInfo(distanceKm: 100, duration: Duration(hours: 3)),
+        ],
+      );
+      expect(b.nights, 5);
+      expect(b.rooms, 2);
+      expect(b.stayCost, closeTo(5 * 2 * 9000, 0.01));
+    });
+
+    test('nights that do not match the day count are flagged, not silently fixed', () {
+      final b = ExpenseCalculator.compute(
+        // 6 days means 5 nights away, but only 3 are allocated.
+        config: _config(days: 6).copyWith(
+          stops: [
+            TripStop(destination: town('a', 'A', 34.9, 73.6), nights: 2),
+            TripStop(destination: town('b', 'B', 36.3, 74.6), nights: 1),
+          ],
+        ),
+        legs: const [
+          RouteInfo(distanceKm: 100, duration: Duration(hours: 3)),
+          RouteInfo(distanceKm: 100, duration: Duration(hours: 3)),
+          RouteInfo(distanceKm: 100, duration: Duration(hours: 3)),
+        ],
+      );
+      expect(b.nights, 3, reason: 'it costs what was allocated');
+      expect(b.warnings.any((w) => w.title.contains('Nights do not match')), isTrue);
+    });
+
+    test('a missing leg is estimated rather than dropped from the total', () {
+      final full = ExpenseCalculator.compute(
+        config: _config(days: 5).copyWith(
+          stops: [
+            TripStop(destination: town('a', 'A', 34.9, 73.6), nights: 2),
+            TripStop(destination: town('b', 'B', 36.3, 74.6), nights: 2),
+          ],
+        ),
+        // Only the first leg is known; the router failed on the rest.
+        legs: const [RouteInfo(distanceKm: 100, duration: Duration(hours: 3))],
+      );
+      expect(full.legKms.length, 3);
+      expect(full.travelKm, greaterThan(100), reason: 'the missing legs still count');
+      expect(full.routeEstimated, isTrue);
+    });
+
+    test('a day trip from the second base is measured from that base', () {
+      const farFromA = Attraction(
+        id: 'x',
+        name: 'Near B',
+        category: 'Lake',
+        lat: 36.34,
+        lng: 74.70,
+        visitHours: 3,
+      );
+      final b = ExpenseCalculator.compute(
+        config: _config(days: 5).copyWith(
+          stops: [
+            TripStop(destination: town('a', 'A', 34.9, 73.6), nights: 2),
+            TripStop(
+              destination: town('b', 'B', 36.3, 74.6),
+              nights: 2,
+              selectedAttractions: const [farFromA],
+            ),
+          ],
+        ),
+        legs: const [
+          RouteInfo(distanceKm: 100, duration: Duration(hours: 3)),
+          RouteInfo(distanceKm: 100, duration: Duration(hours: 3)),
+          RouteInfo(distanceKm: 100, duration: Duration(hours: 3)),
+        ],
+      );
+
+      // Straight line from B is a few km; from A it would be hundreds. If the
+      // detour were measured from the first stop this would be far larger.
+      expect(b.attractionsKm, lessThan(40));
+    });
+
+    test('one stop costs exactly what it did before stops existed', () {
+      final single = ExpenseCalculator.compute(
+        config: _config(),
+        legs: const [_route100km, _route100km],
+      );
+      expect(single.totalKm, 200);
+      expect(single.legKms.length, 2);
+      expect(single.nights, 2);
     });
   });
 
@@ -166,11 +311,11 @@ void main() {
     test('meals a day scales the bill proportionally', () {
       final two = ExpenseCalculator.compute(
         config: _config(mealsPerDay: 2),
-        outbound: _route100km,
+        legs: const [_route100km, _route100km],
       );
       final four = ExpenseCalculator.compute(
         config: _config(mealsPerDay: 4),
-        outbound: _route100km,
+        legs: const [_route100km, _route100km],
       );
       expect(two.mealCount, 3 * 4 * 2);
       expect(four.mealCount, 3 * 4 * 4);
@@ -184,7 +329,7 @@ void main() {
           pricePerMeal: 350,
           campKitchen: 3000,
         ),
-        outbound: _route100km,
+        legs: const [_route100km, _route100km],
       );
       expect(b.mealsCost, closeTo(36 * 350, 0.01));
       expect(b.kitchenCost, closeTo(3000, 0.01));
@@ -195,7 +340,7 @@ void main() {
       final b = ExpenseCalculator.compute(
         // A stale kitchen figure left over from switching styles must not bill.
         config: _config(foodStyle: FoodStyle.restaurant, campKitchen: 3000),
-        outbound: _route100km,
+        legs: const [_route100km, _route100km],
       );
       expect(b.kitchenCost, 0);
       expect(b.mealCost, closeTo(b.mealsCost, 0.01));
@@ -208,14 +353,14 @@ void main() {
           pricePerMeal: FoodStyle.selfCooking.defaultPricePerMeal,
           campKitchen: 3000,
         ),
-        outbound: _route100km,
+        legs: const [_route100km, _route100km],
       );
       final dining = ExpenseCalculator.compute(
         config: _config(
           foodStyle: FoodStyle.hotelDining,
           pricePerMeal: FoodStyle.hotelDining.defaultPricePerMeal,
         ),
-        outbound: _route100km,
+        legs: const [_route100km, _route100km],
       );
       expect(cooking.mealCost, lessThan(dining.mealCost));
     });
@@ -225,7 +370,7 @@ void main() {
     test('an own tent costs nothing per night', () {
       final b = ExpenseCalculator.compute(
         config: _config(stayStyle: StayStyle.ownTent, stayRate: 0),
-        outbound: _route100km,
+        legs: const [_route100km, _route100km],
       );
       expect(b.stayCost, 0);
       expect(b.unitLabel, 'tent');
@@ -239,7 +384,7 @@ void main() {
           persons: 6,
           occupancy: 3,
         ),
-        outbound: _route100km,
+        legs: const [_route100km, _route100km],
       );
       expect(b.rooms, 2); // 6 people, 3 to a tent
       expect(b.stayCost, closeTo(2 * 2 * 2500, 0.01)); // 2 nights x 2 tents
@@ -253,7 +398,7 @@ void main() {
           stayRate: 0,
           destination: _destination(altitude: 3300),
         ),
-        outbound: _route100km,
+        legs: const [_route100km, _route100km],
       );
       expect(b.warnings.any((w) => w.title.contains('Camping at')), isTrue);
     });
@@ -274,7 +419,7 @@ void main() {
     test('a stop is charged as a return day trip and its fees scale per person', () {
       final b = ExpenseCalculator.compute(
         config: _config(stops: [stop]),
-        outbound: _route100km,
+        legs: const [_route100km, _route100km],
         attractionRoutes: const {
           'stop': RouteInfo(distanceKm: 12, duration: Duration(minutes: 40)),
         },
@@ -290,7 +435,7 @@ void main() {
     test('an unrouted stop still contributes distance and flags the estimate', () {
       final b = ExpenseCalculator.compute(
         config: _config(stops: [stop]),
-        outbound: _route100km,
+        legs: const [_route100km, _route100km],
       );
       expect(b.attractionsKm, greaterThan(0));
       expect(b.routeEstimated, isTrue);
@@ -301,7 +446,7 @@ void main() {
     test('fares scale with head count and no fuel or tolls are charged', () {
       final b = ExpenseCalculator.compute(
         config: _config(mode: TravelMode.publicTransport),
-        outbound: _route100km,
+        legs: const [_route100km, _route100km],
       );
 
       expect(b.litres, 0);
@@ -315,7 +460,7 @@ void main() {
     test('flags a group larger than the vehicle', () {
       final b = ExpenseCalculator.compute(
         config: _config(persons: 6, vehicleId: 'hatchback'),
-        outbound: _route100km,
+        legs: const [_route100km, _route100km],
       );
       expect(
         b.warnings.any((w) => w.title.contains('More people than seats')),
@@ -334,7 +479,7 @@ void main() {
       );
       final b = ExpenseCalculator.compute(
         config: _config(days: 2, stops: [stop]),
-        outbound: _route100km,
+        legs: const [_route100km, _route100km],
       );
       expect(b.warnings.any((w) => w.title.contains('Too tight')), isTrue);
     });
@@ -345,7 +490,7 @@ void main() {
           destination: _destination(bestMonths: const [6, 7, 8]),
           start: DateTime(2026, 1, 10),
         ),
-        outbound: _route100km,
+        legs: const [_route100km, _route100km],
       );
       expect(b.warnings.any((w) => w.title.contains('out of season')), isTrue);
     });
@@ -353,7 +498,7 @@ void main() {
     test('asks the user to confirm a stale bundled fuel price', () {
       final b = ExpenseCalculator.compute(
         config: _config(fuelPriceIsDefault: true),
-        outbound: _route100km,
+        legs: const [_route100km, _route100km],
       );
       final stale = DateTime.now().difference(AppDefaults.fuelPriceAsOf).inDays >
           AppDefaults.fuelPriceStaleAfterDays;
@@ -367,7 +512,7 @@ void main() {
     test('says nothing about fuel once the price has been typed in', () {
       final b = ExpenseCalculator.compute(
         config: _config(fuelPriceIsDefault: false),
-        outbound: _route100km,
+        legs: const [_route100km, _route100km],
       );
       expect(b.warnings.any((w) => w.title.contains('Confirm the fuel price')), isFalse);
     });
@@ -375,7 +520,7 @@ void main() {
     test('stays quiet when the plan is sound', () {
       final b = ExpenseCalculator.compute(
         config: _config(days: 4, persons: 2, vehicleId: 'suv', destination: _destination(altitude: 1500)),
-        outbound: _route100km,
+        legs: const [_route100km, _route100km],
       );
       expect(b.warnings.where((w) => w.title.contains('More people')), isEmpty);
       expect(b.warnings.where((w) => w.title.contains('Too tight')), isEmpty);
@@ -387,16 +532,29 @@ void main() {
       for (final days in [1, 2, 3, 5, 8]) {
         final plan = ItineraryBuilder.build(
           config: _config(days: days),
-          outbound: _route100km,
+          legs: const [_route100km, _route100km],
         );
         expect(plan.length, days, reason: 'for a $days day trip');
       }
     });
 
     test('first day travels out and last day travels back', () {
-      final plan = ItineraryBuilder.build(config: _config(days: 4), outbound: _route100km);
+      final plan = ItineraryBuilder.build(config: _config(days: 4), legs: const [_route100km, _route100km]);
       expect(plan.first.title, contains('Travel to'));
       expect(plan.last.title, contains('Return to'));
+    });
+
+    test('a trip with no nights is one day, not two', () {
+      // Driving out and back between one sunrise and the next is a day trip;
+      // giving the return its own day would invent a night nobody spends.
+      final plan = ItineraryBuilder.build(
+        config: _config(days: 1),
+        legs: const [_route100km, _route100km],
+      );
+      expect(plan.length, 1);
+      final titles = plan.first.items.map((i) => i.title).join(' | ');
+      expect(titles, contains('to Testville'));
+      expect(titles, contains('to Origin'));
     });
 
     test('every selected stop lands on some day', () {
@@ -407,7 +565,7 @@ void main() {
       ];
       final plan = ItineraryBuilder.build(
         config: _config(days: 5, stops: stops),
-        outbound: _route100km,
+        legs: const [_route100km, _route100km],
       );
       final titles = plan.expand((d) => d.items).map((i) => i.title).toSet();
       for (final s in stops) {
@@ -418,10 +576,81 @@ void main() {
     test('splits the drive when one way is over nine hours', () {
       final plan = ItineraryBuilder.build(
         config: _config(days: 5),
-        outbound: const RouteInfo(distanceKm: 700, duration: Duration(hours: 14)),
+        legs: const [
+          RouteInfo(distanceKm: 700, duration: Duration(hours: 14)),
+          RouteInfo(distanceKm: 700, duration: Duration(hours: 14)),
+        ],
       );
-      expect(plan.first.title, contains('Drive out'));
+      expect(plan.first.title, contains('day 1'));
       expect(plan.any((d) => d.items.any((i) => i.title.contains('Overnight stop'))), isTrue);
+    });
+  });
+
+  group('ItineraryBuilder, multi-stop', () {
+    Destination town(String id, String name, double lat, double lng) => Destination(
+          id: id,
+          name: name,
+          region: 'R',
+          province: 'P',
+          category: 'Mountains',
+          lat: lat,
+          lng: lng,
+          altitudeM: 2000,
+          recommendedDays: 2,
+          roadFactor: 1.6,
+          requires4x4: false,
+          difficulty: 'Moderate',
+          bestMonths: const [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+          tagline: '',
+          description: '',
+          highlights: const [],
+          attractions: const [],
+        );
+
+    TripConfig threeStop() => _config(days: 7).copyWith(
+          stops: [
+            TripStop(destination: town('a', 'Naran', 34.90, 73.65), nights: 2),
+            TripStop(destination: town('b', 'Hunza', 36.31, 74.66), nights: 2),
+            TripStop(destination: town('c', 'Skardu', 35.29, 75.63), nights: 2),
+          ],
+        );
+
+    test('visits every stop in order, then goes home', () {
+      final plan = ItineraryBuilder.build(
+        config: threeStop(),
+        legs: const [
+          RouteInfo(distanceKm: 270, duration: Duration(hours: 7)),
+          RouteInfo(distanceKm: 300, duration: Duration(hours: 8)),
+          RouteInfo(distanceKm: 240, duration: Duration(hours: 7)),
+          RouteInfo(distanceKm: 600, duration: Duration(hours: 13)),
+        ],
+      );
+
+      final titles = plan.map((d) => d.title).join(' | ');
+      expect(titles.indexOf('Naran'), lessThan(titles.indexOf('Hunza')));
+      expect(titles.indexOf('Hunza'), lessThan(titles.indexOf('Skardu')));
+      expect(plan.last.title, contains('Return to'));
+
+      // Days come out as one more than the nights slept, plus the extra day
+      // for splitting the long drive home.
+      expect(plan.length, greaterThanOrEqualTo(7));
+    });
+
+    test('each leg is described as running between the right two places', () {
+      final plan = ItineraryBuilder.build(
+        config: threeStop(),
+        legs: const [
+          RouteInfo(distanceKm: 270, duration: Duration(hours: 7)),
+          RouteInfo(distanceKm: 300, duration: Duration(hours: 8)),
+          RouteInfo(distanceKm: 240, duration: Duration(hours: 7)),
+          RouteInfo(distanceKm: 600, duration: Duration(hours: 9)),
+        ],
+      );
+      final items = plan.expand((d) => d.items).map((i) => i.title).toList();
+      expect(items, contains('Origin to Naran'));
+      expect(items, contains('Naran to Hunza'));
+      expect(items, contains('Hunza to Skardu'));
+      expect(items, contains('Skardu to Origin'));
     });
   });
 
@@ -497,7 +726,7 @@ void main() {
       expect(config.campKitchenCost, 0);
 
       // And it still costs out without throwing.
-      final b = ExpenseCalculator.compute(config: config, outbound: _route100km);
+      final b = ExpenseCalculator.compute(config: config, legs: const [_route100km, _route100km]);
       expect(b.total, greaterThan(0));
     });
   });

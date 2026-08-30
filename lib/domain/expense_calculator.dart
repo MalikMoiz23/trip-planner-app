@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:latlong2/latlong.dart';
 
 import 'package:trip_planner/core/constants.dart';
 import 'package:trip_planner/core/enums.dart';
@@ -12,51 +13,105 @@ import 'package:trip_planner/data/models/trip_config.dart';
 
 /// The whole cost model, in one pure function.
 ///
-/// Distance model: you drive out to the base town and back, and each chosen
-/// attraction is a return day-trip from that base. That matches how these
-/// valleys are actually toured — you keep one hotel and radiate out — and it
-/// never undercounts the way a single point-to-point line would.
+/// Distance model: the trip is a loop. You drive from home to the first stop,
+/// on to each stop in turn, and back home from the last — that is
+/// `stops.length + 1` legs. From whichever stop you are based at, each chosen
+/// attraction is a return day trip.
+///
+/// A single-destination trip is the one-stop case of exactly that: two legs,
+/// out and back, which is what it always was.
 class ExpenseCalculator {
   const ExpenseCalculator._();
 
+  /// Fills in any leg the router could not supply with a terrain-corrected
+  /// straight line, so one failed request costs accuracy on that leg alone
+  /// rather than dropping it from the total.
+  static List<RouteInfo> _resolveLegs(TripConfig config, List<RouteInfo> given) {
+    final points = [
+      config.origin,
+      for (final s in config.stops) s.destination.point,
+      config.origin,
+    ];
+    final wanted = points.length - 1;
+
+    return [
+      for (var i = 0; i < wanted; i++)
+        if (i < given.length && given[i].distanceKm > 0)
+          given[i]
+        else
+          _estimate(points[i], points[i + 1], config.stops.first.destination.roadFactor),
+    ];
+  }
+
+  static RouteInfo _estimate(LatLng a, LatLng b, double roadFactor) {
+    final km = haversineKm(a, b) * roadFactor;
+    return RouteInfo(
+      distanceKm: km,
+      duration: Duration(minutes: ((km / AppDefaults.fallbackAverageSpeedKmh) * 60).round()),
+      estimated: true,
+    );
+  }
+
+  /// [legs] runs home → stop 1 → … → stop n → home, so it holds one more entry
+  /// than there are stops. A short list is tolerated and the missing legs are
+  /// estimated, because a routing failure should degrade rather than throw.
   static ExpenseBreakdown compute({
     required TripConfig config,
-    required RouteInfo outbound,
+    required List<RouteInfo> legs,
     Map<String, RouteInfo> attractionRoutes = const {},
   }) {
     final persons = math.max(1, config.persons);
     final days = math.max(1, config.days);
-    final nights = config.nights;
     final rooms = math.max(1, config.rooms);
 
+    // Nights come from the stops, not from the day count, so an itinerary that
+    // does not add up is costed as written and flagged rather than silently
+    // corrected. A one-stop trip still gets days - 1.
+    final nights = config.allocatedNights;
+
     // ---- Distance ---------------------------------------------------------
-    final oneWayKm = outbound.distanceKm;
-    final returnKm = oneWayKm;
+    final resolvedLegs = _resolveLegs(config, legs);
+    final travelKm = resolvedLegs.fold(0.0, (sum, l) => sum + l.distanceKm);
+    final travelTime = resolvedLegs.fold(
+      Duration.zero,
+      (sum, l) => sum + l.duration,
+    );
+    var routeEstimated = resolvedLegs.any((l) => l.estimated);
+
+    /// The longest single leg — what decides whether a driving day is sane.
+    final longestLeg = resolvedLegs.isEmpty
+        ? Duration.zero
+        : resolvedLegs.map((l) => l.duration).reduce((a, b) => a > b ? a : b);
 
     var attractionsKm = 0.0;
     var attractionDetourTime = Duration.zero;
-    var routeEstimated = outbound.estimated;
 
-    for (final a in config.selectedAttractions) {
-      final leg = attractionRoutes[a.id];
-      if (leg != null && leg.distanceKm > 0) {
-        attractionsKm += leg.distanceKm * 2;
-        attractionDetourTime += leg.duration * 2;
-        routeEstimated = routeEstimated || leg.estimated;
-      } else {
-        // No routed leg for this stop — fall back to straight line for it only.
-        final straight = haversineKm(config.destination.point, a.point);
-        final legKm = straight * config.destination.roadFactor;
-        attractionsKm += legKm * 2;
-        attractionDetourTime += Duration(
-          minutes: ((legKm / AppDefaults.fallbackAverageSpeedKmh) * 60 * 2).round(),
-        );
-        routeEstimated = true;
+    // Each stop's day trips are measured from that stop, not from the first
+    // one. Getting this wrong on a four-stop route would have costed a Skardu
+    // day trip as if it started in Naran.
+    for (final stop in config.stops) {
+      for (final a in stop.selectedAttractions) {
+        final leg = attractionRoutes[a.id];
+        if (leg != null && leg.distanceKm > 0) {
+          attractionsKm += leg.distanceKm * 2;
+          attractionDetourTime += leg.duration * 2;
+          routeEstimated = routeEstimated || leg.estimated;
+        } else {
+          final straight = haversineKm(stop.destination.point, a.point);
+          final legKm = straight * stop.destination.roadFactor;
+          attractionsKm += legKm * 2;
+          attractionDetourTime += Duration(
+            minutes: ((legKm / AppDefaults.fallbackAverageSpeedKmh) * 60 * 2).round(),
+          );
+          routeEstimated = true;
+        }
       }
     }
 
-    final totalKm = oneWayKm + returnKm + attractionsKm;
-    final totalDriveTime = outbound.duration * 2 + attractionDetourTime;
+    final oneWayKm = resolvedLegs.isEmpty ? 0.0 : resolvedLegs.first.distanceKm;
+    final returnKm = resolvedLegs.length < 2 ? 0.0 : resolvedLegs.last.distanceKm;
+    final totalKm = travelKm + attractionsKm;
+    final totalDriveTime = travelTime + attractionDetourTime;
 
     // ---- Travel -----------------------------------------------------------
     double litres = 0;
@@ -215,7 +270,10 @@ class ExpenseCalculator {
       totalKm: totalKm,
       litres: litres,
       costPerKm: costPerKm,
-      oneWayDrive: outbound.duration,
+      oneWayDrive: resolvedLegs.isEmpty ? Duration.zero : resolvedLegs.first.duration,
+      travelKm: travelKm,
+      legKms: [for (final l in resolvedLegs) l.distanceKm],
+      longestLegDrive: longestLeg,
       totalDriveTime: totalDriveTime,
       routeEstimated: routeEstimated,
       travelCost: travelCost,
@@ -240,7 +298,8 @@ class ExpenseCalculator {
       lines: lines,
       warnings: _warnings(
         config: config,
-        outbound: outbound,
+        legs: resolvedLegs,
+        longestLeg: longestLeg,
         sightseeingHours: sightseeingHours,
         routeEstimated: routeEstimated,
       ),
@@ -248,28 +307,57 @@ class ExpenseCalculator {
   }
 
   /// Minimum number of days this itinerary actually needs.
+  ///
+  /// Every leg costs at least a day, and a leg longer than a sane driving day
+  /// costs as many days as it takes to break up. Sightseeing beyond the first
+  /// day adds on top, since you can usually see something on an arrival day.
+  ///
+  /// For a single destination this is the two legs out and back, which is what
+  /// it computed before stops existed.
   static int requiredDays({
     required TripConfig config,
-    required RouteInfo outbound,
+    required List<RouteInfo> legs,
     required double sightseeingHours,
   }) {
-    final oneWayHours = outbound.duration.inMinutes / 60.0;
-    final travelDaysEachWay = oneWayHours > AppDefaults.longDrivingDayHours ? 2 : 1;
+    var travelDays = 0;
+    for (final leg in legs) {
+      final h = leg.duration.inMinutes / 60.0;
+      travelDays += math.max(1, (h / AppDefaults.longDrivingDayHours).ceil());
+    }
+    if (travelDays == 0) travelDays = 2;
+
     final sightDays = sightseeingHours <= 0
         ? 0
         : (sightseeingHours / AppDefaults.maxSightseeingHoursPerDay).ceil();
-    return travelDaysEachWay * 2 + math.max(0, sightDays - 1);
+    return travelDays + math.max(0, sightDays - 1);
   }
 
   static List<TripWarning> _warnings({
     required TripConfig config,
-    required RouteInfo outbound,
+    required List<RouteInfo> legs,
+    required Duration longestLeg,
     required double sightseeingHours,
     required bool routeEstimated,
   }) {
     final out = <TripWarning>[];
     final vehicle = AppDefaults.vehicleById(config.vehicleId);
-    final oneWayHours = outbound.duration.inMinutes / 60.0;
+    final oneWayHours = longestLeg.inMinutes / 60.0;
+
+    // A route only holds together if the nights add up to the days.
+    if (config.isMultiStop && config.allocatedNights != config.nights) {
+      final allocated = config.allocatedNights;
+      final expected = config.nights;
+      out.add(TripWarning(
+        WarningLevel.caution,
+        'Nights do not match the days',
+        'Your stops account for ${plural(allocated, 'night', 'nights')} but '
+            '${plural(config.days, 'day', 'days')} means '
+            '${plural(expected, 'night', 'nights')} away. The figures below use the '
+            '${plural(allocated, 'night', 'nights')} you allocated, so '
+            '${allocated > expected ? 'shorten a stay' : 'add a night somewhere'} '
+            'or change the day count.',
+      ));
+    }
 
     if (routeEstimated) {
       out.add(const TripWarning(
@@ -284,16 +372,18 @@ class ExpenseCalculator {
 
     final needed = requiredDays(
       config: config,
-      outbound: outbound,
+      legs: legs,
       sightseeingHours: sightseeingHours,
     );
     if (config.days < needed) {
+      final driveNote = config.isMultiStop
+          ? '${legs.length} legs, the longest ${durationText(longestLeg)}'
+          : '${durationText(longestLeg)} each way';
       out.add(TripWarning(
         WarningLevel.caution,
         'Too tight for $needed days of plan',
-        'You picked ${plural(config.days, 'day', 'days')} but the drive '
-            '(${durationText(outbound.duration)} each way) plus '
-            '${hours(sightseeingHours)} of sightseeing needs about '
+        'You picked ${plural(config.days, 'day', 'days')} but the driving '
+            '($driveNote) plus ${hours(sightseeingHours)} of sightseeing needs about '
             '${plural(needed, 'day', 'days')}. Add days or drop a stop.',
       ));
     }
@@ -343,7 +433,9 @@ class ExpenseCalculator {
     if (oneWayHours > AppDefaults.longDrivingDayHours) {
       out.add(TripWarning(
         WarningLevel.caution,
-        '${durationText(outbound.duration)} of driving each way',
+        config.isMultiStop
+            ? '${durationText(longestLeg)} on the longest leg'
+            : '${durationText(longestLeg)} of driving each way',
         'That is beyond a comfortable single day. The itinerary splits it across two '
             'days — budget for the extra night if you have not already.',
       ));

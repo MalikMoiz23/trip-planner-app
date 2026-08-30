@@ -88,13 +88,13 @@ class BudgetAdvisor {
   /// genuinely save money.
   static BudgetAdvice advise({
     required TripConfig config,
-    required RouteInfo outbound,
+    required List<RouteInfo> legs,
     required Map<String, RouteInfo> attractionRoutes,
     required double budget,
   }) {
     double totalOf(TripConfig c) => ExpenseCalculator.compute(
           config: c,
-          outbound: outbound,
+          legs: legs,
           attractionRoutes: attractionRoutes,
         ).total;
 
@@ -213,9 +213,16 @@ class BudgetAdvisor {
           detail: '${money(drop.costPerPerson())} per person in tickets and fares, '
               'plus the fuel to get there.',
           icon: Icons.remove_circle_outline_rounded,
+          // Removed from whichever stop it belongs to, rather than from a flat
+          // list — on a route the same lever has to find the right base.
           apply: (c) => c.copyWith(
-            selectedAttractions:
-                c.selectedAttractions.where((a) => a.id != drop.id).toList(),
+            stops: [
+              for (final s in c.stops)
+                s.copyWith(
+                  selectedAttractions:
+                      s.selectedAttractions.where((a) => a.id != drop.id).toList(),
+                ),
+            ],
           ),
         );
       }

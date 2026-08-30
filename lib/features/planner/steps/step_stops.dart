@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:trip_planner/core/formatters.dart';
+import 'package:trip_planner/core/theme.dart';
 import 'package:trip_planner/data/models/attraction.dart';
 import 'package:trip_planner/features/planner/planner_controller.dart';
 import 'package:trip_planner/shared/widgets/attraction_tile.dart';
@@ -30,7 +31,9 @@ class StepStops extends StatelessWidget {
   Widget build(BuildContext context) {
     final c = context.watch<PlannerController>();
     final theme = Theme.of(context);
-    final d = c.destination!;
+    // On a route, what you can see depends on where you are based that night,
+    // so this whole step is scoped to the stop being edited.
+    final d = c.activeStop?.destination ?? c.destination!;
 
     final curated = c.candidates.where((a) => !a.isLive).toList();
     final live = c.candidates.where((a) => a.isLive).toList();
@@ -42,11 +45,54 @@ class StepStops extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
       children: [
+        if (c.isMultiStop) ...[
+          SectionHeader(
+            title: 'Which stop',
+            subtitle: 'You can only see these places from the town you are '
+                'sleeping in, so pick a stop first',
+          ),
+          SizedBox(
+            height: 38,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              itemCount: c.route.length,
+              separatorBuilder: (_, _) => const SizedBox(width: 8),
+              itemBuilder: (context, i) {
+                final stop = c.route[i];
+                final selected = i == c.activeStopIndex;
+                return ChoiceChip(
+                  selected: selected,
+                  onSelected: (_) => c.setActiveStop(i),
+                  avatar: CircleAvatar(
+                    radius: 9,
+                    backgroundColor: selected
+                        ? context.palette.primary
+                        : context.palette.surfaceAlt,
+                    child: Text(
+                      '${i + 1}',
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w800,
+                        color: selected ? Colors.white : context.palette.inkSoft,
+                      ),
+                    ),
+                  ),
+                  label: Text(
+                    stop.selectedIds.isEmpty
+                        ? stop.destination.name
+                        : '${stop.destination.name} · ${stop.selectedIds.length}',
+                  ),
+                );
+              },
+            ),
+          ),
+          const SizedBox(height: 16),
+        ],
         Row(
           children: [
             Expanded(
               child: StatTile(
-                label: 'Stops chosen',
+                label: c.isMultiStop ? 'Chosen in total' : 'Stops chosen',
                 value: '${c.selectedCount}',
                 caption: c.selectedCount == 0
                     ? 'nothing picked yet'

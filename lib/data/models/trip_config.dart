@@ -3,6 +3,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:trip_planner/core/enums.dart';
 import 'package:trip_planner/data/models/attraction.dart';
 import 'package:trip_planner/data/models/destination.dart';
+import 'package:trip_planner/data/models/trip_stop.dart';
 
 /// Every input the cost engine reads. Held immutably so a saved trip re-opens
 /// with exactly the assumptions it was calculated under, even if the user has
@@ -12,7 +13,7 @@ class TripConfig {
     required this.originName,
     required this.originLat,
     required this.originLng,
-    required this.destination,
+    required this.stops,
     required this.startDate,
     required this.days,
     required this.persons,
@@ -31,7 +32,6 @@ class TripConfig {
     required this.mealsPerDay,
     required this.campKitchenCost,
     required this.fuelPriceIsDefault,
-    required this.selectedAttractions,
     required this.bufferPercent,
     required this.tollsAndParking,
   });
@@ -39,7 +39,31 @@ class TripConfig {
   final String originName;
   final double originLat;
   final double originLng;
-  final Destination destination;
+  /// Where you sleep, in the order you get there. Never empty.
+  ///
+  /// A single-destination trip is a one-stop list, which is why the getters
+  /// below still read naturally in that case and most of the app did not have
+  /// to change when this became a route.
+  final List<TripStop> stops;
+
+  /// The first place you stay. Plenty of the app still speaks in terms of one
+  /// destination — the hero image, the weather, the packing list — and for
+  /// those the first stop is the right answer.
+  Destination get destination => stops.first.destination;
+
+  /// The last place you stay before turning for home.
+  Destination get finalDestination => stops.last.destination;
+
+  /// Everything chosen across every stop, flattened.
+  List<Attraction> get selectedAttractions =>
+      [for (final s in stops) ...s.selectedAttractions];
+
+  bool get isMultiStop => stops.length > 1;
+
+  /// Nights the stops actually account for. Should equal [nights]; when it
+  /// does not the calculator says so rather than quietly costing the wrong
+  /// number of hotel rooms.
+  int get allocatedNights => stops.fold(0, (n, s) => n + s.nights);
 
   final DateTime startDate;
   final int days;
@@ -81,7 +105,6 @@ class TripConfig {
   /// bundled default, which is what lets the planner stop nagging about it.
   final bool fuelPriceIsDefault;
 
-  final List<Attraction> selectedAttractions;
   final double bufferPercent;
   final double tollsAndParking;
 
@@ -114,7 +137,7 @@ class TripConfig {
     String? originName,
     double? originLat,
     double? originLng,
-    Destination? destination,
+    List<TripStop>? stops,
     DateTime? startDate,
     int? days,
     int? persons,
@@ -133,7 +156,6 @@ class TripConfig {
     int? mealsPerDay,
     double? campKitchenCost,
     bool? fuelPriceIsDefault,
-    List<Attraction>? selectedAttractions,
     double? bufferPercent,
     double? tollsAndParking,
   }) =>
@@ -141,7 +163,7 @@ class TripConfig {
         originName: originName ?? this.originName,
         originLat: originLat ?? this.originLat,
         originLng: originLng ?? this.originLng,
-        destination: destination ?? this.destination,
+        stops: stops ?? this.stops,
         startDate: startDate ?? this.startDate,
         days: days ?? this.days,
         persons: persons ?? this.persons,
@@ -161,7 +183,6 @@ class TripConfig {
         mealsPerDay: mealsPerDay ?? this.mealsPerDay,
         campKitchenCost: campKitchenCost ?? this.campKitchenCost,
         fuelPriceIsDefault: fuelPriceIsDefault ?? this.fuelPriceIsDefault,
-        selectedAttractions: selectedAttractions ?? this.selectedAttractions,
         bufferPercent: bufferPercent ?? this.bufferPercent,
         tollsAndParking: tollsAndParking ?? this.tollsAndParking,
       );
@@ -170,7 +191,7 @@ class TripConfig {
         'originName': originName,
         'originLat': originLat,
         'originLng': originLng,
-        'destination': destination.toJson(),
+        'stops': stops.map((s) => s.toJson()).toList(),
         'startDate': startDate.toIso8601String(),
         'days': days,
         'persons': persons,
@@ -189,7 +210,6 @@ class TripConfig {
         'mealsPerDay': mealsPerDay,
         'campKitchenCost': campKitchenCost,
         'fuelPriceIsDefault': fuelPriceIsDefault,
-        'selectedAttractions': selectedAttractions.map((a) => a.toJson()).toList(),
         'bufferPercent': bufferPercent,
         'tollsAndParking': tollsAndParking,
       };
@@ -198,7 +218,7 @@ class TripConfig {
         originName: (j['originName'] as String?) ?? 'Your location',
         originLat: (j['originLat'] as num).toDouble(),
         originLng: (j['originLng'] as num).toDouble(),
-        destination: Destination.fromJson(j['destination'] as Map<String, dynamic>),
+        stops: _stopsFromJson(j),
         startDate: DateTime.parse(j['startDate'] as String),
         days: (j['days'] as num).toInt(),
         persons: (j['persons'] as num).toInt(),
@@ -233,10 +253,32 @@ class TripConfig {
         campKitchenCost: (j['campKitchenCost'] as num?)?.toDouble() ?? 0,
         fuelPriceIsDefault: (j['fuelPriceIsDefault'] as bool?) ?? false,
 
-        selectedAttractions: ((j['selectedAttractions'] as List?) ?? const [])
-            .map((e) => Attraction.fromJson(e as Map<String, dynamic>))
-            .toList(growable: false),
         bufferPercent: (j['bufferPercent'] as num?)?.toDouble() ?? 10,
         tollsAndParking: (j['tollsAndParking'] as num?)?.toDouble() ?? 0,
       );
+
+  /// Reads the stop list, falling back to the single-destination schema.
+  ///
+  /// Trips saved before a trip could have more than one stop wrote a lone
+  /// `destination` with a flat `selectedAttractions`. Those become a one-stop
+  /// route holding every night, which costs out to exactly what it did before.
+  static List<TripStop> _stopsFromJson(Map<String, dynamic> j) {
+    final raw = j['stops'] as List?;
+    if (raw != null && raw.isNotEmpty) {
+      return raw
+          .map((e) => TripStop.fromJson(e as Map<String, dynamic>))
+          .toList(growable: false);
+    }
+
+    final days = (j['days'] as num?)?.toInt() ?? 1;
+    return [
+      TripStop(
+        destination: Destination.fromJson(j['destination'] as Map<String, dynamic>),
+        nights: days > 1 ? days - 1 : 0,
+        selectedAttractions: ((j['selectedAttractions'] as List?) ?? const [])
+            .map((e) => Attraction.fromJson(e as Map<String, dynamic>))
+            .toList(growable: false),
+      ),
+    ];
+  }
 }

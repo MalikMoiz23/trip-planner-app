@@ -337,7 +337,7 @@ class SummaryScreen extends StatelessWidget {
               destination: d.point,
               destinationLabel: d.name,
               category: d.category,
-              routePoints: c.outbound?.geometry ?? const [],
+              routePoints: [for (final l in c.legs) ...?l?.geometry],
               stops: c.selectedAttractions,
               interactive: false,
               showAttribution: false,

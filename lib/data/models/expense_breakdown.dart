@@ -38,6 +38,9 @@ class ExpenseBreakdown {
     required this.returnKm,
     required this.attractionsKm,
     required this.totalKm,
+    required this.travelKm,
+    required this.legKms,
+    required this.longestLegDrive,
     required this.litres,
     required this.costPerKm,
     required this.oneWayDrive,
@@ -72,6 +75,17 @@ class ExpenseBreakdown {
   /// Sum of the round-trip detours from the base town out to each chosen spot.
   final double attractionsKm;
   final double totalKm;
+
+  /// The point-to-point driving: home to the first stop, between the stops,
+  /// home again. Excludes day trips out and back from a base.
+  final double travelKm;
+
+  /// One entry per leg, in order. Holds one more than there are stops.
+  final List<double> legKms;
+
+  /// The longest single leg. On a route it is this, not the total, that decides
+  /// whether a driving day is realistic.
+  final Duration longestLegDrive;
   final double litres;
 
   /// What a kilometre actually costs on this trip, fuel or fare.

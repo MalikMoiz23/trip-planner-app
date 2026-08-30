@@ -18,7 +18,7 @@ class MapScreen extends StatelessWidget {
       return const Scaffold(body: Center(child: Text('No trip loaded.')));
     }
 
-    final route = c.outbound;
+    final route = c.legs.isEmpty ? null : c.legs.first;
 
     return Scaffold(
       body: Stack(

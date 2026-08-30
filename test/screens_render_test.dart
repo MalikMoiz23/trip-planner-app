@@ -177,6 +177,78 @@ void main() {
         await shot(tester, "03_detail_stops");
       });
 
+      testWidgets('a three-stop route lays out and costs the whole loop', (tester) async {
+        final state = buildState();
+        final planner = PlannerController(
+          repo: state.repository,
+          appState: state,
+          osrm: OsrmService(client: _DeadClient()),
+        )
+          ..origin = const LatLng(33.6844, 73.0479)
+          ..originName = 'Islamabad';
+
+        planner.startFor(state.repository.byId('naran')!);
+        planner.setDays(9);
+        planner.addStop(state.repository.byId('hunza')!);
+        planner.addStop(state.repository.byId('skardu')!);
+        planner.balanceNights();
+        await planner.refreshRoute();
+
+        expect(planner.route.length, 3);
+        expect(planner.allocatedNights, planner.nightsForDisplay);
+
+        // Every leg of the loop, not one destination doubled.
+        final b = planner.breakdown!;
+        expect(b.legKms.length, 4);
+        expect(b.travelKm, greaterThan(0));
+
+        await tester.pumpWidget(host(state, const PlannerScreen(), planner: planner));
+        await tester.pump(const Duration(milliseconds: 400));
+
+        expect(find.text('Your route'), findsOneWidget);
+        expect(find.text('Naran'), findsWidgets);
+        expect(find.text('Hunza (Karimabad)'), findsWidgets);
+        expect(find.text('Skardu'), findsWidgets);
+        await shot(tester, '11_route_editor');
+
+        // The stops step scopes itself to whichever stop is selected.
+        planner.goTo(2);
+        await tester.pump(const Duration(milliseconds: 400));
+        expect(find.text('Which stop'), findsOneWidget);
+
+        planner.setActiveStop(1);
+        await tester.pump(const Duration(milliseconds: 400));
+        expect(planner.activeStop!.destination.name, 'Hunza (Karimabad)');
+        await shot(tester, '12_route_stop_picker');
+      });
+
+      testWidgets('removing a stop refits the route', (tester) async {
+        final state = buildState();
+        final planner = PlannerController(
+          repo: state.repository,
+          appState: state,
+          osrm: OsrmService(client: _DeadClient()),
+        )
+          ..origin = const LatLng(33.6844, 73.0479)
+          ..originName = 'Islamabad';
+
+        planner.startFor(state.repository.byId('naran')!);
+        planner.setDays(7);
+        planner.addStop(state.repository.byId('hunza')!);
+        await planner.refreshRoute();
+        expect(planner.breakdown!.legKms.length, 3);
+
+        planner.removeStop(1);
+        await planner.refreshRoute();
+
+        expect(planner.route.length, 1);
+        expect(planner.breakdown!.legKms.length, 2);
+
+        // The last stop can never be removed — a trip has to go somewhere.
+        planner.removeStop(0);
+        expect(planner.route.length, 1);
+      });
+
       testWidgets('every planner step lays out', (tester) async {
         final state = buildState();
         final planner = PlannerController(

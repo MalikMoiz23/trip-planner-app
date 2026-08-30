@@ -8,6 +8,7 @@ import 'package:trip_planner/core/theme.dart';
 import 'package:trip_planner/data/sources/nominatim_service.dart';
 import 'package:trip_planner/app/app_state.dart';
 import 'package:trip_planner/features/planner/planner_controller.dart';
+import 'package:trip_planner/features/planner/route_editor.dart';
 import 'package:trip_planner/shared/widgets/budget_panel.dart';
 import 'package:trip_planner/shared/widgets/inputs.dart';
 import 'package:trip_planner/shared/widgets/primitives.dart';
@@ -55,59 +56,102 @@ class StepBasics extends StatelessWidget {
     }
   }
 
+  /// Appends to the route rather than replacing it.
+  Future<void> _addStop(BuildContext context) async {
+    final controller = context.read<PlannerController>();
+    final app = context.read<AppState>();
+    final messenger = ScaffoldMessenger.of(context);
+
+    final picked = await showModalBottomSheet<String>(
+      context: context,
+      isScrollControlled: true,
+      builder: (_) => _DestinationSheet(state: app),
+    );
+    if (picked == null) return;
+
+    final d = app.repository.byId(picked);
+    if (d == null) return;
+
+    if (controller.route.any((s) => s.destination.id == d.id)) {
+      messenger.showSnackBar(
+        SnackBar(content: Text('${d.name} is already on this route.')),
+      );
+      return;
+    }
+
+    final before = controller.unallocatedNights;
+    controller.addStop(d);
+    if (before <= 0) {
+      // Added with no nights, because the day count has none spare. Better to
+      // say so than to let it sit at zero looking like a bug.
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(
+            '${d.name} added with no nights — add days, or take a night from '
+            'another stop.',
+          ),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final controller = context.watch<PlannerController>();
     final theme = Theme.of(context);
     final d = controller.destination!;
-    final route = controller.outbound;
+    final route = controller.legs.isEmpty ? null : controller.legs.first;
 
     return ListView(
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
       children: [
         _originCard(context, controller, theme),
         const SizedBox(height: 10),
-        _leg(context, theme, controller),
-        const SizedBox(height: 10),
-        AppCard(
-          onTap: () => _changeDestination(context),
-          child: Row(
-            children: [
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(colors: AppColors.gradientFor(d.category)),
-                  borderRadius: AppRadius.sm,
+        if (!controller.isMultiStop) ...[
+          _leg(context, theme, controller),
+          const SizedBox(height: 10),
+          AppCard(
+            onTap: () => _changeDestination(context),
+            child: Row(
+              children: [
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(colors: AppColors.gradientFor(d.category)),
+                    borderRadius: AppRadius.sm,
+                  ),
+                  child: Icon(AppColors.iconFor(d.category), color: Colors.white, size: 20),
                 ),
-                child: Icon(AppColors.iconFor(d.category), color: Colors.white, size: 20),
-              ),
-              const SizedBox(width: 13),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Going to', style: theme.textTheme.bodySmall?.copyWith(fontSize: 12)),
-                    const SizedBox(height: 2),
-                    Text(d.name, style: theme.textTheme.titleMedium?.copyWith(fontSize: 16)),
-                    Text(
-                      d.subtitle,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: theme.textTheme.bodySmall?.copyWith(fontSize: 12),
-                    ),
-                  ],
+                const SizedBox(width: 13),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Going to', style: theme.textTheme.bodySmall?.copyWith(fontSize: 12)),
+                      const SizedBox(height: 2),
+                      Text(d.name, style: theme.textTheme.titleMedium?.copyWith(fontSize: 16)),
+                      Text(
+                        d.subtitle,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: theme.textTheme.bodySmall?.copyWith(fontSize: 12),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              Text('Change',
-                  style: TextStyle(
-                    color: context.palette.primary,
-                    fontWeight: FontWeight.w700,
-                    fontSize: 13.5,
-                  )),
-            ],
+                Text('Change',
+                    style: TextStyle(
+                      color: context.palette.primary,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 13.5,
+                    )),
+              ],
+            ),
           ),
-        ),
+          const SizedBox(height: 18),
+        ],
+        RouteEditor(onAddStop: _addStop),
         const SizedBox(height: 22),
         const SectionHeader(title: 'When and who'),
         AppCard(
@@ -278,7 +322,7 @@ class StepBasics extends StatelessWidget {
   /// The connector between origin and destination cards, carrying the routed
   /// distance once it is known.
   Widget _leg(BuildContext context, ThemeData theme, PlannerController c) {
-    final route = c.outbound;
+    final route = c.legs.isEmpty ? null : c.legs.first;
     return Padding(
       padding: const EdgeInsets.only(left: 18),
       child: Row(

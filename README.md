@@ -141,13 +141,15 @@ an unclaimed timer; an interval is cancelled for free when the controller is dis
 
 ## The cost model
 
-Distance is modelled as a drive out to a base town and back, with each chosen stop
-as a return day trip from that base. That is how these valleys are actually toured —
-you keep one hotel and radiate out — and it never undercounts the way a single
-point-to-point line would.
+A trip is a loop: home to the first stop, on to each stop in turn, and back home
+from the last. Each stop holds its own nights and its own day trips, measured from
+that stop rather than from the first one. A single-destination trip is the one-stop
+case of exactly that, so it costs what it always did.
 
 ```
-totalKm      = 2 x oneWayKm + Σ (2 x detour to each chosen stop)
+travelKm     = Σ legs (home → stop 1 → … → stop n → home)
+totalKm      = travelKm + Σ (2 x detour from the stop it belongs to)
+nights       = Σ stop.nights
 
 litres       = totalKm / average                          (average in km/L)
 fuel         = litres x pricePerLitre                     (own vehicle)
