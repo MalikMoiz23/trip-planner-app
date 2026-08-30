@@ -182,6 +182,35 @@ class SettingsScreen extends StatelessWidget {
                 ],
               ),
             ),
+            const SizedBox(height: 28),
+
+            // The full lockup, on an explicit white plate in both themes. Its
+            // wordmark is set in dark navy, so it needs a light ground — giving
+            // it one deliberately reads as a brand plate rather than a bug.
+            Center(
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 22),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: AppRadius.lg,
+                  border: Border.all(color: context.palette.line),
+                ),
+                child: Image.asset(
+                  'assets/brand/wordmark.png',
+                  height: 132,
+                  filterQuality: FilterQuality.medium,
+                  errorBuilder: (_, _, _) => const SizedBox.shrink(),
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Center(
+              child: Text(
+                'Triplyst  ·  version 1.0.0',
+                style: theme.textTheme.bodySmall?.copyWith(fontSize: 12),
+              ),
+            ),
+
             const SizedBox(height: 22),
             Text(
               'Map data © OpenStreetMap contributors. Routing by the public OSRM demo '

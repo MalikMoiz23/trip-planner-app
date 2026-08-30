@@ -51,3 +51,7 @@ android/key.properties
 
 # Obfuscation symbol files (keep them somewhere safe, just not in git)
 /build/symbols/
+
+# The original logo exports live in brand/ under their real names; these are
+# the loose copies dropped in the project root.
+/ChatGPT Image*.png

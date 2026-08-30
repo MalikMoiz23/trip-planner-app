@@ -1,5 +1,5 @@
 name: trip_planner
-description: "A new Flutter project."
+description: "Triplyst — plan a whole trip in Pakistan and see the full cost before you go."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
 publish_to: 'none' # Remove this line if you wish to publish to pub.dev
@@ -52,6 +52,36 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
+  image: ^4.9.2
+  flutter_launcher_icons: ^0.14.4
+
+# Launcher icons. Regenerate after changing the artwork with:
+#   dart run tool/make_brand_assets.dart && dart run flutter_launcher_icons
+#
+# Android gets a two-layer adaptive icon so launchers can mask it to whatever
+# shape they use; the foreground is pre-inset by the tool above because the mark
+# fills its export edge to edge and would otherwise be shaved. iOS and the web
+# take the flattened version, since neither has a background layer and iOS
+# rejects an icon with transparency outright.
+flutter_launcher_icons:
+  image_path: "brand/icon_full.png"
+
+  android: "ic_launcher"
+  adaptive_icon_background: "#0F6E5C"
+  adaptive_icon_foreground: "brand/icon_foreground.png"
+  # Android 13 themed icons tint the alpha channel, so the pin silhouette is
+  # what shows through on a themed home screen.
+  adaptive_icon_monochrome: "brand/icon_foreground.png"
+
+  ios: true
+  remove_alpha_ios: true
+  background_color_ios: "#0F6E5C"
+
+  web:
+    generate: true
+    image_path: "brand/icon_full.png"
+    background_color: "#0F6E5C"
+    theme_color: "#0F6E5C"
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -66,6 +96,11 @@ flutter:
 
   assets:
     - assets/data/
+    # Listed file by file rather than as a directory. The build-time icon
+    # masters live in brand/ at the repo root precisely so they cannot ship;
+    # naming a directory here would sweep whatever lands in it into the APK.
+    - assets/brand/mark.png
+    - assets/brand/wordmark.png
 
   # Bundled rather than fetched at runtime. Fetching meant the typeface arrived
   # after first layout, so intrinsically-sized widgets (the category chips) were

@@ -25,7 +25,7 @@ class TripPlannerApp extends StatelessWidget {
       ],
       child: Consumer<AppState>(
         builder: (context, app, _) => MaterialApp(
-          title: 'Trip Planner',
+          title: 'Triplyst',
           debugShowCheckedModeBanner: false,
           theme: AppTheme.light(),
           darkTheme: AppTheme.dark(),

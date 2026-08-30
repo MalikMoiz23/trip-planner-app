@@ -27,27 +27,42 @@ class SplashScreen extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  width: 62,
-                  height: 62,
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.14),
-                    borderRadius: AppRadius.md,
-                    border: Border.all(color: Colors.white24),
+                // The mark rather than the full lockup: its wordmark is set in
+                // dark navy, which would disappear against this gradient. The
+                // name is typed alongside it instead, in the app's own face.
+                Image.asset(
+                  'assets/brand/mark.png',
+                  height: 108,
+                  filterQuality: FilterQuality.medium,
+                  // A missing asset should not be a black screen on first launch.
+                  errorBuilder: (_, _, _) => const Icon(
+                    Icons.landscape_rounded,
+                    color: Colors.white,
+                    size: 62,
                   ),
-                  child: const Icon(Icons.landscape_rounded, color: Colors.white, size: 31),
                 ),
-                const SizedBox(height: 26),
+                const SizedBox(height: 24),
                 const Text(
-                  'Trip Planner',
+                  'Triplyst',
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: 34,
+                    fontSize: 38,
                     fontWeight: FontWeight.w800,
                     height: 1.05,
+                    letterSpacing: -0.8,
                   ),
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 6),
+                Text(
+                  'PLAN SMART. TRAVEL BETTER.',
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.72),
+                    fontSize: 11.5,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 1.8,
+                  ),
+                ),
+                const SizedBox(height: 18),
                 const Text(
                   'Pick a place, set the days and the people, and get the whole cost '
                   'broken down before you leave the house.',

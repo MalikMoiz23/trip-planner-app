@@ -19,6 +19,7 @@ import 'package:trip_planner/features/explore/explore_screen.dart';
 import 'package:trip_planner/features/planner/planner_screen.dart';
 import 'package:trip_planner/features/trips/saved_trips_screen.dart';
 import 'package:trip_planner/features/settings/settings_screen.dart';
+import 'package:trip_planner/features/shell/splash_screen.dart';
 import 'package:trip_planner/features/trips/packing_screen.dart';
 import 'package:trip_planner/features/summary/summary_screen.dart';
 import 'package:trip_planner/shared/widgets/weather_card.dart';
@@ -424,6 +425,23 @@ void main() {
         expect(find.text('Settings'), findsOneWidget);
         await tester.drag(find.byType(ListView), const Offset(0, -1200));
         await tester.pump(const Duration(milliseconds: 300));
+        // The brand plate sits at the bottom, so it only exists after that drag.
+        expect(find.text('Triplyst  ·  version 1.0.0'), findsOneWidget);
+        await _settle(tester);
+        await shot(tester, '13_settings_brand');
+      });
+
+      testWidgets('the splash shows the mark and the name', (tester) async {
+        final state = buildState();
+        await tester.pumpWidget(host(state, const SplashScreen()));
+        await tester.pump(const Duration(milliseconds: 300));
+
+        expect(find.text('Triplyst'), findsOneWidget);
+        expect(find.text('PLAN SMART. TRAVEL BETTER.'), findsOneWidget);
+        expect(find.byType(Image), findsWidgets);
+
+        await _settle(tester);
+        await shot(tester, '14_splash');
       });
     });
   }
@@ -613,6 +631,17 @@ class _DeadClient extends http.BaseClient {
 /// The test binding ships a font that draws every glyph as a box. Loading the
 /// real Roboto and Material Icons faces makes the layout measurements — and any
 /// overflow — match what a device would produce.
+/// Lets asset images actually decode before a golden is taken.
+///
+/// `Image.asset` resolves through the bundle asynchronously. Inside
+/// `testWidgets` the clock is faked, so that decode never completes and the
+/// golden captures an empty box where the logo should be. `runAsync` is the
+/// only way to hand it a real event loop.
+Future<void> _settle(WidgetTester tester) async {
+  await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 150)));
+  await tester.pump(const Duration(milliseconds: 120));
+}
+
 Future<void> _loadRealFonts() async {
   // The test binding ships a font that draws every glyph as a filled box, so
   // without this the goldens say nothing about the design and text measurement

@@ -62,28 +62,26 @@ android {
                 signingConfigs.getByName("debug")
             }
 
-            // R8 is deliberately left off. It only reaches the Dart/Kotlin dex,
-            // which is 0.52 MB of a 52 MB APK — under 1% — while the engine is
-            // 97%. The size problem is solved by shipping one ABI instead of
-            // three (see tool/build_release.sh), and enabling R8 here would risk
-            // stripping something a plugin reaches reflectively for a saving
-            // that does not show up.
-            isMinifyEnabled = false
-            isShrinkResources = false
+            // R8 stays on. It was on by default and an earlier version of this
+            // file switched it off, on the reasoning that the dex is a small
+            // share of an APK dominated by the engine. That reasoning was drawn
+            // from a measurement taken while R8 was still running: with it off
+            // the dex went from 0.52 MB to 3.56 MB, which is three megabytes on
+            // a seventeen megabyte download.
+            isMinifyEnabled = true
+            isShrinkResources = true
         }
     }
 
-    // Splitting the engine out per architecture is the whole size story: a
+    // No `splits { abi { ... } }` block here on purpose.
+    //
+    // Splitting the engine out per architecture is the whole size story — a
     // universal APK carries arm64-v8a, armeabi-v7a and x86_64 side by side and
-    // every phone uses exactly one of them.
-    splits {
-        abi {
-            isEnable = project.hasProperty("splitApks")
-            reset()
-            include("armeabi-v7a", "arm64-v8a", "x86_64")
-            isUniversalApk = false
-        }
-    }
+    // every phone uses exactly one. But the Flutter Gradle plugin already
+    // configures that from `flutter build apk --split-per-abi`. Declaring the
+    // block here as well overrode it, Gradle emitted a single 53 MB universal
+    // APK, and the build then failed looking for per-ABI filenames that were
+    // never produced. Use the flag; see tool/build_release.sh.
 }
 
 flutter {
