@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'package:trip_planner/core/formatters.dart';
 import 'package:trip_planner/core/geo.dart';
+import 'package:trip_planner/domain/weather_horizon.dart';
 import 'package:trip_planner/core/motion.dart';
 import 'package:trip_planner/core/theme.dart';
 import 'package:trip_planner/data/models/attraction.dart';
@@ -29,7 +31,33 @@ class _DestinationDetailScreenState extends State<DestinationDetailScreen> {
   PlaceWeather? _weather;
   bool _loadingWeather = true;
 
+  /// Dates the weather below is for.
+  ///
+  /// Defaults to the next three days rather than to the trip's dates, because
+  /// on this screen there is no trip yet — someone is still deciding whether to
+  /// go at all. Changing it is what turns "what is it like there" into "what
+  /// will it be like when I go".
+  late DateTimeRange _range = DateTimeRange(
+    start: DateUtils.dateOnly(DateTime.now()),
+    end: DateUtils.dateOnly(DateTime.now().add(const Duration(days: 2))),
+  );
+
   Destination get destination => widget.destination;
+
+  Future<void> _pickDates() async {
+    final now = DateUtils.dateOnly(DateTime.now());
+    final picked = await showDateRangePicker(
+      context: context,
+      initialDateRange: _range,
+      firstDate: now,
+      // A year out is well past any forecast, but the month climate still
+      // answers "is March any good", which is the question that far ahead.
+      lastDate: now.add(const Duration(days: 365)),
+      helpText: 'Dates for ${destination.name}',
+      saveText: 'Show weather',
+    );
+    if (picked != null && mounted) setState(() => _range = picked);
+  }
 
   @override
   void initState() {
@@ -150,11 +178,13 @@ class _DestinationDetailScreenState extends State<DestinationDetailScreen> {
                       : 'Months this place is normally open and worth the drive',
                 ),
                 MonthStrip(months: d.bestMonths),
-                const SizedBox(height: 14),
+                const SizedBox(height: 12),
+                _DateRangeCard(range: _range, onTap: _pickDates),
+                const SizedBox(height: 12),
                 WeatherPanel(
                   weather: _weather,
-                  start: DateTime.now(),
-                  end: DateTime.now().add(const Duration(days: 2)),
+                  start: _range.start,
+                  end: _range.end,
                   loading: _loadingWeather,
                   altitudeM: d.altitudeM,
                   guideMonths: d.bestMonths,
@@ -252,6 +282,73 @@ class _DestinationDetailScreenState extends State<DestinationDetailScreen> {
           ),
         ),
       ],
+    );
+  }
+}
+
+/// Tappable summary of the dates the weather below is for.
+///
+/// Says plainly whether those dates fall inside the forecast horizon, because
+/// that is the difference between a real prediction and a monthly average, and
+/// a reader should not have to infer which one they are looking at.
+class _DateRangeCard extends StatelessWidget {
+  const _DateRangeCard({required this.range, required this.onTap});
+
+  final DateTimeRange range;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final p = context.palette;
+
+    final forecastable = WeatherHorizon.hasForecast(range.start);
+    final nights = range.end.difference(range.start).inDays;
+
+    return AppCard(
+      onTap: onTap,
+      child: Row(
+        children: [
+          Icon(Icons.date_range_rounded, size: 19, color: p.primary),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Weather for',
+                  style: theme.textTheme.bodySmall?.copyWith(fontSize: 12),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  nights == 0
+                      ? fullDate(range.start)
+                      : '${dayMonth(range.start)} – ${dayMonth(range.end)}'
+                          '  ·  ${plural(nights, 'night', 'nights')}',
+                  style: theme.textTheme.titleSmall?.copyWith(fontSize: 14.5),
+                ),
+                const SizedBox(height: 3),
+                Text(
+                  WeatherHorizon.describe(range.start),
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    fontSize: 11.5,
+                    color: forecastable ? p.success : p.inkFaint,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Text(
+            'Change',
+            style: TextStyle(
+              color: p.primary,
+              fontWeight: FontWeight.w700,
+              fontSize: 13.5,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

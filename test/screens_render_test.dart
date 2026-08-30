@@ -624,6 +624,29 @@ void main() {
       await tester.pump(const Duration(milliseconds: 400));
       expect(find.byType(WeatherPanel), findsOneWidget);
     });
+
+    testWidgets('the detail screen offers dates and says what they can show',
+        (tester) async {
+      final state = buildState();
+      final naran = state.repository.byId('naran')!;
+      await tester.pumpWidget(host(state, DestinationDetailScreen(destination: naran)));
+      await tester.pump(const Duration(milliseconds: 400));
+
+      await tester.dragUntilVisible(
+        find.byType(WeatherPanel),
+        find.byType(CustomScrollView),
+        const Offset(0, -320),
+      );
+      await tester.pump(const Duration(milliseconds: 300));
+
+      // The dates are pickable, and the card states plainly whether they fall
+      // inside the forecast horizon — the difference between a prediction and a
+      // monthly average should never have to be inferred.
+      expect(find.text('Weather for'), findsOneWidget);
+      expect(find.text('Inside the 16-day forecast'), findsOneWidget);
+      expect(find.text('Change'), findsWidgets);
+    });
+
   });
 }
 

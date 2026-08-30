@@ -45,7 +45,16 @@ class WeatherService {
 
     // Collapse duplicate requests — the detail screen and the summary both ask
     // for the same place at once.
-    return _inFlight[key] ??= _load(point).whenComplete(() => _inFlight.remove(key));
+    //
+    // The callback body is braced deliberately. Written as an arrow it returns
+    // `_inFlight.remove(key)`, which is the very future being completed, and
+    // `whenComplete` waits on whatever its callback returns — so the future
+    // waited on itself and never completed. The lookup ran, the cache filled,
+    // and the first caller hung forever on a screen that said "checking the
+    // weather".
+    return _inFlight[key] ??= _load(point).whenComplete(() {
+      _inFlight.remove(key);
+    });
   }
 
   Future<PlaceWeather> _load(LatLng point) async {
