@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:trip_planner/models/destination.dart';
+import 'package:trip_planner/data/models/destination.dart';
 
 /// Guards the bundled catalogue: a malformed or half-filled entry would only
 /// surface as a runtime crash on the explore screen otherwise.

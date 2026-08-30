@@ -1,13 +1,13 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:trip_planner/core/enums.dart';
-import 'package:trip_planner/logic/budget_advisor.dart';
-import 'package:trip_planner/logic/expense_calculator.dart';
-import 'package:trip_planner/logic/packing_builder.dart';
-import 'package:trip_planner/models/attraction.dart';
-import 'package:trip_planner/models/destination.dart';
-import 'package:trip_planner/models/route_info.dart';
-import 'package:trip_planner/models/trip_config.dart';
-import 'package:trip_planner/models/weather.dart';
+import 'package:trip_planner/domain/budget_advisor.dart';
+import 'package:trip_planner/domain/expense_calculator.dart';
+import 'package:trip_planner/domain/packing_builder.dart';
+import 'package:trip_planner/data/models/attraction.dart';
+import 'package:trip_planner/data/models/destination.dart';
+import 'package:trip_planner/data/models/route_info.dart';
+import 'package:trip_planner/data/models/trip_config.dart';
+import 'package:trip_planner/data/models/weather.dart';
 
 Destination _destination({
   int altitude = 2400,

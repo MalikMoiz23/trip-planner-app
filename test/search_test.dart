@@ -3,8 +3,8 @@ import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:trip_planner/core/fuzzy.dart';
-import 'package:trip_planner/logic/rate_estimator.dart';
-import 'package:trip_planner/services/destination_repository.dart';
+import 'package:trip_planner/domain/rate_estimator.dart';
+import 'package:trip_planner/data/repositories/destination_repository.dart';
 
 /// Regression cases: "Thandyani Top" and "Panj Peer Rocks" both returned
 /// nothing, from the bundled guide and from the geocoder alike.

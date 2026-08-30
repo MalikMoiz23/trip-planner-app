@@ -1,13 +1,13 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:trip_planner/core/app_constants.dart';
+import 'package:trip_planner/core/constants.dart';
 import 'package:trip_planner/core/enums.dart';
-import 'package:trip_planner/logic/expense_calculator.dart';
-import 'package:trip_planner/logic/itinerary_builder.dart';
-import 'package:trip_planner/models/attraction.dart';
-import 'package:trip_planner/models/destination.dart';
-import 'package:trip_planner/models/route_info.dart';
-import 'package:trip_planner/models/trip_config.dart';
+import 'package:trip_planner/domain/expense_calculator.dart';
+import 'package:trip_planner/domain/itinerary_builder.dart';
+import 'package:trip_planner/data/models/attraction.dart';
+import 'package:trip_planner/data/models/destination.dart';
+import 'package:trip_planner/data/models/route_info.dart';
+import 'package:trip_planner/data/models/trip_config.dart';
 
 /// A stand-in base town roughly where Naran is, so the terrain road factor is
 /// realistic when a leg has to fall back to straight-line distance.

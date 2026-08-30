@@ -8,20 +8,20 @@ import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:trip_planner/core/theme.dart';
-import 'package:trip_planner/services/destination_repository.dart';
-import 'package:trip_planner/services/osrm_service.dart';
-import 'package:trip_planner/state/app_state.dart';
-import 'package:trip_planner/state/planner_controller.dart';
+import 'package:trip_planner/data/repositories/destination_repository.dart';
+import 'package:trip_planner/data/sources/osrm_service.dart';
+import 'package:trip_planner/app/app_state.dart';
+import 'package:trip_planner/features/planner/planner_controller.dart';
 import 'package:trip_planner/core/enums.dart';
-import 'package:trip_planner/ui/screens/destination_detail_screen.dart';
-import 'package:trip_planner/ui/screens/expense_detail_screen.dart';
-import 'package:trip_planner/ui/screens/explore_screen.dart';
-import 'package:trip_planner/ui/screens/planner_screen.dart';
-import 'package:trip_planner/ui/screens/saved_trips_screen.dart';
-import 'package:trip_planner/ui/screens/settings_screen.dart';
-import 'package:trip_planner/ui/screens/packing_screen.dart';
-import 'package:trip_planner/ui/screens/summary_screen.dart';
-import 'package:trip_planner/ui/widgets/weather_card.dart';
+import 'package:trip_planner/features/explore/destination_detail_screen.dart';
+import 'package:trip_planner/features/summary/expense_detail_screen.dart';
+import 'package:trip_planner/features/explore/explore_screen.dart';
+import 'package:trip_planner/features/planner/planner_screen.dart';
+import 'package:trip_planner/features/trips/saved_trips_screen.dart';
+import 'package:trip_planner/features/settings/settings_screen.dart';
+import 'package:trip_planner/features/trips/packing_screen.dart';
+import 'package:trip_planner/features/summary/summary_screen.dart';
+import 'package:trip_planner/shared/widgets/weather_card.dart';
 
 /// Renders every screen at a common phone size and fails on any layout
 /// exception. RenderFlex overflows are reported as errors by the test binding,
