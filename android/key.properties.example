@@ -1,0 +1,16 @@
+# Copy to android/key.properties and fill in. That file is git-ignored — never
+# commit it, and never commit the .jks itself.
+#
+# Create a keystore once, and keep it safe: if you lose it you cannot ship an
+# update to an app already published under it.
+#
+#   keytool -genkey -v -keystore ~/trip-planner-release.jks \
+#     -keyalg RSA -keysize 2048 -validity 10000 -alias trip-planner
+#
+# storeFile is resolved relative to the android/ directory, so an absolute path
+# outside the repository is the safest choice.
+
+storeFile=/absolute/path/to/trip-planner-release.jks
+storePassword=
+keyAlias=trip-planner
+keyPassword=

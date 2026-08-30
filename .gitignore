@@ -43,3 +43,11 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Release signing — never commit the keystore or its passwords
+android/key.properties
+*.jks
+*.keystore
+
+# Obfuscation symbol files (keep them somewhere safe, just not in git)
+/build/symbols/
