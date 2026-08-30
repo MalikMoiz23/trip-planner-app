@@ -332,4 +332,54 @@ void main() {
       expect(plateau.requires4x4, isTrue);
     });
   });
+  group('when the live lookup is allowed to run', () {
+    late DestinationRepository repo;
+
+    setUpAll(() async {
+      repo = DestinationRepository();
+      await repo.load();
+    });
+
+    test('a weak fuzzy match no longer suppresses the network', () {
+      // "Siran Valley" scores about 0.72 against "Naran" — one letter apart once
+      // the vowels fold. Gating the geocoder on any local match meant a real
+      // place was answered with a near-homophone and the network never ran.
+      expect(repo.hasLocalMatch('Siran Valley'), isTrue);
+      expect(
+        repo.hasExactLocalMatch('Siran Valley'),
+        isTrue,
+        reason: 'Siran Valley is in the catalogue now, so it needs no lookup',
+      );
+
+      // Somewhere genuinely absent must still reach for the network.
+      expect(repo.hasExactLocalMatch('Jhelum'), isFalse);
+      expect(repo.hasExactLocalMatch('Bhurban'), isFalse);
+      expect(repo.hasExactLocalMatch('Sialkot'), isFalse);
+    });
+
+    test('a place the catalogue really holds does not hit the network', () {
+      for (final q in ['Naran', 'Hunza', 'Skardu', 'Siran Valley', 'Kalash Valleys']) {
+        expect(repo.hasExactLocalMatch(q), isTrue, reason: 'for "$q"');
+      }
+    });
+
+    test('the valleys OpenStreetMap does not name are in the guide', () {
+      // Neither Nominatim nor Photon returns anything for these under the name
+      // people actually use, so the catalogue has to own them.
+      const cases = {
+        'Siran Valley': 'Siran Valley',
+        'siran valey': 'Siran Valley',
+        'Ghizer': 'Ghizer Valley',
+        'Yasin Valley': 'Yasin Valley',
+        'Kalash': 'Kalash Valleys',
+        'Hingol': 'Hingol National Park',
+        'Kaghan': 'Kaghan',
+      };
+      cases.forEach((query, expected) {
+        final hits = repo.searchRanked(query);
+        expect(hits, isNotEmpty, reason: 'no hit for "$query"');
+        expect(hits.first.destination.name, expected, reason: 'for "$query"');
+      });
+    });
+  });
 }

@@ -38,23 +38,28 @@ void main() {
 
   final mark = _read('$_src/mark_source.png');
   final wordmark = _read('$_src/wordmark_source.png');
+  final iconArt = _read('$_src/icon_source.png');
 
-  // ---- Icon foreground: trimmed, then seated inside the safe zone ----------
-  // An adaptive icon shows only the centre 72dp of its 108dp canvas, and
-  // flutter_launcher_icons wraps the foreground in a further 16% inset of its
-  // own. Seating at 0.91 leaves about 0.62 of the canvas once that inset is
-  // applied — comfortably inside the safe zone on the roundest launcher masks.
-  final foreground = _seat(_trim(mark), 1024, 0.91);
+  // ---- Launcher icon -------------------------------------------------------
+  // The icon artwork is a full square tile — a whole scene, not a floating
+  // mark — so it is seated edge to edge rather than shrunk into the middle.
+  // Padding it the way a small glyph needs would leave it swimming in white.
+  //
+  // Its own rounded corners are transparent, which is what lets a launcher mask
+  // it to a circle, a squircle or a rounded square without a visible seam. The
+  // 16% inset flutter_launcher_icons applies by default is turned off in
+  // pubspec.yaml for the same reason.
+  final foreground = _seat(_trim(iconArt), 1024, 1.0);
   _write('$_src/icon_foreground.png', foreground);
 
-  // ---- Full-bleed icon: the mark on white ---------------------------------
+  // ---- Full-bleed icon: the tile on white ---------------------------------
   // iOS and the web favicon have no separate background layer, and iOS rejects
   // an icon with transparency outright, so the ground is baked in here. It has
   // to match the Android adaptive background in pubspec.yaml, or the same app
   // ships with two different-looking icons.
   final onWhite = Image(width: 1024, height: 1024, numChannels: 4)
     ..clear(ColorRgb8(0xFF, 0xFF, 0xFF));
-  compositeImage(onWhite, _seat(_trim(mark), 1024, 0.62));
+  compositeImage(onWhite, foreground);
   _write('$_src/icon_full.png', onWhite);
 
   // ---- Runtime: the mark, and the wordmark with its paper removed ----------

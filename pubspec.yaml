@@ -69,6 +69,9 @@ flutter_launcher_icons:
   android: "ic_launcher"
   adaptive_icon_background: "#FFFFFF"
   adaptive_icon_foreground: "brand/icon_foreground.png"
+  # The artwork is a full tile with its own transparent rounded corners, so the
+  # default 16% inset would shrink it into the middle of a white square.
+  adaptive_icon_foreground_inset: 0
   # Android 13 themed icons tint the alpha channel, so the pin silhouette is
   # what shows through on a themed home screen.
   adaptive_icon_monochrome: "brand/icon_foreground.png"

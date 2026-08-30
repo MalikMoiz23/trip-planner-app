@@ -53,7 +53,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
     final app = context.read<AppState>();
     // Only reach for the network when fuzzy matching over the built-in guide
     // found nothing — most misspellings are resolved locally and instantly.
-    if (value.trim().length < 3 || app.repository.hasLocalMatch(value)) return;
+    if (value.trim().length < 3 || app.repository.hasExactLocalMatch(value)) return;
     setState(() => _searchingRemote = true);
     final hits = await app.repository.searchRemote(value);
     if (!mounted) return;

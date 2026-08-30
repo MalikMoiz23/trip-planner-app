@@ -1203,10 +1203,8 @@
           "description": "Largest of the three Kalash valleys, 36 km from Chitral. A tourist permit fee applies.",
           "aliases": [
             "Bumburet",
-            "Kalash Valley",
             "Bumboret",
-            "Kalasha Valley",
-            "Kalash"
+            "Kalasha Valley"
           ]
         },
         {
@@ -3347,6 +3345,410 @@
           "aliases": [
             "Ormara Turtle Beach"
           ]
+        }
+      ]
+    },
+    {
+      "id": "siran-valley",
+      "name": "Siran Valley",
+      "region": "Mansehra",
+      "province": "Khyber Pakhtunkhwa",
+      "category": "Valleys",
+      "lat": 34.5167,
+      "lng": 73.1833,
+      "altitudeM": 1200,
+      "recommendedDays": 2,
+      "roadFactor": 1.6,
+      "requires4x4": false,
+      "difficulty": "Easy",
+      "bestMonths": [
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "tagline": "The quiet valley on the other side of Mansehra",
+      "description": "The Siran river runs down from the Musa ka Musalla massif past Shinkiari and Mansehra. It sees a fraction of the traffic the Kaghan road carries, and the upper valley around Jabori and Bhogarmang is forest and terraced fields rather than hotels.",
+      "highlights": [
+        "Musa ka Musalla",
+        "Jabori",
+        "Shinkiari"
+      ],
+      "aliases": [
+        "Siran",
+        "Siran Valley",
+        "Seeran Valley",
+        "Siran Valley Mansehra"
+      ],
+      "attractions": [
+        {
+          "id": "musa-ka-musalla",
+          "name": "Musa ka Musalla",
+          "category": "Trek",
+          "lat": 34.6167,
+          "lng": 73.15,
+          "entryFee": 0,
+          "localTransport": 3000,
+          "visitHours": 10,
+          "requires4x4": true,
+          "aliases": [
+            "Musa Ka Musalla",
+            "Musa ka Musala"
+          ],
+          "description": "A 4,080 m summit above the valley, one of the highest points outside the main ranges. A long day or an overnight camp."
+        },
+        {
+          "id": "jabori",
+          "name": "Jabori",
+          "category": "Valley",
+          "lat": 34.55,
+          "lng": 73.1667,
+          "entryFee": 0,
+          "localTransport": 0,
+          "visitHours": 3,
+          "requires4x4": false,
+          "aliases": [
+            "Jabori"
+          ],
+          "description": "The main bazaar of the upper valley and the turn-off for the Musa ka Musalla track."
+        },
+        {
+          "id": "shinkiari",
+          "name": "Shinkiari",
+          "category": "Bazaar",
+          "lat": 34.4667,
+          "lng": 73.2667,
+          "entryFee": 0,
+          "localTransport": 0,
+          "visitHours": 2,
+          "requires4x4": false,
+          "aliases": [
+            "Shinkyari"
+          ],
+          "description": "Roadside town on the Karakoram Highway where the Siran valley road branches west."
+        }
+      ]
+    },
+    {
+      "id": "kaghan-valley",
+      "name": "Kaghan",
+      "region": "Kaghan Valley",
+      "province": "Khyber Pakhtunkhwa",
+      "category": "Valleys",
+      "lat": 34.7833,
+      "lng": 73.5333,
+      "altitudeM": 2073,
+      "recommendedDays": 2,
+      "roadFactor": 1.7,
+      "requires4x4": false,
+      "difficulty": "Easy",
+      "bestMonths": [
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "tagline": "The village the whole valley is named after",
+      "description": "Kaghan sits between Balakot and Naran on the Kunhar river, quieter than either and the usual stop for anyone breaking the drive up. The valley road follows the river the whole way.",
+      "highlights": [
+        "Kunhar River",
+        "Balakot",
+        "Road to Naran"
+      ],
+      "aliases": [
+        "Kaghan Valley",
+        "Kagan",
+        "Kaghan Village"
+      ],
+      "attractions": [
+        {
+          "id": "balakot",
+          "name": "Balakot",
+          "category": "Bazaar",
+          "lat": 34.55,
+          "lng": 73.35,
+          "entryFee": 0,
+          "localTransport": 0,
+          "visitHours": 2,
+          "requires4x4": false,
+          "aliases": [
+            "Balakot City"
+          ],
+          "description": "The gateway town to Kaghan, rebuilt after the 2005 earthquake, where the valley road proper begins."
+        },
+        {
+          "id": "kunhar-river",
+          "name": "Kunhar River",
+          "category": "River",
+          "lat": 34.7833,
+          "lng": 73.5333,
+          "entryFee": 0,
+          "localTransport": 0,
+          "visitHours": 2,
+          "requires4x4": false,
+          "description": "Trout river running the length of the valley, with fishing permits sold in the larger towns.",
+          "aliases": []
+        }
+      ]
+    },
+    {
+      "id": "ghizer",
+      "name": "Ghizer Valley",
+      "region": "Ghizer",
+      "province": "Gilgit-Baltistan",
+      "category": "Valleys",
+      "lat": 36.1667,
+      "lng": 73.75,
+      "altitudeM": 2100,
+      "recommendedDays": 3,
+      "roadFactor": 1.6,
+      "requires4x4": true,
+      "difficulty": "Moderate",
+      "bestMonths": [
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "tagline": "The long valley west of Gilgit toward Shandur",
+      "description": "The Ghizer river valley runs west from Gilgit through Gahkuch and Gupis to Phander and on to the Shandur pass. It is the quiet road between Gilgit and Chitral.",
+      "highlights": [
+        "Gahkuch",
+        "Gupis",
+        "Khalti Lake"
+      ],
+      "aliases": [
+        "Ghizer",
+        "Gizer Valley",
+        "Ghizar"
+      ],
+      "attractions": [
+        {
+          "id": "khalti-lake",
+          "name": "Khalti Lake",
+          "category": "Lake",
+          "lat": 36.2333,
+          "lng": 73.05,
+          "entryFee": 0,
+          "localTransport": 0,
+          "visitHours": 2,
+          "requires4x4": false,
+          "aliases": [
+            "Khalti"
+          ],
+          "description": "Roadside lake near Gupis that freezes hard enough to skate on in winter."
+        },
+        {
+          "id": "gahkuch",
+          "name": "Gahkuch",
+          "category": "Bazaar",
+          "lat": 36.1667,
+          "lng": 73.7667,
+          "entryFee": 0,
+          "localTransport": 0,
+          "visitHours": 2,
+          "requires4x4": false,
+          "description": "District headquarters of Ghizer and the last substantial bazaar heading west.",
+          "aliases": []
+        },
+        {
+          "id": "gupis",
+          "name": "Gupis",
+          "category": "Valley",
+          "lat": 36.2333,
+          "lng": 73.4,
+          "entryFee": 0,
+          "localTransport": 0,
+          "visitHours": 3,
+          "requires4x4": false,
+          "description": "Where the road forks for Yasin valley and for Phander and Shandur.",
+          "aliases": []
+        }
+      ]
+    },
+    {
+      "id": "yasin",
+      "name": "Yasin Valley",
+      "region": "Ghizer",
+      "province": "Gilgit-Baltistan",
+      "category": "Valleys",
+      "lat": 36.4,
+      "lng": 73.3,
+      "altitudeM": 2300,
+      "recommendedDays": 3,
+      "roadFactor": 1.7,
+      "requires4x4": true,
+      "difficulty": "Moderate",
+      "bestMonths": [
+        5,
+        6,
+        7,
+        8,
+        9
+      ],
+      "tagline": "A side valley almost nobody drives up",
+      "description": "Yasin branches north from Gupis and ends under the Darkot pass, the old walking route over to Broghil. Burushaski and Khowar are both spoken here.",
+      "highlights": [
+        "Darkot",
+        "Thui Pass",
+        "Yasin bazaar"
+      ],
+      "aliases": [
+        "Yasin",
+        "Yaseen Valley",
+        "Worshigum"
+      ],
+      "attractions": [
+        {
+          "id": "darkot",
+          "name": "Darkot",
+          "category": "Valley",
+          "lat": 36.5333,
+          "lng": 73.3167,
+          "entryFee": 0,
+          "localTransport": 2000,
+          "visitHours": 4,
+          "requires4x4": true,
+          "description": "The last village in the valley, under the glacier and the pass of the same name.",
+          "aliases": []
+        }
+      ]
+    },
+    {
+      "id": "kalash",
+      "name": "Kalash Valleys",
+      "region": "Chitral",
+      "province": "Khyber Pakhtunkhwa",
+      "category": "Valleys",
+      "lat": 35.7167,
+      "lng": 71.6667,
+      "altitudeM": 1900,
+      "recommendedDays": 3,
+      "roadFactor": 1.8,
+      "requires4x4": true,
+      "difficulty": "Moderate",
+      "bestMonths": [
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "tagline": "Three valleys keeping their own calendar",
+      "description": "Bumburet, Rumbur and Birir hold the Kalasha community, with their own religion, language and festival calendar. A permit fee applies to visitors and the roads in are narrow jeep tracks from Ayun.",
+      "highlights": [
+        "Bumburet",
+        "Rumbur",
+        "Birir",
+        "Chilam Joshi festival"
+      ],
+      "aliases": [
+        "Kalash",
+        "Kalash Valley",
+        "Kalasha Valleys",
+        "Kafiristan"
+      ],
+      "attractions": [
+        {
+          "id": "birir",
+          "name": "Birir",
+          "category": "Culture",
+          "lat": 35.65,
+          "lng": 71.7,
+          "entryFee": 500,
+          "localTransport": 3000,
+          "visitHours": 6,
+          "requires4x4": true,
+          "description": "The smallest and least visited of the three valleys, and the most traditional.",
+          "aliases": []
+        },
+        {
+          "id": "ayun",
+          "name": "Ayun",
+          "category": "Bazaar",
+          "lat": 35.75,
+          "lng": 71.7833,
+          "entryFee": 0,
+          "localTransport": 0,
+          "visitHours": 2,
+          "requires4x4": false,
+          "description": "The village on the Chitral road where the Kalash jeep tracks branch off.",
+          "aliases": []
+        }
+      ]
+    },
+    {
+      "id": "hingol",
+      "name": "Hingol National Park",
+      "region": "Lasbela",
+      "province": "Balochistan",
+      "category": "Desert",
+      "lat": 25.5167,
+      "lng": 65.5,
+      "altitudeM": 100,
+      "recommendedDays": 2,
+      "roadFactor": 1.3,
+      "requires4x4": false,
+      "difficulty": "Moderate",
+      "bestMonths": [
+        11,
+        12,
+        1,
+        2,
+        3
+      ],
+      "tagline": "Pakistan's largest national park, split by the coastal highway",
+      "description": "Over six thousand square kilometres of badlands, mud volcanoes and river gorge between Karachi and Ormara. The Makran Coastal Highway runs straight through it, which is why so much of it can be seen from a car.",
+      "highlights": [
+        "Princess of Hope",
+        "Kund Malir",
+        "Chandragup",
+        "Hingol River"
+      ],
+      "aliases": [
+        "Hingol",
+        "Hingol Park",
+        "Hingol National Park Balochistan"
+      ],
+      "attractions": [
+        {
+          "id": "hingol-river",
+          "name": "Hingol River Gorge",
+          "category": "River",
+          "lat": 25.5,
+          "lng": 65.5167,
+          "entryFee": 0,
+          "localTransport": 0,
+          "visitHours": 2,
+          "requires4x4": false,
+          "description": "The largest river in Balochistan, cutting a gorge through the park to the sea.",
+          "aliases": []
+        },
+        {
+          "id": "nani-mandir",
+          "name": "Nani Mandir",
+          "category": "Culture",
+          "lat": 25.5167,
+          "lng": 65.5167,
+          "entryFee": 0,
+          "localTransport": 500,
+          "visitHours": 2,
+          "requires4x4": false,
+          "aliases": [
+            "Hinglaj Mata Mandir",
+            "Hinglaj"
+          ],
+          "description": "Hindu pilgrimage site in a cave beside the Hingol river, the destination of an annual yatra."
         }
       ]
     }

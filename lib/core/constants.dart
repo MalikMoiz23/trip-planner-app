@@ -158,6 +158,10 @@ class Endpoints {
   static const String nominatimBase = 'https://nominatim.openstreetmap.org';
   static const String overpassBase = 'https://overpass-api.de/api/interpreter';
 
+  // Photon: free, no key, built for type-ahead. Complements Nominatim, which
+  // matches near-exactly and returns nothing for a misspelling.
+  static const String photonBase = 'https://photon.komoot.io/api/';
+
   // Open-Meteo: free for non-commercial use, no key and no account.
   static const String openMeteoForecast = 'https://api.open-meteo.com/v1/forecast';
   static const String openMeteoArchive = 'https://archive-api.open-meteo.com/v1/archive';

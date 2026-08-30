@@ -4,10 +4,12 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'package:latlong2/latlong.dart';
 
 import 'package:trip_planner/core/fuzzy.dart';
+import 'package:trip_planner/core/geo.dart';
 import 'package:trip_planner/data/models/attraction.dart';
 import 'package:trip_planner/data/models/destination.dart';
 import 'package:trip_planner/data/sources/nominatim_service.dart';
 import 'package:trip_planner/data/sources/overpass_service.dart';
+import 'package:trip_planner/data/sources/photon_service.dart';
 import 'package:trip_planner/domain/rate_estimator.dart';
 
 /// Which half of the catalogue to look at.
@@ -51,11 +53,14 @@ class DestinationRepository {
   DestinationRepository({
     NominatimService? nominatim,
     OverpassService? overpass,
+    PhotonService? photon,
   })  : _nominatim = nominatim ?? NominatimService(),
-        _overpass = overpass ?? OverpassService();
+        _overpass = overpass ?? OverpassService(),
+        _photon = photon ?? PhotonService();
 
   final NominatimService _nominatim;
   final OverpassService _overpass;
+  final PhotonService _photon;
 
   final List<Destination> _destinations = [];
 
@@ -195,8 +200,25 @@ class DestinationRepository {
   List<Destination> search(String query) =>
       searchRanked(query).map((h) => h.destination).toList(growable: false);
 
-  /// True when the query matched nothing well enough to be worth showing.
+  /// True when the query matched anything at all above the fuzzy threshold.
   bool hasLocalMatch(String query) => searchRanked(query).isNotEmpty;
+
+  /// True when the catalogue holds something so close to the query that going
+  /// to the network would only add latency.
+  ///
+  /// This is deliberately much stricter than [hasLocalMatch]. Fuzzy matching is
+  /// generous by design — "Siran Valley" scores 0.72 against "Naran", one letter
+  /// apart once the vowels fold — and gating the live lookup on *any* match
+  /// meant a real place the catalogue has never heard of was answered with a
+  /// near-homophone and the network was never consulted. Only a near-exact hit
+  /// earns the right to suppress the search: an exact name or alias, a prefix
+/// ("Hunza" for "Hunza (Karimabad)", 0.95), or a transliteration variant the
+/// phonetic fold resolves ("Thandyani" for "Thandiani", 0.91). The Siran case
+/// sat at 0.72 and now correctly falls through to the geocoders.
+  bool hasExactLocalMatch(String query) {
+    final hits = searchRanked(query);
+    return hits.isNotEmpty && hits.first.score >= 0.90;
+  }
 
   List<Destination> byCategory(String category) =>
       _destinations.where((d) => d.category == category).toList(growable: false);
@@ -209,7 +231,42 @@ class DestinationRepository {
   }
 
   /// Live geocoding for anything the bundled list does not have.
-  Future<List<PlaceHit>> searchRemote(String query) => _nominatim.search(query);
+  ///
+  /// Both geocoders are asked at once and their answers merged. They read the
+  /// same OpenStreetMap data but fail in opposite directions: Nominatim is
+  /// near-exact and authoritative, Photon is typo-tolerant and built for
+  /// type-ahead. "Thandyani" gets nothing from the first and the right hill
+  /// station from the second; a precise address is the other way round.
+  ///
+  /// Nominatim's hits are listed first because when it does answer it is the
+  /// better answer, and duplicates are dropped by name and position — the same
+  /// village from two sources is one place, not two rows.
+  Future<List<PlaceHit>> searchRemote(String query) async {
+    final results = await Future.wait([
+      _nominatim.search(query),
+      _photon.search(query),
+    ]);
+
+    final out = <PlaceHit>[];
+    final seenNames = <String>{};
+
+    for (final hit in [...results[0], ...results[1]]) {
+      // Two sources describing one place: same fold key, and within about a
+      // kilometre of each other.
+      final key = foldKey(hit.name);
+      final duplicate = seenNames.contains(key) &&
+          out.any((existing) =>
+              foldKey(existing.name) == key &&
+              haversineKm(existing.point, hit.point) < 1.0);
+      if (duplicate) continue;
+
+      seenNames.add(key);
+      out.add(hit);
+      if (out.length >= 12) break;
+    }
+
+    return out;
+  }
 
   Future<String> reverseName(LatLng point) => _nominatim.reverse(point);
 
