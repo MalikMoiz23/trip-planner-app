@@ -7,6 +7,7 @@ import 'package:trip_planner/domain/itinerary_builder.dart';
 import 'package:trip_planner/data/models/attraction.dart';
 import 'package:trip_planner/data/models/destination.dart';
 import 'package:trip_planner/data/models/route_info.dart';
+import 'package:trip_planner/data/models/meal_plan.dart';
 import 'package:trip_planner/data/models/trip_config.dart';
 import 'package:trip_planner/data/models/trip_stop.dart';
 
@@ -85,8 +86,11 @@ TripConfig _config({
       stayStyle: stayStyle,
       stayRatePerUnitNight: stayRate,
       foodStyle: foodStyle,
-      pricePerMeal: pricePerMeal,
-      mealsPerDay: mealsPerDay,
+      mealPlan: MealPlan.fromLegacy(
+        dayCount: days,
+        mealsPerDay: mealsPerDay,
+        pricePerMeal: pricePerMeal,
+      ),
       campKitchenCost: campKitchen,
       fuelPriceIsDefault: fuelPriceIsDefault,
       bufferPercent: buffer,
@@ -308,18 +312,90 @@ void main() {
   });
 
   group('Food', () {
-    test('meals a day scales the bill proportionally', () {
-      final two = ExpenseCalculator.compute(
-        config: _config(mealsPerDay: 2),
+    test('sittings scale the bill proportionally', () {
+      // A day holds at most three named sittings, so this goes 1 → 3 rather
+      // than the old model's arbitrary count.
+      final one = ExpenseCalculator.compute(
+        config: _config(mealsPerDay: 1),
         legs: const [_route100km, _route100km],
       );
-      final four = ExpenseCalculator.compute(
-        config: _config(mealsPerDay: 4),
+      final three = ExpenseCalculator.compute(
+        config: _config(mealsPerDay: 3),
         legs: const [_route100km, _route100km],
       );
-      expect(two.mealCount, 3 * 4 * 2);
-      expect(four.mealCount, 3 * 4 * 4);
-      expect(four.mealsCost, closeTo(two.mealsCost * 2, 0.01));
+
+      expect(one.mealCount, 3 * 4 * 1);
+      expect(three.mealCount, 3 * 4 * 3);
+      // Legacy plans price every sitting the same, so three cost three times one.
+      expect(three.mealsCost, closeTo(one.mealsCost * 3, 0.01));
+    });
+
+    test('a day with fewer meals costs less than a full one', () {
+      // The point of the per-day plan: the first day is two sittings, the rest
+      // three, and the total has to reflect that rather than an average.
+      final base = _config(days: 3);
+      final full = base.copyWith(
+        mealPlan: MealPlan(
+          days: [
+            {MealSlot.breakfast, MealSlot.lunch, MealSlot.dinner},
+            {MealSlot.breakfast, MealSlot.lunch, MealSlot.dinner},
+            {MealSlot.breakfast, MealSlot.lunch, MealSlot.dinner},
+          ],
+          prices: base.mealPlan.prices,
+        ),
+      );
+      final lighter = base.copyWith(
+        mealPlan: MealPlan(
+          days: [
+            {MealSlot.breakfast, MealSlot.lunchDinner},
+            {MealSlot.breakfast, MealSlot.lunch, MealSlot.dinner},
+            {MealSlot.breakfast, MealSlot.lunch},
+          ],
+          prices: base.mealPlan.prices,
+        ),
+      );
+
+      final a = ExpenseCalculator.compute(
+          config: full, legs: const [_route100km, _route100km]);
+      final b = ExpenseCalculator.compute(
+          config: lighter, legs: const [_route100km, _route100km]);
+
+      expect(b.mealCount, lessThan(a.mealCount));
+      expect(b.mealCost, lessThan(a.mealCost));
+    });
+
+    test('breakfast costs less than dinner, and the total shows it', () {
+      final base = _config(days: 2);
+      final prices = {
+        MealSlot.breakfast: 300.0,
+        MealSlot.lunch: 1000.0,
+        MealSlot.dinner: 1200.0,
+        MealSlot.lunchDinner: 1500.0,
+      };
+
+      final breakfasts = base.copyWith(
+        mealPlan: MealPlan(days: [
+          {MealSlot.breakfast},
+          {MealSlot.breakfast},
+        ], prices: prices),
+      );
+      final dinners = base.copyWith(
+        mealPlan: MealPlan(days: [
+          {MealSlot.dinner},
+          {MealSlot.dinner},
+        ], prices: prices),
+      );
+
+      final cheap = ExpenseCalculator.compute(
+          config: breakfasts, legs: const [_route100km, _route100km]);
+      final dear = ExpenseCalculator.compute(
+          config: dinners, legs: const [_route100km, _route100km]);
+
+      expect(cheap.mealCount, dear.mealCount, reason: 'same number of sittings');
+      expect(cheap.mealCost, lessThan(dear.mealCost),
+          reason: 'but breakfast is cheaper, so the bill must differ');
+      expect(cheap.mealCost, closeTo(2 * 4 * 300, 0.01));
+      expect(dear.mealCost, closeTo(2 * 4 * 1200, 0.01));
     });
 
     test('self-cooking charges groceries per meal plus a one-off kitchen', () {
@@ -677,8 +753,9 @@ void main() {
       expect(copy.fuel, original.fuel);
       expect(copy.stayStyle, original.stayStyle);
       expect(copy.foodStyle, original.foodStyle);
-      expect(copy.mealsPerDay, original.mealsPerDay);
-      expect(copy.pricePerMeal, original.pricePerMeal);
+      expect(copy.mealPlan.days.length, original.mealPlan.days.length);
+      expect(copy.mealPlan.prices, original.mealPlan.prices);
+      expect(copy.totalMeals, original.totalMeals);
       expect(copy.selectedAttractions.length, 1);
       expect(copy.selectedAttractions.first.entryFee, 500);
       expect(copy.destination.id, original.destination.id);
@@ -718,11 +795,12 @@ void main() {
       expect(config.stayStyle, StayStyle.guestHouse);
       expect(config.stayRatePerUnitNight, 4000.0);
       expect(config.foodStyle, FoodStyle.dhaba);
-      expect(config.mealsPerDay, 3);
+      // Three sittings a day, rebuilt from the flat count.
+      expect(config.mealPlan.days.length, 3);
+      expect(config.mealPlan.days.every((d) => d.length == 3), isTrue);
       // The old daily figure divided by three meals reproduces the same total.
-      expect(config.pricePerMeal, closeTo(500, 0.001));
-      expect(config.days * config.persons * config.mealsPerDay * config.pricePerMeal,
-          closeTo(3 * 4 * 1500, 0.01));
+      expect(config.mealPlan.priceOf(MealSlot.lunch), closeTo(500, 0.001));
+      expect(config.mealPlan.cost(config.persons), closeTo(3 * 4 * 1500, 0.01));
       expect(config.campKitchenCost, 0);
 
       // And it still costs out without throwing.

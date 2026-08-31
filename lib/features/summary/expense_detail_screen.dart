@@ -85,8 +85,9 @@ class ExpenseDetailScreen extends StatelessWidget {
             '${config.fuelPriceIsDefault ? ' (app default)' : ' (yours)'}'),
       ('Sleeping in', '${config.stayStyle.label}, '
           '${config.roomOccupancy} per ${config.stayStyle.unitLabel}'),
-      ('Eating', '${config.foodStyle.label}, ${config.mealsPerDay} '
-          '${config.mealsPerDay == 1 ? 'meal' : 'meals'} a day'),
+      ('Eating', '${config.foodStyle.label}, '
+          '${config.mealPlan.sittingsPerPerson} sittings each over '
+          '${plural(config.days, 'day', 'days')}'),
       ('Stops chosen', '${config.selectedAttractions.length}'),
       ('Contingency', '${config.bufferPercent.toStringAsFixed(0)}%'),
     ];
@@ -166,17 +167,22 @@ class ExpenseDetailScreen extends StatelessWidget {
         persons: persons,
         rows: [
           ('Style', config.foodStyle.label),
-          ('Meals a day', '${config.mealsPerDay}'),
-          ('Meals in total', '${config.days} × $persons × ${config.mealsPerDay} '
-              '= ${b.mealCount}'),
-          ('Cost per meal', '${money(config.pricePerMeal)} per person'),
+          // A row per kind of sitting, since each has its own price. One
+          // "cost per meal" figure would be an average of unlike things.
+          for (final entry in config.mealPlan.countBySlot().entries)
+            (
+              entry.key.label,
+              '${entry.value} × $persons at '
+                  '${money(config.mealPlan.priceOf(entry.key))}',
+            ),
+          ('Sittings in total', '${b.mealCount}'),
           ('Meals subtotal', money(b.mealsCost)),
           if (b.kitchenCost > 0)
             ('Stove, gas and utensils', '${money(b.kitchenCost)}, once for the trip'),
         ],
         formula: b.kitchenCost > 0
-            ? '${b.mealCount} × ${money(config.pricePerMeal)} + ${money(b.kitchenCost)}'
-            : '${b.mealCount} × ${money(config.pricePerMeal)}',
+            ? 'each sitting × travellers, + ${money(b.kitchenCost)}'
+            : 'each sitting × travellers',
       ),
 
       // ---- Tickets --------------------------------------------------------

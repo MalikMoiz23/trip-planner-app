@@ -4,6 +4,7 @@ import 'package:trip_planner/core/enums.dart';
 import 'package:trip_planner/data/models/attraction.dart';
 import 'package:trip_planner/data/models/destination.dart';
 import 'package:trip_planner/data/models/route_info.dart';
+import 'package:trip_planner/data/models/meal_plan.dart';
 import 'package:trip_planner/data/models/trip_config.dart';
 import 'package:trip_planner/data/models/trip_stop.dart';
 import 'package:trip_planner/domain/expense_calculator.dart';
@@ -70,8 +71,11 @@ TripConfig _config({int stops = 1}) => TripConfig(
       stayStyle: StayStyle.hotel,
       stayRatePerUnitNight: 11000,
       foodStyle: FoodStyle.restaurant,
-      pricePerMeal: 1200,
-      mealsPerDay: 3,
+      mealPlan: MealPlan.fromLegacy(
+        dayCount: stops > 1 ? 6 : 3,
+        mealsPerDay: 3,
+        pricePerMeal: 1200,
+      ),
       campKitchenCost: 0,
       fuelPriceIsDefault: false,
       bufferPercent: 10,

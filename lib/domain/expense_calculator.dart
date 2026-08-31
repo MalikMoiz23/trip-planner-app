@@ -156,15 +156,21 @@ class ExpenseCalculator {
     }
 
     // ---- Food -------------------------------------------------------------
-    // Meals, not days: how many times a day you eat drives the bill, and it
-    // does so identically whether you are cooking or paying a restaurant.
-    final mealCount = days * persons * config.mealsPerDay;
-    final mealsCost = mealCount * config.pricePerMeal;
+    // Summed sitting by sitting rather than from a daily average. Breakfast is
+    // a fraction of dinner's price and a day on the road may hold one meal
+    // rather than three, so an average would be wrong on most real trips.
+    final plan = config.mealPlan;
+    final mealCount = plan.sittings(persons);
+    final mealsCost = plan.cost(persons);
     final kitchenCost = config.effectiveKitchenCost;
-    final mealDetail = '${plural(days, 'day', 'days')} × $persons '
-        '${persons == 1 ? 'person' : 'people'} × ${config.mealsPerDay} '
-        '${config.mealsPerDay == 1 ? 'meal' : 'meals'} a day = $mealCount meals, '
-        'at ${money(config.pricePerMeal)} each (${config.foodStyle.label.toLowerCase()})';
+
+    final bySlot = plan.countBySlot();
+    final mealDetail = bySlot.isEmpty
+        ? 'No meals costed — nothing selected on any day'
+        : '${bySlot.entries.map((e) => '${e.value}× ${e.key.label.toLowerCase()} '
+            'at ${money(plan.priceOf(e.key))}').join(', ')} '
+            '× $persons ${persons == 1 ? 'person' : 'people'} '
+            '(${config.foodStyle.label.toLowerCase()})';
 
     // ---- Entries and site transport ---------------------------------------
     var entryPerPerson = 0.0;
@@ -494,7 +500,8 @@ class ExpenseCalculator {
       out.add(TripWarning(
         WarningLevel.info,
         'Cooking for yourself',
-        'Food is costed at ${money(config.pricePerMeal)} per person per meal for '
+        'Food is costed sitting by sitting — ${money(config.mealPlan.priceOf(MealSlot.breakfast))} '
+            'a breakfast, ${money(config.mealPlan.priceOf(MealSlot.lunch))} a main meal — for '
             'groceries, plus ${money(config.campKitchenCost)} once for a stove and gas. '
             'Buy supplies in the last proper town — village shops in the valleys are '
             'small and dearer.',

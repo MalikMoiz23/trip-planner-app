@@ -105,3 +105,65 @@ enum FoodStyle {
 
 /// Severity used to colour the advisories shown on the summary screen.
 enum WarningLevel { info, caution, blocker }
+
+/// One sitting in a day, priced on its own.
+///
+/// A single "meals per day" number could not say what people actually do on a
+/// road trip: breakfast at the hotel is a fraction of the price of dinner, and
+/// on a long driving day you often skip a midday stop entirely and eat once at
+/// five or six. So a day is a set of these rather than a count, and each
+/// carries its own price.
+enum MealSlot {
+  breakfast(
+    'Breakfast',
+    'Early, and usually the cheapest of the day',
+    'around 7–9am',
+    0.55,
+  ),
+  lunch(
+    'Lunch',
+    'A midday stop',
+    'around 12–2pm',
+    1.0,
+  ),
+  dinner(
+    'Dinner',
+    'The evening meal',
+    'around 8–10pm',
+    1.0,
+  ),
+
+  /// The one meal that replaces two. Common on a driving day: you reach
+  /// somewhere at five or six, eat properly, and that is the day done.
+  lunchDinner(
+    'Lunch and dinner together',
+    'One bigger meal instead of two, late afternoon',
+    'around 5–6pm',
+    1.4,
+  );
+
+  const MealSlot(this.label, this.blurb, this.timeHint, this.priceFactor);
+
+  final String label;
+  final String blurb;
+
+  /// When this sitting normally happens, so the choice reads as a real day.
+  final String timeHint;
+
+  /// Starting price relative to the food style's per-meal figure. Breakfast is
+  /// cheaper, a combined meal dearer than one but cheaper than two.
+  final double priceFactor;
+
+  bool get replacesTwo => this == MealSlot.lunchDinner;
+
+  /// Choosing a combined meal and also a separate lunch or dinner is
+  /// contradictory, so picking one clears the others.
+  Set<MealSlot> get conflicts => switch (this) {
+        MealSlot.lunchDinner => {MealSlot.lunch, MealSlot.dinner},
+        MealSlot.lunch || MealSlot.dinner => {MealSlot.lunchDinner},
+        MealSlot.breakfast => const {},
+      };
+
+  static MealSlot byName(String? name) =>
+      MealSlot.values.firstWhere((e) => e.name == name, orElse: () => MealSlot.lunch);
+}

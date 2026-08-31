@@ -6,6 +6,7 @@ import 'package:trip_planner/domain/packing_builder.dart';
 import 'package:trip_planner/data/models/attraction.dart';
 import 'package:trip_planner/data/models/destination.dart';
 import 'package:trip_planner/data/models/route_info.dart';
+import 'package:trip_planner/data/models/meal_plan.dart';
 import 'package:trip_planner/data/models/trip_config.dart';
 import 'package:trip_planner/data/models/trip_stop.dart';
 import 'package:trip_planner/data/models/weather.dart';
@@ -73,8 +74,11 @@ TripConfig _config({
       stayStyle: stay,
       stayRatePerUnitNight: stay.defaultRatePerUnitNight,
       foodStyle: food,
-      pricePerMeal: food.defaultPricePerMeal,
-      mealsPerDay: mealsPerDay,
+      mealPlan: MealPlan.fromLegacy(
+        dayCount: days,
+        mealsPerDay: mealsPerDay,
+        pricePerMeal: food.defaultPricePerMeal,
+      ),
       campKitchenCost: 3000,
       fuelPriceIsDefault: false,
       bufferPercent: buffer,

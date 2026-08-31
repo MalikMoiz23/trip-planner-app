@@ -219,7 +219,7 @@ class PackingBuilder {
             id: 'groceries',
             label: 'Groceries bought in the last big town',
             reason: 'Village shops in the valleys are small and dearer.',
-            quantity: '${config.mealsPerDay * config.days * config.persons} meals',
+            quantity: '${config.totalMeals} meals',
           ),
           const PackItem(
             id: 'water',

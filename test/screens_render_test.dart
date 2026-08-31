@@ -348,7 +348,6 @@ void main() {
         planner.startFor(naran);
         planner.setPersons(4);
         planner.setDays(5);
-        planner.setMealsPerDay(3);
         planner.selectAllCurated();
         await planner.refreshRoute();
 
@@ -415,6 +414,23 @@ void main() {
         await tester.drag(find.byType(Scrollable).first, const Offset(0, -900));
         await tester.pump(const Duration(milliseconds: 300));
         await shot(tester, '15_comfort_food_math');
+
+        // Further down is the per-day meal grid, which is the point of the
+        // whole section: two sittings on the day you drive out, three in the
+        // middle, one late meal where that suits.
+        //
+        // Scrolled by finder rather than a fixed offset — the section's height
+        // depends on the day count, so a hard-coded drag stops being right the
+        // moment the trip length changes.
+        await tester.scrollUntilVisible(
+          find.text('Which meals, day by day'),
+          400,
+          scrollable: find.byType(Scrollable).first,
+        );
+        await tester.pump(const Duration(milliseconds: 300));
+        expect(find.text('Day 1'), findsOneWidget);
+        expect(find.text('Lunch + dinner'), findsWidgets);
+        await shot(tester, '16_comfort_meal_grid');
       });
 
       testWidgets('saved trips empty state lays out', (tester) async {

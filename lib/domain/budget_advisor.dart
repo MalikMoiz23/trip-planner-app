@@ -132,9 +132,14 @@ class BudgetAdvisor {
       consider(
         id: 'one-fewer-day',
         title: 'Go for ${plural(config.days - 1, 'day', 'days')} instead',
-        detail: 'One night less, and ${config.persons * config.mealsPerDay} fewer meals.',
+        detail: 'One night less, and one day of meals fewer.',
         icon: Icons.event_busy_rounded,
-        apply: (c) => c.copyWith(days: c.days - 1),
+        // The meal plan resizes with the trip, or the day being dropped would
+        // keep charging for meals nobody is there to eat.
+        apply: (c) => c.copyWith(
+          days: c.days - 1,
+          mealPlan: c.mealPlan.resized(c.days - 1),
+        ),
       );
     }
 
@@ -171,33 +176,53 @@ class BudgetAdvisor {
     }
 
     // ---- Eat cheaper ------------------------------------------------------
+    // Compared against what lunch actually costs on this trip, since that is
+    // the sitting every food style is priced from.
+    final currentBase = config.mealPlan.priceOf(MealSlot.lunch);
+
     for (final style in FoodStyle.values) {
-      if (style.defaultPricePerMeal >= config.pricePerMeal) continue;
+      if (style.defaultPricePerMeal >= currentBase) continue;
       consider(
         id: 'food-${style.name}',
         title: style == FoodStyle.selfCooking
             ? 'Cook for yourselves'
             : 'Eat at ${style.label.toLowerCase()} level',
         detail: '${money(style.defaultPricePerMeal)} a meal instead of '
-            '${money(config.pricePerMeal)}'
+            '${money(currentBase)}'
             '${style.needsKitchen ? ', after a one-off stove and gas' : ''}.',
         icon: style.needsKitchen
             ? Icons.local_fire_department_rounded
             : Icons.restaurant_rounded,
         apply: (c) => c.copyWith(
           foodStyle: style,
-          pricePerMeal: style.defaultPricePerMeal,
+          mealPlan: c.mealPlan.rebased(style.defaultPricePerMeal),
         ),
       );
     }
 
-    if (config.mealsPerDay > 2) {
+    // Two sittings out of three is the usual economy on a trip: breakfast where
+    // you slept, then one proper meal late in the day.
+    final fullDays = config.mealPlan.days
+        .where((d) => d.contains(MealSlot.lunch) && d.contains(MealSlot.dinner))
+        .length;
+    if (fullDays > 0) {
       consider(
-        id: 'fewer-meals',
-        title: 'Budget for ${config.mealsPerDay - 1} meals a day',
-        detail: 'Breakfast at the hotel, one proper meal, snacks in between.',
+        id: 'combine-meals',
+        title: 'Combine lunch and dinner',
+        detail: 'On ${plural(fullDays, 'day', 'days')} you have both. One '
+            'bigger meal around five or six costs less than two.',
         icon: Icons.no_meals_rounded,
-        apply: (c) => c.copyWith(mealsPerDay: c.mealsPerDay - 1),
+        apply: (c) {
+          var plan = c.mealPlan;
+          for (var i = 0; i < plan.days.length; i++) {
+            final day = plan.days[i];
+            if (day.contains(MealSlot.lunch) && day.contains(MealSlot.dinner)) {
+              // Toggling the combined slot clears the two it replaces.
+              plan = plan.toggled(i, MealSlot.lunchDinner);
+            }
+          }
+          return c.copyWith(mealPlan: plan);
+        },
       );
     }
 

@@ -3,6 +3,9 @@ import 'package:provider/provider.dart';
 
 import 'package:trip_planner/core/constants.dart';
 import 'package:trip_planner/core/enums.dart';
+import 'package:trip_planner/core/motion.dart';
+import 'package:trip_planner/core/theme.dart';
+import 'package:trip_planner/data/models/meal_plan.dart';
 import 'package:trip_planner/core/formatters.dart';
 import 'package:trip_planner/features/planner/planner_controller.dart';
 import 'package:trip_planner/shared/widgets/inputs.dart';
@@ -90,20 +93,9 @@ class StepComfort extends StatelessWidget {
         const SizedBox(height: 24),
         const SectionHeader(
           title: 'Food',
-          subtitle: 'How you eat, and how many times a day',
+          subtitle: 'Where you eat, what each sitting costs, and which meals '
+              'you take on each day',
         ),
-        CounterRow(
-          label: 'Meals a day',
-          caption: c.mealsPerDay >= 3
-              ? 'Breakfast, lunch and dinner'
-              : 'Fewer sit-down meals, more snacking',
-          icon: Icons.schedule_rounded,
-          value: c.mealsPerDay,
-          min: AppDefaults.minMealsPerDay,
-          max: AppDefaults.maxMealsPerDay,
-          onChanged: c.setMealsPerDay,
-        ),
-        const SizedBox(height: 12),
         ...FoodStyle.values.map((style) => Padding(
               padding: const EdgeInsets.only(bottom: 9),
               child: TierOption(
@@ -115,18 +107,27 @@ class StepComfort extends StatelessWidget {
                 onTap: () => c.setFoodStyle(style),
               ),
             )),
-        const SizedBox(height: 6),
-        NumberField(
-          label: 'Your cost per person per meal',
-          value: c.pricePerMeal,
-          prefix: 'Rs ',
-          helper: c.foodStyle.needsKitchen
-              ? 'What the ingredients for one person\'s meal cost.'
-              : 'What one person\'s meal costs where you plan to eat.',
-          onChanged: c.setPricePerMeal,
+
+        // ---- Price per sitting ----------------------------------------------
+        const SizedBox(height: 16),
+        SectionHeader(
+          title: 'What each sitting costs',
+          subtitle: 'Per person. Breakfast is usually a fraction of dinner, so '
+              'they are priced separately.',
         ),
+        ...MealSlot.values.map((slot) => Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: NumberField(
+                label: '${slot.label}  ·  ${slot.timeHint}',
+                value: c.mealPlan.priceOf(slot),
+                prefix: 'Rs ',
+                helper: slot.blurb,
+                onChanged: (v) => c.setMealPrice(slot, v),
+              ),
+            )),
+
         if (c.foodStyle.needsKitchen) ...[
-          const SizedBox(height: 12),
+          const SizedBox(height: 2),
           NumberField(
             label: 'Stove, gas and utensils',
             value: c.campKitchenCost,
@@ -136,6 +137,16 @@ class StepComfort extends StatelessWidget {
             onChanged: c.setCampKitchenCost,
           ),
         ],
+
+        // ---- Which meals, day by day ----------------------------------------
+        const SizedBox(height: 20),
+        SectionHeader(
+          title: 'Which meals, day by day',
+          subtitle: 'A driving day is often two meals, or one late one. Tap to '
+              'add or remove.',
+        ),
+        _MealGrid(controller: c),
+
         const SizedBox(height: 12),
         _foodMath(context, c),
 
@@ -207,9 +218,10 @@ class StepComfort extends StatelessWidget {
   /// number on the summary is never a surprise.
   Widget _foodMath(BuildContext context, PlannerController c) {
     final theme = Theme.of(context);
-    final meals = c.days * c.persons * c.mealsPerDay;
-    final mealsCost = meals * c.pricePerMeal;
+    final plan = c.mealPlan;
+    final bySlot = plan.countBySlot();
     final kitchen = c.foodStyle.needsKitchen ? c.campKitchenCost : 0.0;
+    final mealsCost = plan.cost(c.persons);
 
     return AppCard(
       child: Column(
@@ -220,21 +232,188 @@ class StepComfort extends StatelessWidget {
             style: theme.textTheme.titleSmall?.copyWith(fontSize: 14),
           ),
           const SizedBox(height: 10),
-          _MathRow(
-            label: '${c.days} ${c.days == 1 ? 'day' : 'days'} × ${c.persons} '
-                '${c.persons == 1 ? 'person' : 'people'} × ${c.mealsPerDay} '
-                '${c.mealsPerDay == 1 ? 'meal' : 'meals'}',
-            value: '$meals meals',
-          ),
-          _MathRow(
-            label: '$meals × ${money(c.pricePerMeal)} per meal',
-            value: money(mealsCost),
-          ),
+          if (bySlot.isEmpty)
+            _MathRow(label: 'No meals selected on any day', value: money(0))
+          else
+            // One row per kind of sitting, because that is how the total is
+            // actually built up — an average would hide that breakfast is
+            // a third of the price of dinner.
+            ...MealSlot.values.where(bySlot.containsKey).map((slot) {
+              final count = bySlot[slot]!;
+              return _MathRow(
+                label: '$count × ${slot.label.toLowerCase()} × ${c.persons} '
+                    '${c.persons == 1 ? 'person' : 'people'} '
+                    'at ${money(plan.priceOf(slot))}',
+                value: money(count * c.persons * plan.priceOf(slot)),
+              );
+            }),
           if (kitchen > 0)
             _MathRow(label: 'Stove, gas and utensils, once', value: money(kitchen)),
           const Divider(height: 18),
-          _MathRow(label: 'Food total', value: money(mealsCost + kitchen), bold: true),
+          _MathRow(
+            label: 'Food total  ·  ${plan.sittings(c.persons)} sittings',
+            value: money(mealsCost + kitchen),
+            bold: true,
+          ),
         ],
+      ),
+    );
+  }
+}
+
+/// One row per day, with a chip for each sitting.
+///
+/// A grid rather than a single number because that is the thing being decided:
+/// two meals on the day you drive out, three in the middle, one on the way home.
+class _MealGrid extends StatelessWidget {
+  const _MealGrid({required this.controller});
+
+  final PlannerController controller;
+
+  static IconData _slotIcon(MealSlot slot) => switch (slot) {
+        MealSlot.breakfast => Icons.free_breakfast_rounded,
+        MealSlot.lunch => Icons.lunch_dining_rounded,
+        MealSlot.dinner => Icons.dinner_dining_rounded,
+        MealSlot.lunchDinner => Icons.brunch_dining_rounded,
+      };
+
+  @override
+  Widget build(BuildContext context) {
+    final c = controller;
+    final theme = Theme.of(context);
+    final p = context.palette;
+    final plan = c.mealPlan;
+
+    return Column(
+      children: [
+        for (var day = 0; day < plan.days.length; day++)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 9),
+            child: AppCard(
+              padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Text(
+                        'Day ${day + 1}',
+                        style: theme.textTheme.titleSmall?.copyWith(fontSize: 13.5),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        dayMonth(c.startDate.add(Duration(days: day))),
+                        style: theme.textTheme.bodySmall?.copyWith(fontSize: 11.5),
+                      ),
+                      const Spacer(),
+                      Text(
+                        money(_dayCost(plan, day, c.persons)),
+                        style: theme.textTheme.titleSmall?.copyWith(
+                          fontSize: 13,
+                          color: p.primary,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 9),
+                  Wrap(
+                    spacing: 7,
+                    runSpacing: 7,
+                    children: [
+                      for (final slot in MealSlot.values)
+                        _MealChip(
+                          label: slot == MealSlot.lunchDinner
+                              ? 'Lunch + dinner'
+                              : slot.label,
+                          icon: _slotIcon(slot),
+                          selected: plan.days[day].contains(slot),
+                          onTap: () => c.toggleMeal(day, slot),
+                        ),
+                    ],
+                  ),
+                  if (plan.days.length > 1) ...[
+                    const SizedBox(height: 4),
+                    Align(
+                      alignment: Alignment.centerLeft,
+                      child: TextButton(
+                        onPressed: () => c.applyMealsToAllDays(day),
+                        style: TextButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(horizontal: 4),
+                          minimumSize: const Size(0, 30),
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                        child: const Text('Use this for every day',
+                            style: TextStyle(fontSize: 12)),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ),
+      ],
+    );
+  }
+
+  static double _dayCost(MealPlan plan, int day, int persons) {
+    var total = 0.0;
+    for (final slot in plan.days[day]) {
+      total += plan.priceOf(slot) * persons;
+    }
+    return total;
+  }
+}
+
+class _MealChip extends StatelessWidget {
+  const _MealChip({
+    required this.label,
+    required this.icon,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final String label;
+  final IconData icon;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = context.palette;
+    final motion = Motion.of(context);
+
+    return PressableScale(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: motion.d(Motion.quick),
+        curve: Motion.standard,
+        padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 8),
+        decoration: BoxDecoration(
+          color: selected ? p.primary : p.surfaceAlt,
+          borderRadius: AppRadius.pill,
+          border: Border.all(color: selected ? p.primary : p.line),
+        ),
+        // Sized to its label, so the Wrap can fit two or three to a row rather
+        // than giving each chip a line of its own.
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              selected ? Icons.check_rounded : icon,
+              size: 15,
+              color: selected ? Colors.white : p.inkSoft,
+            ),
+            const SizedBox(width: 6),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 12.5,
+                fontWeight: FontWeight.w600,
+                color: selected ? Colors.white : p.ink,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

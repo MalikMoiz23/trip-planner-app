@@ -3,6 +3,7 @@ import 'package:latlong2/latlong.dart';
 import 'package:trip_planner/core/enums.dart';
 import 'package:trip_planner/data/models/attraction.dart';
 import 'package:trip_planner/data/models/destination.dart';
+import 'package:trip_planner/data/models/meal_plan.dart';
 import 'package:trip_planner/data/models/trip_stop.dart';
 
 /// Every input the cost engine reads. Held immutably so a saved trip re-opens
@@ -28,8 +29,7 @@ class TripConfig {
     required this.stayStyle,
     required this.stayRatePerUnitNight,
     required this.foodStyle,
-    required this.pricePerMeal,
-    required this.mealsPerDay,
+    required this.mealPlan,
     required this.campKitchenCost,
     required this.fuelPriceIsDefault,
     required this.bufferPercent,
@@ -92,11 +92,8 @@ class TripConfig {
 
   final FoodStyle foodStyle;
 
-  /// Per person, per meal.
-  final double pricePerMeal;
-
-  /// Meals counted in a day. Drives the food bill for every style.
-  final int mealsPerDay;
+  /// Which sittings happen on each day, and what each costs per person.
+  final MealPlan mealPlan;
 
   /// Stove, gas and utensils, once for the trip. Only when self-cooking.
   final double campKitchenCost;
@@ -123,8 +120,8 @@ class TripConfig {
 
   bool get isSelfCooking => foodStyle.needsKitchen;
 
-  /// Total meals bought or cooked across the whole trip.
-  int get totalMeals => days * persons * mealsPerDay;
+  /// Total sittings bought or cooked across the whole trip, all travellers.
+  int get totalMeals => mealPlan.sittings(persons);
 
   /// True when the road in, or any chosen stop, expects a 4x4.
   bool get requires4x4Anywhere =>
@@ -152,8 +149,7 @@ class TripConfig {
     StayStyle? stayStyle,
     double? stayRatePerUnitNight,
     FoodStyle? foodStyle,
-    double? pricePerMeal,
-    int? mealsPerDay,
+    MealPlan? mealPlan,
     double? campKitchenCost,
     bool? fuelPriceIsDefault,
     double? bufferPercent,
@@ -179,8 +175,7 @@ class TripConfig {
         stayStyle: stayStyle ?? this.stayStyle,
         stayRatePerUnitNight: stayRatePerUnitNight ?? this.stayRatePerUnitNight,
         foodStyle: foodStyle ?? this.foodStyle,
-        pricePerMeal: pricePerMeal ?? this.pricePerMeal,
-        mealsPerDay: mealsPerDay ?? this.mealsPerDay,
+        mealPlan: mealPlan ?? this.mealPlan,
         campKitchenCost: campKitchenCost ?? this.campKitchenCost,
         fuelPriceIsDefault: fuelPriceIsDefault ?? this.fuelPriceIsDefault,
         bufferPercent: bufferPercent ?? this.bufferPercent,
@@ -206,8 +201,7 @@ class TripConfig {
         'stayStyle': stayStyle.name,
         'stayRatePerUnitNight': stayRatePerUnitNight,
         'foodStyle': foodStyle.name,
-        'pricePerMeal': pricePerMeal,
-        'mealsPerDay': mealsPerDay,
+        'mealPlan': mealPlan.toJson(),
         'campKitchenCost': campKitchenCost,
         'fuelPriceIsDefault': fuelPriceIsDefault,
         'bufferPercent': bufferPercent,
@@ -244,18 +238,40 @@ class TripConfig {
         foodStyle: j['foodStyle'] != null
             ? FoodStyle.byName(j['foodStyle'] as String?)
             : FoodStyle.fromLegacyTier(j['mealTier'] as String?),
-        mealsPerDay: (j['mealsPerDay'] as num?)?.toInt() ?? 3,
-        // The old schema stored a daily food figure. Three meals a day is the
-        // assumption it was written under, so dividing by three recovers a
-        // per-meal price that reproduces the same total.
-        pricePerMeal: (j['pricePerMeal'] as num?)?.toDouble() ??
-            ((j['mealRatePerPersonDay'] as num?)?.toDouble() ?? 2800) / 3,
+        mealPlan: _mealPlanFromJson(j),
         campKitchenCost: (j['campKitchenCost'] as num?)?.toDouble() ?? 0,
         fuelPriceIsDefault: (j['fuelPriceIsDefault'] as bool?) ?? false,
 
         bufferPercent: (j['bufferPercent'] as num?)?.toDouble() ?? 10,
         tollsAndParking: (j['tollsAndParking'] as num?)?.toDouble() ?? 0,
       );
+
+  /// Reads the meal plan, rebuilding it from the older schemas when needed.
+  ///
+  /// Three generations of this field now exist: a flat daily food rate, then a
+  /// per-meal price with a count, and now a plan per day. A trip saved under any
+  /// of them has to open and cost the same as it did.
+  static MealPlan _mealPlanFromJson(Map<String, dynamic> j) {
+    final raw = j['mealPlan'];
+    if (raw is Map<String, dynamic>) {
+      final plan = MealPlan.fromJson(raw);
+      if (plan.days.isNotEmpty) return plan;
+    }
+
+    final days = (j['days'] as num?)?.toInt() ?? 1;
+    final mealsPerDay = (j['mealsPerDay'] as num?)?.toInt() ?? 3;
+    // The oldest schema stored a daily figure. Three meals a day is the
+    // assumption it was written under, so dividing by three recovers a per-meal
+    // price that reproduces the same total.
+    final pricePerMeal = (j['pricePerMeal'] as num?)?.toDouble() ??
+        ((j['mealRatePerPersonDay'] as num?)?.toDouble() ?? 2800) / 3;
+
+    return MealPlan.fromLegacy(
+      dayCount: days,
+      mealsPerDay: mealsPerDay,
+      pricePerMeal: pricePerMeal,
+    );
+  }
 
   /// Reads the stop list, falling back to the single-destination schema.
   ///

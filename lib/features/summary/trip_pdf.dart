@@ -360,8 +360,10 @@ class TripPdf {
                 '${plural(b.nights, 'night', 'nights')}',
             semi, regular),
         _kv('Eating',
-            '${config.foodStyle.label} · ${config.mealsPerDay} meals a day · '
-                '${b.mealCount} meals in total',
+            '${config.foodStyle.label} · '
+                '${config.mealPlan.countBySlot().entries.map((e) => '${e.value}× '
+                    '${e.key.label.toLowerCase()} at '
+                    '${money(config.mealPlan.priceOf(e.key))}').join(' · ')}',
             semi, regular),
         _kv('Contingency', '${config.bufferPercent.toStringAsFixed(0)}% on top', semi, regular),
         if (config.selectedAttractions.isNotEmpty)

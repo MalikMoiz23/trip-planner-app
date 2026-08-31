@@ -19,6 +19,7 @@ import 'package:trip_planner/data/models/route_info.dart';
 import 'package:trip_planner/data/models/weather.dart';
 import 'package:trip_planner/data/models/saved_trip.dart';
 import 'package:trip_planner/data/models/trip_config.dart';
+import 'package:trip_planner/data/models/meal_plan.dart';
 import 'package:trip_planner/data/models/trip_stop.dart';
 import 'package:trip_planner/data/repositories/destination_repository.dart';
 import 'package:trip_planner/data/sources/location_service.dart';
@@ -83,8 +84,11 @@ class PlannerController extends ChangeNotifier {
   StayStyle stayStyle = StayStyle.hotel;
   double stayRate = StayStyle.hotel.defaultRatePerUnitNight;
   FoodStyle foodStyle = FoodStyle.restaurant;
-  double pricePerMeal = FoodStyle.restaurant.defaultPricePerMeal;
-  int mealsPerDay = AppDefaults.defaultMealsPerDay;
+  /// Which sittings happen on each day, and what each costs.
+  MealPlan mealPlan = MealPlan.standard(
+    dayCount: AppDefaults.defaultDays,
+    basePrice: FoodStyle.restaurant.defaultPricePerMeal,
+  );
   double campKitchenCost = AppDefaults.defaultCampKitchenCost;
   double bufferPercent = AppDefaults.defaultBufferPercent;
 
@@ -232,8 +236,7 @@ class PlannerController extends ChangeNotifier {
         stayStyle: stayStyle,
         stayRatePerUnitNight: stayRate,
         foodStyle: foodStyle,
-        pricePerMeal: pricePerMeal,
-        mealsPerDay: mealsPerDay,
+        mealPlan: mealPlan,
         campKitchenCost: campKitchenCost,
         fuelPriceIsDefault: fuelPriceIsDefault,
         bufferPercent: bufferPercent,
@@ -412,6 +415,10 @@ class PlannerController extends ChangeNotifier {
     if (route.length == 1) {
       route.first.nights = nightsForDisplay;
     }
+    // The meal plan is one entry per day, so it has to grow and shrink with the
+    // trip. Days already chosen keep their meals; new ones get the default
+    // pattern for that position.
+    mealPlan = mealPlan.resized(days);
     notifyListeners();
   }
 
@@ -483,12 +490,27 @@ class PlannerController extends ChangeNotifier {
 
   void setFoodStyle(FoodStyle style) {
     foodStyle = style;
-    pricePerMeal = style.defaultPricePerMeal;
+    // Rebases every sitting at once, keeping which meals are taken on which
+    // day. Switching from dhaba to hotel dining should move the prices, not
+    // undo a day-by-day plan someone has just set up.
+    mealPlan = mealPlan.rebased(style.defaultPricePerMeal);
     notifyListeners();
   }
 
-  void setMealsPerDay(int value) {
-    mealsPerDay = value.clamp(AppDefaults.minMealsPerDay, AppDefaults.maxMealsPerDay);
+  /// Adds or removes one sitting on one day.
+  void toggleMeal(int dayIndex, MealSlot slot) {
+    mealPlan = mealPlan.toggled(dayIndex, slot);
+    notifyListeners();
+  }
+
+  /// Copies one day's meals onto every other day.
+  void applyMealsToAllDays(int dayIndex) {
+    mealPlan = mealPlan.appliedToAll(dayIndex);
+    notifyListeners();
+  }
+
+  void setMealPrice(MealSlot slot, double value) {
+    mealPlan = mealPlan.withPrice(slot, value);
     notifyListeners();
   }
 
@@ -497,10 +519,7 @@ class PlannerController extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setPricePerMeal(double v) {
-    pricePerMeal = v;
-    notifyListeners();
-  }
+
 
   void setRoomOccupancy(int v) {
     roomOccupancy = v.clamp(1, 6);
@@ -746,8 +765,7 @@ class PlannerController extends ChangeNotifier {
     stayStyle = c.stayStyle;
     stayRate = c.stayRatePerUnitNight;
     foodStyle = c.foodStyle;
-    pricePerMeal = c.pricePerMeal;
-    mealsPerDay = c.mealsPerDay;
+    mealPlan = c.mealPlan;
     campKitchenCost = c.campKitchenCost;
     fuelPriceIsDefault = c.fuelPriceIsDefault;
     bufferPercent = c.bufferPercent;
