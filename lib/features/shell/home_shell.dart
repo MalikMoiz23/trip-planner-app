@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:trip_planner/core/motion.dart';
 import 'package:trip_planner/core/theme.dart';
+import 'package:trip_planner/features/assistant/assistant_screen.dart';
 import 'package:trip_planner/features/explore/explore_screen.dart';
 import 'package:trip_planner/features/trips/saved_trips_screen.dart';
 import 'package:trip_planner/features/settings/settings_screen.dart';
@@ -18,6 +19,7 @@ class _HomeShellState extends State<HomeShell> {
 
   static const _tabs = [
     ExploreScreen(),
+    AssistantScreen(),
     SavedTripsScreen(),
     SettingsScreen(),
   ];
@@ -66,6 +68,11 @@ class _HomeShellState extends State<HomeShell> {
             icon: const Icon(Icons.explore_outlined),
             selectedIcon: Icon(Icons.explore_rounded, color: p.primary),
             label: 'Explore',
+          ),
+          NavigationDestination(
+            icon: const Icon(Icons.auto_awesome_outlined),
+            selectedIcon: Icon(Icons.auto_awesome_rounded, color: p.primary),
+            label: 'Ask',
           ),
           NavigationDestination(
             icon: const Icon(Icons.bookmark_border_rounded),

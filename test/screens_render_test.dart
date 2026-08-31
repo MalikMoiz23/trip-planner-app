@@ -15,6 +15,7 @@ import 'package:trip_planner/features/planner/planner_controller.dart';
 import 'package:trip_planner/core/enums.dart';
 import 'package:trip_planner/features/explore/destination_detail_screen.dart';
 import 'package:trip_planner/features/summary/expense_detail_screen.dart';
+import 'package:trip_planner/features/assistant/assistant_screen.dart';
 import 'package:trip_planner/features/explore/explore_screen.dart';
 import 'package:trip_planner/features/planner/planner_screen.dart';
 import 'package:trip_planner/features/trips/saved_trips_screen.dart';
@@ -438,6 +439,27 @@ void main() {
         await tester.pumpWidget(host(state, const SavedTripsScreen()));
         await tester.pump(const Duration(milliseconds: 300));
         expect(find.text('No saved trips yet'), findsOneWidget);
+      });
+
+      testWidgets('the assistant answers from the catalogue', (tester) async {
+        final state = buildState();
+        await tester.pumpWidget(host(state, const AssistantScreen()));
+        await tester.pump(const Duration(milliseconds: 400));
+
+        expect(find.text('Ask about your trip'), findsOneWidget);
+        await shot(tester, '18_assistant_empty');
+
+        await tester.enterText(
+          find.byType(TextField).first,
+          'cheapest places for 3 days without a jeep',
+        );
+        await tester.testTextInput.receiveAction(TextInputAction.send);
+        await tester.pump(const Duration(milliseconds: 400));
+
+        // A real answer with real places, not a canned string.
+        expect(find.textContaining('cheapest first'), findsOneWidget);
+        await _settle(tester);
+        await shot(tester, '19_assistant_answer');
       });
 
       testWidgets('settings lays out', (tester) async {
