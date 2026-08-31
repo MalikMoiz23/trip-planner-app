@@ -36,7 +36,6 @@ const _runtimeMax = 512;
 void main() {
   Directory(_out).createSync(recursive: true);
 
-  final mark = _read('$_src/mark_source.png');
   final wordmark = _read('$_src/wordmark_source.png');
   final iconArt = _read('$_src/icon_source.png');
 
@@ -62,8 +61,11 @@ void main() {
   compositeImage(onWhite, foreground);
   _write('$_src/icon_full.png', onWhite);
 
-  // ---- Runtime: the mark, and the wordmark with its paper removed ----------
-  _write('$_out/mark.png', _fit(_trim(mark), _runtimeMax));
+  // ---- Runtime: the tile, and the wordmark with its paper removed ---------
+  // The in-app mark is the same tile as the launcher icon, so what someone taps
+  // on their home screen is what greets them on the splash and in the header.
+  // The older pin is still in brand/mark_source.png if that ever needs undoing.
+  _write('$_out/mark.png', _fit(_trim(iconArt), _runtimeMax));
   _write('$_out/wordmark.png', _fit(_trim(_dropBorderWhite(wordmark)), _runtimeMax));
 
   stdout.writeln('\nbuild-time icons in $_src/, runtime artwork in $_out/');
