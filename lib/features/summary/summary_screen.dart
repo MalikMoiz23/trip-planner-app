@@ -15,6 +15,8 @@ import 'package:trip_planner/shared/widgets/warning_card.dart';
 import 'package:trip_planner/core/motion.dart';
 import 'package:trip_planner/shared/widgets/budget_panel.dart';
 import 'package:trip_planner/shared/widgets/weather_card.dart';
+import 'package:trip_planner/domain/packing_builder.dart';
+import 'package:trip_planner/features/summary/export_trip.dart';
 import 'package:trip_planner/features/summary/expense_detail_screen.dart';
 import 'package:trip_planner/features/trips/packing_screen.dart';
 import 'package:trip_planner/features/summary/map_screen.dart';
@@ -241,6 +243,8 @@ class SummaryScreen extends StatelessWidget {
             icon: const Icon(Icons.checklist_rounded, size: 19),
             label: const Text('Packing list'),
           ),
+          const SizedBox(height: 10),
+          _ExportPdfButton(controller: c),
           const SizedBox(height: 10),
           OutlinedButton.icon(
             onPressed: () => _save(context),
@@ -481,6 +485,69 @@ class _DayCard extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// Builds and shares the PDF, showing progress on itself.
+///
+/// A stateful button rather than a callback on the screen: rendering a document
+/// takes a moment, and a control that looks identical while it works invites a
+/// second tap and a second share sheet.
+class _ExportPdfButton extends StatefulWidget {
+  const _ExportPdfButton({required this.controller});
+
+  final PlannerController controller;
+
+  @override
+  State<_ExportPdfButton> createState() => _ExportPdfButtonState();
+}
+
+class _ExportPdfButtonState extends State<_ExportPdfButton> {
+  bool _busy = false;
+
+  Future<void> _run() async {
+    if (_busy) return;
+    setState(() => _busy = true);
+
+    final c = widget.controller;
+    final messenger = ScaffoldMessenger.of(context);
+    final breakdown = c.breakdown;
+
+    if (breakdown == null) {
+      setState(() => _busy = false);
+      return;
+    }
+
+    final config = c.buildConfig();
+    final result = await exportTripAsPdf(
+      config: config,
+      breakdown: breakdown,
+      itinerary: c.itinerary,
+      packing: PackingBuilder.build(config: config),
+    );
+
+    if (!mounted) return;
+    setState(() => _busy = false);
+    if (!result.ok) {
+      messenger.showSnackBar(
+        SnackBar(content: Text(result.message ?? 'The PDF could not be created.')),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return OutlinedButton.icon(
+      onPressed: _busy ? null : _run,
+      icon: _busy
+          ? const SizedBox(
+              width: 17,
+              height: 17,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            )
+          : const Icon(Icons.picture_as_pdf_rounded, size: 19),
+      label: Text(_busy ? 'Building the PDF…' : 'Export as PDF'),
     );
   }
 }
