@@ -37,7 +37,11 @@ class OsrmService {
     final uri = Uri.parse('${Endpoints.osrmBase}/$coords').replace(queryParameters: {
       'overview': withGeometry ? 'full' : 'false',
       'geometries': 'polyline',
-      'alternatives': 'false',
+      // OSRM returns its fastest route first, which is not always its shortest.
+      // The figure people check against is the distance, so alternatives are
+      // requested and the shortest of them is taken below. Costs nothing extra:
+      // one request either way.
+      'alternatives': '3',
       'steps': 'false',
     });
 
@@ -55,7 +59,14 @@ class OsrmService {
       final routes = body['routes'] as List<dynamic>;
       if (routes.isEmpty) return _fallback(from, to, roadFactor);
 
-      final r = routes.first as Map<String, dynamic>;
+      // The shortest by distance, not the first by time. A detour onto a
+      // motorway can be quicker and twenty kilometres longer, and a plan costed
+      // on fuel should follow the road actually taken.
+      final r = routes
+          .whereType<Map<String, dynamic>>()
+          .where((e) => e['distance'] is num)
+          .reduce((a, b) =>
+              (a['distance'] as num) <= (b['distance'] as num) ? a : b);
       final geometry = withGeometry && r['geometry'] is String
           ? simplify(decodePolyline(r['geometry'] as String))
           : const <LatLng>[];
