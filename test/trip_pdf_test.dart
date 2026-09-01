@@ -1,5 +1,4 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:latlong2/latlong.dart';
 import 'package:trip_planner/core/enums.dart';
 import 'package:trip_planner/data/models/attraction.dart';
 import 'package:trip_planner/data/models/destination.dart';

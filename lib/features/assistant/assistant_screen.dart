@@ -7,7 +7,6 @@ import 'package:trip_planner/core/enums.dart';
 import 'package:trip_planner/core/formatters.dart';
 import 'package:trip_planner/core/motion.dart';
 import 'package:trip_planner/core/theme.dart';
-import 'package:trip_planner/data/models/destination.dart';
 import 'package:trip_planner/data/models/meal_plan.dart';
 import 'package:trip_planner/data/models/trip_config.dart';
 import 'package:trip_planner/data/models/trip_stop.dart';

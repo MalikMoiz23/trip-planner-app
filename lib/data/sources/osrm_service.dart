@@ -19,15 +19,19 @@ class OsrmService {
   final http.Client _client;
   final Map<String, RouteInfo> _cache = {};
 
+  /// Results of [pairRoute], keyed without regard to direction. The start point
+  /// is kept alongside so the polyline can be handed back the right way round.
+  final Map<String, ({RouteInfo info, LatLng start})> _pairCache = {};
+
+  /// One direction only. Prefer [pairRoute] for any figure a person will read,
+  /// because this one is not symmetric — see the note there.
   Future<RouteInfo> route(
     LatLng from,
     LatLng to, {
     double roadFactor = AppDefaults.fallbackRoadFactor,
     bool withGeometry = true,
   }) async {
-    if (from.latitude == to.latitude && from.longitude == to.longitude) {
-      return RouteInfo.zero;
-    }
+    if (samePoint(from, to)) return RouteInfo.zero;
 
     final key = _key(from, to, withGeometry);
     final cached = _cache[key];
@@ -62,11 +66,14 @@ class OsrmService {
       // The shortest by distance, not the first by time. A detour onto a
       // motorway can be quicker and twenty kilometres longer, and a plan costed
       // on fuel should follow the road actually taken.
-      final r = routes
+      final usable = routes
           .whereType<Map<String, dynamic>>()
-          .where((e) => e['distance'] is num)
-          .reduce((a, b) =>
-              (a['distance'] as num) <= (b['distance'] as num) ? a : b);
+          .where((e) => e['distance'] is num && e['duration'] is num)
+          .toList(growable: false);
+      if (usable.isEmpty) return _fallback(from, to, roadFactor);
+
+      final r = usable
+          .reduce((a, b) => (a['distance'] as num) <= (b['distance'] as num) ? a : b);
       final geometry = withGeometry && r['geometry'] is String
           ? simplify(decodePolyline(r['geometry'] as String))
           : const <LatLng>[];
@@ -82,6 +89,56 @@ class OsrmService {
     } on Exception {
       return _fallback(from, to, roadFactor);
     }
+  }
+
+  /// Road distance for a pair of points, the same in both directions.
+  ///
+  /// OSRM's alternative routes are a heuristic sample and the sample is not
+  /// symmetric. For Wah to Panjpeer Rocks the server offered one road, 132.7 km;
+  /// for Panjpeer Rocks to Wah it offered that road and also the 114.1 km one a
+  /// driver would actually take. Picking the shortest of whatever each direction
+  /// happened to return therefore printed "out 133 km, back 114 km" for a single
+  /// road, and the figure nobody recognised was the one shown first.
+  ///
+  /// So both directions are asked and the shorter road is used for both legs.
+  /// That is two requests, but an out-and-back trip already made both, and the
+  /// answer is cached without regard to direction so the second leg is free.
+  ///
+  /// One-way streets do make some pairs genuinely asymmetric. Between towns that
+  /// is a few hundred metres — far less than the contradiction it removes.
+  Future<RouteInfo> pairRoute(
+    LatLng a,
+    LatLng b, {
+    double roadFactor = AppDefaults.fallbackRoadFactor,
+    bool withGeometry = true,
+  }) async {
+    if (samePoint(a, b)) return RouteInfo.zero;
+
+    final key = _pairKey(a, b, withGeometry);
+    final cached = _pairCache[key];
+    if (cached != null) return _oriented(cached, a);
+
+    final forward = await route(a, b, roadFactor: roadFactor, withGeometry: withGeometry);
+    final backward = await route(b, a, roadFactor: roadFactor, withGeometry: withGeometry);
+
+    // A straight line never wins on distance, however small it is: it is short
+    // because it ignores the mountain, not because the road does.
+    final RouteInfo best;
+    final LatLng start;
+    if (forward.estimated != backward.estimated) {
+      best = forward.estimated ? backward : forward;
+      start = forward.estimated ? b : a;
+    } else if (forward.distanceKm <= backward.distanceKm) {
+      best = forward;
+      start = a;
+    } else {
+      best = backward;
+      start = b;
+    }
+
+    final entry = (info: best, start: start);
+    _pairCache[key] = entry;
+    return _oriented(entry, a);
   }
 
   /// Routes many destinations from one origin, sequentially with a short gap so
@@ -103,6 +160,18 @@ class OsrmService {
     return out;
   }
 
+  /// The winning route pointed the way the caller asked for. Only the polyline
+  /// has a direction; the distance and the drive time belong to the road.
+  RouteInfo _oriented(({RouteInfo info, LatLng start}) e, LatLng from) {
+    if (e.info.geometry.length < 2 || samePoint(e.start, from)) return e.info;
+    return RouteInfo(
+      distanceKm: e.info.distanceKm,
+      duration: e.info.duration,
+      geometry: e.info.geometry.reversed.toList(growable: false),
+      estimated: e.info.estimated,
+    );
+  }
+
   RouteInfo _fallback(LatLng from, LatLng to, double roadFactor) {
     final straight = haversineKm(from, to);
     final distance = straight * roadFactor;
@@ -115,7 +184,17 @@ class OsrmService {
     );
   }
 
-  String _key(LatLng a, LatLng b, bool geometry) =>
-      '${a.latitude.toStringAsFixed(4)},${a.longitude.toStringAsFixed(4)}'
-      '>${b.latitude.toStringAsFixed(4)},${b.longitude.toStringAsFixed(4)}:$geometry';
+  String _key(LatLng a, LatLng b, bool geometry) => '${_point(a)}>${_point(b)}:$geometry';
+
+  /// Endpoints in a fixed order, so A to B and B to A land on one entry.
+  String _pairKey(LatLng a, LatLng b, bool geometry) {
+    final x = _point(a);
+    final y = _point(b);
+    return '${x.compareTo(y) <= 0 ? '$x|$y' : '$y|$x'}:$geometry';
+  }
+
+  /// Four decimal places is about eleven metres, finer than any origin this app
+  /// is given and coarse enough that the cache actually hits.
+  String _point(LatLng p) =>
+      '${p.latitude.toStringAsFixed(4)},${p.longitude.toStringAsFixed(4)}';
 }

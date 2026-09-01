@@ -70,3 +70,13 @@ LatLng centroid(List<LatLng> points) {
   }
   return LatLng(lat / points.length, lng / points.length);
 }
+
+/// Whether two coordinates are the same place for routing purposes.
+///
+/// The default tolerance is the fourth decimal place — about eleven metres, and
+/// the precision every route cache key in the app is already rounded to. Exact
+/// equality is the wrong test: the same town arrives from the catalogue, from a
+/// geocoder and from the GPS with different trailing digits.
+bool samePoint(LatLng a, LatLng b, {double toleranceDeg = 1e-4}) =>
+    (a.latitude - b.latitude).abs() <= toleranceDeg &&
+    (a.longitude - b.longitude).abs() <= toleranceDeg;

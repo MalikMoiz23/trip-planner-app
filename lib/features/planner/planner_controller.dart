@@ -668,7 +668,10 @@ class PlannerController extends ChangeNotifier {
     for (var i = 0; i < points.length - 1; i++) {
       if (legs[i] != null) continue;
       final factor = route[math.min(i, route.length - 1)].destination.roadFactor;
-      legs[i] = await _osrm.route(points[i], points[i + 1], roadFactor: factor);
+      // pairRoute, not route: the way out and the way home are the same road and
+      // have to carry the same number. On a single-destination trip this costs
+      // no extra requests, because the two legs share one cache entry.
+      legs[i] = await _osrm.pairRoute(points[i], points[i + 1], roadFactor: factor);
       // Publish each leg as it lands: on a four-stop route the total should
       // firm up progressively rather than sitting empty until the last request
       // comes back.

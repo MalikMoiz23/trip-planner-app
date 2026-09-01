@@ -23,9 +23,15 @@ import 'package:trip_planner/data/models/trip_config.dart';
 class ExpenseCalculator {
   const ExpenseCalculator._();
 
-  /// Fills in any leg the router could not supply with a terrain-corrected
-  /// straight line, so one failed request costs accuracy on that leg alone
-  /// rather than dropping it from the total.
+  /// Fills in any leg the router could not supply, so one failed request costs
+  /// accuracy on that leg alone rather than dropping it from the total.
+  ///
+  /// A leg is filled from the same road travelled the other way if that one is
+  /// known, and only otherwise from a terrain-corrected straight line. The out
+  /// and back of a single-destination trip are one pair of points, so while the
+  /// second request was still in flight the screen used to read "out 133 km,
+  /// back 106 km" — the second figure being the straight-line stand-in, sitting
+  /// next to a real one with nothing to say which was which.
   static List<RouteInfo> _resolveLegs(TripConfig config, List<RouteInfo> given) {
     final points = [
       config.origin,
@@ -34,13 +40,39 @@ class ExpenseCalculator {
     ];
     final wanted = points.length - 1;
 
-    return [
-      for (var i = 0; i < wanted; i++)
-        if (i < given.length && given[i].distanceKm > 0)
-          given[i]
-        else
-          _estimate(points[i], points[i + 1], config.stops.first.destination.roadFactor),
-    ];
+    bool known(int i) => i < given.length && given[i].distanceKm > 0;
+
+    /// A known leg running between the same two points, backwards.
+    int? mirrorOf(int i) {
+      for (var j = 0; j < wanted; j++) {
+        if (j == i || !known(j)) continue;
+        if (samePoint(points[j], points[i + 1]) && samePoint(points[j + 1], points[i])) {
+          return j;
+        }
+      }
+      return null;
+    }
+
+    final out = <RouteInfo>[];
+    for (var i = 0; i < wanted; i++) {
+      if (known(i)) {
+        out.add(given[i]);
+        continue;
+      }
+      final mirror = mirrorOf(i);
+      out.add(mirror != null
+          ? given[mirror]
+          : _estimate(points[i], points[i + 1], _roadFactorForLeg(config, i)));
+    }
+    return out;
+  }
+
+  /// Leg `i` runs to stop `i`; the last one runs home from the final stop. Each
+  /// takes that stop's own terrain factor rather than the first stop's, which on
+  /// a Murree-then-Skardu route had the drive home costed as if it were Murree.
+  static double _roadFactorForLeg(TripConfig config, int i) {
+    if (config.stops.isEmpty) return AppDefaults.fallbackRoadFactor;
+    return config.stops[math.min(i, config.stops.length - 1)].destination.roadFactor;
   }
 
   static RouteInfo _estimate(LatLng a, LatLng b, double roadFactor) {

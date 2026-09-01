@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'package:trip_planner/core/constants.dart';
 import 'package:trip_planner/core/enums.dart';
 import 'package:trip_planner/core/motion.dart';
 import 'package:trip_planner/core/theme.dart';

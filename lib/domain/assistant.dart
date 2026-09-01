@@ -1,12 +1,10 @@
 import 'dart:math' as math;
 
 import 'package:trip_planner/core/constants.dart';
-import 'package:trip_planner/core/enums.dart';
 import 'package:trip_planner/core/formatters.dart';
 import 'package:trip_planner/core/fuzzy.dart';
 import 'package:trip_planner/core/geo.dart';
 import 'package:trip_planner/data/models/destination.dart';
-import 'package:trip_planner/data/models/meal_plan.dart';
 import 'package:trip_planner/data/models/route_info.dart';
 import 'package:trip_planner/data/models/trip_config.dart';
 import 'package:trip_planner/data/models/trip_stop.dart';
