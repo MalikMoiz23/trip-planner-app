@@ -10,9 +10,13 @@ import 'package:trip_planner/data/models/trip_config.dart';
 import 'package:trip_planner/data/models/trip_stop.dart';
 import 'package:trip_planner/domain/expense_calculator.dart';
 import 'package:trip_planner/domain/packing_builder.dart';
+import 'package:trip_planner/domain/survival.dart';
 
 /// What the assistant worked out that a question was asking for.
 enum Intent {
+  /// Something has gone wrong right now. Checked before anything else, and
+  /// answered from the offline survival guides rather than the catalogue.
+  emergency,
   recommend,
   costOnePlace,
   compare,
@@ -36,6 +40,7 @@ class Ask {
     this.category,
     this.wantsCheap = false,
     this.avoids4x4 = false,
+    this.guide,
   });
 
   final Intent intent;
@@ -55,6 +60,9 @@ class Ask {
 
   final bool wantsCheap;
   final bool avoids4x4;
+
+  /// The survival guide this question is asking for, when it is an emergency.
+  final SurvivalGuide? guide;
 }
 
 /// One suggestion, with the reason it is being suggested.
@@ -80,6 +88,7 @@ class AssistantReply {
     required this.text,
     this.suggestions = const [],
     this.followUps = const [],
+    this.guide,
   });
 
   final String text;
@@ -87,6 +96,10 @@ class AssistantReply {
 
   /// Questions worth asking next, so the conversation has somewhere to go.
   final List<String> followUps;
+
+  /// Set when the answer came from an emergency guide, so the chat can offer the
+  /// full ordered steps rather than trying to fit them in a bubble.
+  final SurvivalGuide? guide;
 }
 
 /// Answers trip questions from the app's own data.
@@ -115,6 +128,7 @@ class TripAssistant {
     final ask = parse(question, places);
 
     return switch (ask.intent) {
+      Intent.emergency => _emergency(ask),
       Intent.recommend => _recommend(ask, places, defaults),
       Intent.costOnePlace => _cost(ask, defaults),
       Intent.compare => _compare(ask, defaults),
@@ -153,8 +167,16 @@ class TripAssistant {
       r'|normal car|small car|sedan|car only|ordinary car',
     ).hasMatch(q);
 
+    // Emergencies are read before anything else, because a question asked by
+    // someone in trouble must never be answered as though it were browsing.
+    // The one collision worth guarding is fuel: "how is fuel calculated" is a
+    // question about the app, "the fuel ended" is a person at the roadside.
+    final guide = _emergencyIn(question, q);
+
     Intent intent;
-    if (_any(q, ['pack', 'packing', 'bring', 'take with', 'what to wear'])) {
+    if (guide != null) {
+      intent = Intent.emergency;
+    } else if (_any(q, ['pack', 'packing', 'bring', 'take with', 'what to wear'])) {
       intent = Intent.packing;
     } else if (_any(q, ['how far', 'distance', 'how many km', 'how long to drive',
         'how much driving'])) {
@@ -205,8 +227,31 @@ class TripAssistant {
       category: category,
       wantsCheap: cheap,
       avoids4x4: avoid4x4,
+      guide: guide,
     );
   }
+
+  /// The survival guide a question is asking for, or null when it is an
+  /// ordinary trip question that merely shares a word with one.
+  ///
+  /// "Fuel", "petrol" and "fire" all appear in perfectly calm questions about
+  /// what a trip costs and what the app does. So a keyword hit is necessary and
+  /// not sufficient: anything phrased as a question about how something is
+  /// worked out, or about a price or a plan, is not an emergency.
+  static SurvivalGuide? _emergencyIn(String question, String normalized) {
+    final hit = Survival.match(question);
+    if (hit == null) return null;
+    if (_any(normalized, _notAnEmergency)) return null;
+    return hit;
+  }
+
+  static const List<String> _notAnEmergency = [
+    'how is', 'how does', 'how do you', 'how are', 'calculated', 'calculate',
+    'work out', 'worked out', 'this app', 'the app', 'where do prices',
+    'where does', 'estimate', 'estimated', 'price', 'prices', 'rate', 'rates',
+    'per litre', 'average', 'mileage', 'budget', 'recommend', 'suggest',
+    'cheapest', 'how much', 'plan a trip', 'best time', 'which month',
+  ];
 
   /// Substring match, but padded so a short word cannot match inside a longer
   /// one. Without the padding "for hunza" contains "or " and every costing
@@ -839,6 +884,44 @@ class TripAssistant {
       ],
     );
   }
+
+  /// Something has gone wrong. Answer with the one action that matters and put
+  /// the ordered steps one tap away.
+  ///
+  /// Deliberately short. A chat bubble is the wrong place for fifteen numbered
+  /// steps, and a person in trouble scrolling a transcript to find step four is
+  /// a person the app has failed.
+  static AssistantReply _emergency(Ask ask) {
+    final guide = ask.guide!;
+    return AssistantReply(
+      text: '${guide.title}.\n\n${guide.firstThing}\n\n'
+          '${guide.steps.length} steps follow, in order. ${guide.callFor}',
+      guide: guide,
+      followUps: [
+        for (final other in _relatedTo(guide.kind)) Survival.forKind(other).title,
+      ],
+    );
+  }
+
+  /// Situations that tend to arrive together. Someone out of fuel at dusk in
+  /// the mountains needs three of these, not one.
+  static List<Emergency> _relatedTo(Emergency kind) => switch (kind) {
+        Emergency.fuel => [Emergency.noSignal, Emergency.night],
+        Emergency.fire => [Emergency.cold, Emergency.night],
+        Emergency.lost => [Emergency.noSignal, Emergency.night, Emergency.water],
+        Emergency.stuck => [Emergency.night, Emergency.cold],
+        Emergency.breakdown => [Emergency.noSignal, Emergency.fuel],
+        Emergency.blocked => [Emergency.night, Emergency.storm],
+        Emergency.cold => [Emergency.fire, Emergency.night],
+        Emergency.heat => [Emergency.water, Emergency.injury],
+        Emergency.altitude => [Emergency.injury, Emergency.noSignal],
+        Emergency.water => [Emergency.heat, Emergency.lost],
+        Emergency.night => [Emergency.fire, Emergency.cold],
+        Emergency.storm => [Emergency.blocked, Emergency.night],
+        Emergency.bite => [Emergency.injury, Emergency.noSignal],
+        Emergency.injury => [Emergency.noSignal, Emergency.bite],
+        Emergency.noSignal => [Emergency.lost, Emergency.night],
+      };
 
   static AssistantReply _appHelp(String question) {
     final q = normalize(question);

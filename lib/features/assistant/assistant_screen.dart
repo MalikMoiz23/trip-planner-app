@@ -11,6 +11,9 @@ import 'package:trip_planner/data/models/meal_plan.dart';
 import 'package:trip_planner/data/models/trip_config.dart';
 import 'package:trip_planner/data/models/trip_stop.dart';
 import 'package:trip_planner/domain/assistant.dart';
+import 'package:trip_planner/domain/survival.dart';
+import 'package:trip_planner/features/emergency/emergency_screen.dart';
+import 'package:trip_planner/features/emergency/guide_screen.dart';
 import 'package:trip_planner/features/explore/destination_detail_screen.dart';
 import 'package:trip_planner/shared/widgets/destination_card.dart';
 import 'package:trip_planner/shared/widgets/primitives.dart';
@@ -54,6 +57,10 @@ class _AssistantScreenState extends State<AssistantScreen> {
     'Where can I go without a jeep?',
     'Cheapest places under 60k',
     'What should I pack for Skardu in December?',
+    // Two emergency openers, so someone meets the feature on a calm day rather
+    // than discovering it exists at the roadside in the dark.
+    'I have no matchstick, how do I light a fire?',
+    'The fuel ended, what do I do?',
   ];
 
   @override
@@ -190,6 +197,35 @@ class _AssistantScreenState extends State<AssistantScreen> {
                 onPressed: () => setState(_turns.clear),
                 icon: const Icon(Icons.refresh_rounded, size: 20),
               ),
+            const SizedBox(width: 4),
+            // Always on screen, never behind a menu. Someone who needs this is
+            // not going to go looking for it.
+            PressableScale(
+              onTap: () => context.pushScreen(const EmergencyScreen()),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(
+                  color: _sos,
+                  borderRadius: AppRadius.sm,
+                ),
+                child: const Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.emergency_rounded, size: 15, color: Colors.white),
+                    SizedBox(width: 5),
+                    Text(
+                      'SOS',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 12.5,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.4,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ],
         ),
       );
@@ -201,7 +237,9 @@ class _AssistantScreenState extends State<AssistantScreen> {
             icon: Icons.lightbulb_outline_rounded,
             text: 'I work from the 176 places, the cost engine and the season data '
                 'already in the app, so every figure I quote is one you can check. '
-                'I cannot answer things outside trip planning.',
+                'I cannot answer things outside trip planning. If something has '
+                'gone wrong on a trip, ask me or press SOS above — that part '
+                'works with no signal at all.',
           ),
           const SizedBox(height: 18),
           const SectionHeader(title: 'Try one of these'),
@@ -300,6 +338,13 @@ class _AssistantScreenState extends State<AssistantScreen> {
               ),
           ],
 
+          // An emergency answer opens the full ordered steps rather than
+          // trying to fit fifteen of them into a chat bubble.
+          if (reply.guide != null) ...[
+            const SizedBox(height: 10),
+            _guideCard(reply.guide!, theme, p),
+          ],
+
           if (reply.followUps.isNotEmpty) ...[
             const SizedBox(height: 4),
             Wrap(
@@ -314,6 +359,42 @@ class _AssistantScreenState extends State<AssistantScreen> {
       ),
     );
   }
+
+  static const Color _sos = Color(0xFFD03B3B);
+
+  Widget _guideCard(SurvivalGuide guide, ThemeData theme, AppPalette p) => AppCard(
+        padding: const EdgeInsets.all(12),
+        onTap: () => context.pushScreen(GuideScreen(guide: guide)),
+        child: Row(
+          children: [
+            Container(
+              width: 40,
+              height: 40,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: _sos.withValues(alpha: p.isDark ? 0.2 : 0.1),
+                borderRadius: AppRadius.sm,
+              ),
+              child: Icon(guide.icon, size: 20, color: _sos),
+            ),
+            const SizedBox(width: 11),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(guide.title, style: theme.textTheme.titleSmall),
+                  const SizedBox(height: 2),
+                  Text(
+                    'Open the ${guide.steps.length} steps',
+                    style: theme.textTheme.bodySmall,
+                  ),
+                ],
+              ),
+            ),
+            Icon(Icons.chevron_right_rounded, size: 20, color: p.inkFaint),
+          ],
+        ),
+      );
 
   Widget _suggestionCard(PlaceSuggestion s, ThemeData theme, AppPalette p) {
     final d = s.destination;

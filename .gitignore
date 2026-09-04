@@ -55,3 +55,6 @@ android/key.properties
 # The original logo exports live in brand/ under their real names; these are
 # the loose copies dropped in the project root.
 /ChatGPT Image*.png
+
+# Golden-diff output written when an image test fails.
+/test/failures/

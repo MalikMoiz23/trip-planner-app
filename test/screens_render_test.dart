@@ -16,6 +16,9 @@ import 'package:trip_planner/core/enums.dart';
 import 'package:trip_planner/features/explore/destination_detail_screen.dart';
 import 'package:trip_planner/features/summary/expense_detail_screen.dart';
 import 'package:trip_planner/features/assistant/assistant_screen.dart';
+import 'package:trip_planner/features/emergency/emergency_screen.dart';
+import 'package:trip_planner/features/emergency/guide_screen.dart';
+import 'package:trip_planner/domain/survival.dart';
 import 'package:trip_planner/features/explore/explore_screen.dart';
 import 'package:trip_planner/features/planner/planner_screen.dart';
 import 'package:trip_planner/features/trips/saved_trips_screen.dart';
@@ -454,6 +457,12 @@ void main() {
           'cheapest places for 3 days without a jeep',
         );
         await tester.testTextInput.receiveAction(TextInputAction.send);
+        // Two pumps, and the bare one is the one that matters.
+        // `pump(duration)` advances the clock and then builds, so a single
+        // call starts the new bubbles' entrance animations at the end of the
+        // jump and captures them at zero opacity: every widget present, the
+        // screenshot blank.
+        await tester.pump();
         await tester.pump(const Duration(milliseconds: 400));
 
         // A real answer with real places, not a canned string.
@@ -554,6 +563,32 @@ void main() {
       await tester.pump(const Duration(milliseconds: 400));
       expect(find.text('Dark'), findsOneWidget);
       await shotDark(tester, '23_dark_settings');
+    });
+
+    testWidgets('the emergency screen lays out in dark', (tester) async {
+      // The alarm red is one fixed colour in both themes rather than a palette
+      // entry — a warning that changes shade with the theme stops reading as a
+      // warning. Only the tint behind it moves, so this is the pass that proves
+      // the panels are still legible on the dark canvas.
+      final state = buildState();
+      await tester.pumpWidget(
+        host(state, const EmergencyScreen(), theme: AppTheme.dark()),
+      );
+      await tester.pump(const Duration(milliseconds: 500));
+      expect(find.text('1122'), findsOneWidget);
+      await shotDark(tester, '31_dark_emergency');
+    });
+
+    testWidgets('a guide lays out in dark', (tester) async {
+      final state = buildState();
+      await tester.pumpWidget(host(
+        state,
+        GuideScreen(guide: Survival.forKind(Emergency.fuel)),
+        theme: AppTheme.dark(),
+      ));
+      await tester.pump(const Duration(milliseconds: 500));
+      expect(find.text('DO THIS FIRST'), findsOneWidget);
+      await shotDark(tester, '32_dark_guide');
     });
   });
 
@@ -683,6 +718,76 @@ void main() {
       expect(find.text('Weather for'), findsOneWidget);
       expect(find.text('Inside the 16-day forecast'), findsOneWidget);
       expect(find.text('Change'), findsWidgets);
+    });
+
+    testWidgets('the emergency hub lists the numbers and every situation',
+        (tester) async {
+      final state = buildState();
+      await tester.pumpWidget(host(state, const EmergencyScreen()));
+      await tester.pump(const Duration(milliseconds: 400));
+
+      // The numbers come first, without scrolling, because dialling beats
+      // reading and the person holding the phone may not think to scroll.
+      expect(find.text('1122'), findsOneWidget);
+      expect(find.text('130'), findsOneWidget);
+      expect(find.text('Rescue 1122'), findsOneWidget);
+      await shot(tester, '27_emergency');
+
+      // Everything else is reachable by scrolling alone — no search box, since
+      // typing is the first thing to go.
+      for (final label in ['Petrol pump', 'Hospital', ...Survival.guides.map((g) => g.title)]) {
+        await tester.dragUntilVisible(
+          find.text(label),
+          find.byType(ListView),
+          const Offset(0, -220),
+        );
+      }
+      await tester.pump(const Duration(milliseconds: 300));
+    });
+
+    testWidgets('a guide leads with one action and separates the warnings',
+        (tester) async {
+      final state = buildState();
+      final fire = Survival.forKind(Emergency.fire);
+      await tester.pumpWidget(host(state, GuideScreen(guide: fire)));
+      await tester.pump(const Duration(milliseconds: 400));
+
+      expect(find.text('DO THIS FIRST'), findsOneWidget);
+      expect(find.textContaining('tinder nest'), findsOneWidget);
+      await shot(tester, '28_guide_fire');
+
+      // The "never" block is deliberately not just another numbered step, so a
+      // reader skimming for the next thing to do cannot skim past it.
+      await tester.dragUntilVisible(
+        find.text('NEVER'),
+        find.byType(ListView),
+        const Offset(0, -300),
+      );
+      await tester.pump(const Duration(milliseconds: 300));
+      expect(find.textContaining('Carbon monoxide'), findsOneWidget);
+      await shot(tester, '29_guide_never');
+    });
+
+    testWidgets('the chat answers an emergency and offers the full steps',
+        (tester) async {
+      final state = buildState();
+      await tester.pumpWidget(host(state, const AssistantScreen()));
+      await tester.pump(const Duration(milliseconds: 300));
+
+      expect(find.text('SOS'), findsOneWidget);
+
+      await tester.enterText(
+        find.byType(TextField).first,
+        'i have no matchstick, how do i light a fire',
+      );
+      await tester.testTextInput.receiveAction(TextInputAction.send);
+      // A build frame first — see the note on the assistant test above.
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 600));
+
+      expect(find.text('Fire with no matches'), findsWidgets);
+      expect(find.textContaining('Open the'), findsOneWidget);
+      await shot(tester, '30_assistant_emergency');
     });
 
   });
